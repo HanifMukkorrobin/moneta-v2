@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../models/monthly_rekap_data.dart';
 import '../../../theme/app_theme.dart';
+import 'category_nominal_persentase_list.dart';
 
 enum ChartViewMode {
   donut,
@@ -113,8 +114,13 @@ class _CategoryProportionChartState extends State<CategoryProportionChart> {
 
         const SizedBox(height: 20),
 
-        // Detailed Category Breakdown Items
-        _buildCategoryProportionList(),
+        // Detailed Category Breakdown Items (Daftar Kategori dengan Nominal dan Persentase)
+        CategoryNominalPersentaseList(
+          items: widget.items,
+          type: widget.type,
+          selectedCategory: widget.selectedCategory,
+          onCategorySelected: widget.onCategorySelected,
+        ),
       ],
     );
   }
@@ -285,166 +291,6 @@ class _CategoryProportionChartState extends State<CategoryProportionChart> {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildCategoryProportionList() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.items.length,
-      separatorBuilder: (_, __) => const Divider(height: 1, color: AppTheme.borderSubtle),
-      itemBuilder: (context, index) {
-        final item = widget.items[index];
-        final isSelected = widget.selectedCategory?.toLowerCase() ==
-            item.category.toLowerCase();
-
-        return InkWell(
-          key: Key('category_chart_item_${item.category}'),
-          onTap: () {
-            if (isSelected) {
-              widget.onCategorySelected(null);
-            } else {
-              widget.onCategorySelected(item.category);
-            }
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (item.color ?? AppTheme.primaryColor).withValues(alpha: 0.1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isSelected
-                  ? Border.all(
-                      color: (item.color ?? AppTheme.primaryColor).withValues(alpha: 0.3),
-                    )
-                  : null,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    // Color pill & Icon
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: (item.color ?? Colors.grey).withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        item.icon ?? Icons.bookmark_border_rounded,
-                        size: 17,
-                        color: item.color ?? AppTheme.primaryColor,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Category name & transaction count
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  item.category,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (item.isCustom) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.purple.shade50,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: Colors.purple.shade200),
-                                  ),
-                                  child: const Text(
-                                    'Kustom',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.purple,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${item.transactionCount} transaksi',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Amount and Percentage Badge
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          item.formattedTotal,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: widget.type == 'expense'
-                                ? AppTheme.textPrimary
-                                : AppTheme.incomeColor,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                          decoration: BoxDecoration(
-                            color: (item.color ?? Colors.grey).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            item.formattedPercentage,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: item.color ?? AppTheme.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Horizontal proportion progress bar for individual item
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: (item.percentage.clamp(0.0, 100.0)) / 100,
-                    backgroundColor: Colors.grey.shade100,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      item.color ?? AppTheme.primaryColor,
-                    ),
-                    minHeight: 4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
