@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'budget/atur_budget_screen.dart';
 import 'chat/chat_screen.dart';
 import 'rekap/rekap_bulanan_screen.dart';
 
@@ -16,13 +17,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> _screens = [
     const ChatScreen(),
     const RekapBulananScreen(),
-    const _PlaceholderScreen(
-      title: 'Budget Bulanan',
-      icon: Icons.account_balance_wallet_rounded,
-      description:
-          'Alokasi anggaran otomatis dengan aturan 50/30/20 (Kebutuhan, Tabungan, Hiburan).',
-      featureTag: 'Fitur Budgeting',
-    ),
+    const AturBudgetScreen(),
     const _PlaceholderScreen(
       title: 'Hutang & Paylater',
       icon: Icons.receipt_long_rounded,
