@@ -472,6 +472,7 @@ export function calculateDailyAverageSpending(db, {
     topCategoryPercentage: categoryData.topCategoryPercentage,
     topCategoryAmount: categoryData.topCategoryAmount,
     categoryBreakdown: categoryData.categoryBreakdown,
+    prevTotalSpent: wowData.prevTotalSpent,
     weekOverWeekPercent: wowData.weekOverWeekPercent,
     isSpendingIncreasing: wowData.isSpendingIncreasing,
     comparisonBadgeLabel: wowData.comparisonBadgeLabel,
