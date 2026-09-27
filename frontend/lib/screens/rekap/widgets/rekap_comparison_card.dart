@@ -5,16 +5,77 @@ import '../../../theme/app_theme.dart';
 
 class RekapComparisonCard extends StatelessWidget {
   final MonthlyRekapData data;
+  final bool showEmptyPlaceholder;
 
   const RekapComparisonCard({
     super.key,
     required this.data,
+    this.showEmptyPlaceholder = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (data.lastMonthTotalExpense <= 0 && data.lastMonthTotalIncome <= 0) {
-      return const SizedBox.shrink();
+      if (!showEmptyPlaceholder) {
+        return const SizedBox.shrink();
+      }
+      return Container(
+        key: const Key('rekap_comparison_empty_card'),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppTheme.borderSubtle),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.compare_arrows_rounded,
+                size: 20,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Perbandingan Bulan Lalu',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Belum ada data transaksi di bulan sebelumnya untuk dibandingkan.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     final isExpenseLower = data.expenseDiffPct <= 0;

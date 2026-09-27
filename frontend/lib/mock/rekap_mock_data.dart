@@ -10,16 +10,19 @@ class RekapMockData {
   ];
 
   static String getMonthLabel(String monthKey) {
-    switch (monthKey) {
-      case '2026-09':
-        return 'September 2026';
-      case '2026-08':
-        return 'Agustus 2026';
-      case '2026-07':
-        return 'Juli 2026';
-      default:
-        return monthKey;
+    const months = [
+      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    final parts = monthKey.split('-');
+    if (parts.length == 2) {
+      final year = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      if (year != null && month != null && month >= 1 && month <= 12) {
+        return '${months[month]} $year';
+      }
     }
+    return monthKey;
   }
 
   static List<TransactionItem> getBaselineSeptemberTransactions() {
@@ -424,10 +427,14 @@ class RekapMockData {
       allTx = getBaselineAugustTransactions();
       lastMonthExpense = 5150000;
       lastMonthIncome = 8500000;
-    } else {
+    } else if (month == '2026-07') {
       allTx = getBaselineJulyTransactions();
       lastMonthExpense = 4800000;
       lastMonthIncome = 8500000;
+    } else {
+      allTx = [];
+      lastMonthExpense = 0;
+      lastMonthIncome = 0;
     }
 
     allTx.sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
@@ -517,6 +524,29 @@ class RekapMockData {
       incomeDiffPct: incomeDiffPct,
       categoryBreakdown: breakdown,
       transactions: allTx,
+    );
+  }
+
+  /// Returns an empty MonthlyRekapData with zero totals and empty lists.
+  static MonthlyRekapData getEmptyMonthlyRekap({
+    String month = '2026-10',
+    String monthLabel = 'Oktober 2026',
+  }) {
+    return MonthlyRekapData(
+      month: month,
+      monthLabel: monthLabel,
+      totalIncome: 0,
+      totalExpense: 0,
+      netSavings: 0,
+      savingsRate: 0,
+      confirmedTransactionsCount: 0,
+      pendingTransactionsCount: 0,
+      lastMonthTotalExpense: 0,
+      lastMonthTotalIncome: 0,
+      expenseDiffPct: 0,
+      incomeDiffPct: 0,
+      categoryBreakdown: const [],
+      transactions: const [],
     );
   }
 }

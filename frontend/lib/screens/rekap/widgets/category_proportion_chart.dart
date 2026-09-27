@@ -49,14 +49,37 @@ class _CategoryProportionChartState extends State<CategoryProportionChart> {
   Widget build(BuildContext context) {
     if (widget.items.isEmpty) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 28),
+        key: const Key('category_proportion_empty_message'),
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
         alignment: Alignment.center,
-        child: Text(
-          'Belum ada transaksi ${widget.type == 'expense' ? 'pengeluaran' : 'pemasukan'} untuk ditampilkan.',
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppTheme.textSecondary,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.pie_chart_outline_rounded,
+              size: 40,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Belum ada transaksi ${widget.type == 'expense' ? 'pengeluaran' : 'pemasukan'} untuk ditampilkan.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Catat transaksi melalui obrolan chat untuk melihat proporsi kategori.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
         ),
       );
     }

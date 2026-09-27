@@ -708,8 +708,42 @@ class _MonthlyTransactionListSectionState
           const SizedBox(height: 14),
 
           // Transactions List
-          if (filtered.isEmpty)
+          if (widget.transactions.isEmpty)
             Padding(
+              key: const Key('monthly_transactions_empty_state'),
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.receipt_long_outlined,
+                      size: 40,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Belum ada transaksi di ${widget.monthLabel ?? 'bulan ini'}.',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Catat transaksi baru melalui chat untuk mulai mencatat keuangan.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (filtered.isEmpty)
+            Padding(
+              key: const Key('filtered_transactions_empty_state'),
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Center(
                 child: Column(

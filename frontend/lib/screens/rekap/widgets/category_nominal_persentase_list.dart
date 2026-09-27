@@ -85,12 +85,24 @@ class _CategoryNominalPersentaseListState
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Center(
-          child: Text(
-            'Tidak ada kategori ${widget.type == 'expense' ? 'pengeluaran' : 'pemasukan'}.',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppTheme.textSecondary,
-            ),
+          child: Column(
+            key: const Key('category_list_empty_message'),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.folder_open_rounded,
+                size: 32,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Tidak ada kategori ${widget.type == 'expense' ? 'pengeluaran' : 'pemasukan'}.',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -211,6 +223,7 @@ class _CategoryNominalPersentaseListState
         // Empty state when search has no matches
         if (items.isEmpty)
           Padding(
+            key: const Key('category_list_search_empty_message'),
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(

@@ -32,9 +32,14 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
   @override
   Widget build(BuildContext context) {
     final data = widget.data;
+    final hasData = data.totalIncome > 0 || data.totalExpense > 0 || data.transactions.isNotEmpty;
     final isSurplus = data.isSurplus;
-    final statusColor = isSurplus ? AppTheme.incomeColor : AppTheme.expenseColor;
-    final statusText = isSurplus ? 'Surplus' : 'Defisit';
+    final statusColor = hasData
+        ? (isSurplus ? AppTheme.incomeColor : AppTheme.expenseColor)
+        : Colors.grey.shade600;
+    final statusText = hasData
+        ? (isSurplus ? 'Surplus' : 'Defisit')
+        : 'Belum Ada Data';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -97,7 +102,9 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            isSurplus ? Icons.check_circle_rounded : Icons.warning_rounded,
+                            hasData
+                                ? (isSurplus ? Icons.check_circle_rounded : Icons.warning_rounded)
+                                : Icons.info_outline_rounded,
                             size: 14,
                             color: statusColor,
                           ),
@@ -115,6 +122,35 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                     ),
                   ],
                 ),
+
+                if (!hasData) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    key: const Key('rekap_summary_empty_message'),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded, size: 18, color: Colors.grey.shade600),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Belum ada transaksi di bulan ${data.monthLabel}. Catat transaksi pemasukan atau pengeluaran untuk melihat ringkasan keuangan.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 16),
                 const Divider(height: 1, color: AppTheme.borderSubtle),

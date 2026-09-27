@@ -128,6 +128,60 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                       },
                     ),
 
+                    // Top Empty State Banner if no transactions for selected month
+                    if (rekapData.transactions.isEmpty)
+                      Container(
+                        key: const Key('rekap_month_empty_banner'),
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.calendar_month_outlined,
+                                size: 22,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Belum Ada Catatan Keuangan',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Belum ada transaksi tercatat di ${rekapData.monthLabel}. Semua bagian rekap di bawah ini akan terisi otomatis saat Anda mulai mencatat.',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppTheme.textSecondary,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     // Financial Summary Banner (Kartu Ringkasan Pemasukan dan Pengeluaran)
                     RekapSummaryCard(
                       data: rekapData,
@@ -154,7 +208,10 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                     ),
 
                     // Month-over-Month Comparison
-                    RekapComparisonCard(data: rekapData),
+                    RekapComparisonCard(
+                      data: rekapData,
+                      showEmptyPlaceholder: true,
+                    ),
 
                     // Category Breakdown & Chart Section
                     CategoryBreakdownSection(
