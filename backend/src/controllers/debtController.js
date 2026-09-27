@@ -356,8 +356,8 @@ export function updateDebtHandler(req, res) {
 }
 
 /**
- * POST & PUT /api/debts/:id/pay & /api/hutang/:id/lunas
- * Menandai hutang sebagai lunas
+ * POST, PUT, PATCH /api/debts/:id/pay & /api/hutang/:id/lunas
+ * Menandai hutang sebagai lunas atau mencatat cicilan/pelunasan parsial
  */
 export function markDebtAsPaidHandler(req, res) {
   try {
@@ -372,20 +372,97 @@ export function markDebtAsPaidHandler(req, res) {
       });
     }
 
-    const paid = markDebtAsPaid(db, id, userId);
+    const existing = getDebtById(db, id, userId);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: 'Catatan hutang tidak ditemukan.',
+      });
+    }
+
+    const body = req.body || {};
+    const hasAmount = body.amount !== undefined && body.amount !== null && body.amount !== '';
+    const isFull = Boolean(body.isFull || !hasAmount);
+
+    let resultDebt;
+    if (isFull) {
+      // Pelunasan penuh langsung
+      resultDebt = markDebtAsPaid(db, id, userId);
+    } else {
+      // Pembayaran parsial
+      const paymentAmount = Number(body.amount);
+      if (isNaN(paymentAmount) || paymentAmount <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nominal pembayaran harus berupa angka lebih besar dari 0.',
+        });
+      }
+
+      const newRemaining = Math.max(0, existing.remainingAmount - paymentAmount);
+      const isNowPaid = newRemaining <= 0;
+      const newNotes = body.notes ? String(body.notes).trim() : existing.notes;
+
+      resultDebt = updateDebt(db, id, userId, {
+        remainingAmount: newRemaining,
+        status: isNowPaid ? 'paid' : 'active',
+        notes: newNotes,
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      message: 'Catatan hutang berhasil ditandai sebagai lunas.',
-      data: paid,
-      debt: paid,
+      message: resultDebt.isPaid
+        ? 'Catatan hutang berhasil ditandai sebagai lunas.'
+        : `Pembayaran ${formatRupiah(Number(body.amount))} berhasil dicatat.`,
+      data: resultDebt,
+      debt: resultDebt,
     });
   } catch (error) {
     const notFound = error.message.includes('tidak ditemukan');
     const statusCode = notFound ? 404 : 400;
     return res.status(statusCode).json({
       success: false,
-      error: error.message || 'Gagal menandai hutang lunas.',
+      error: error.message || 'Gagal memproses pelunasan hutang.',
+    });
+  }
+}
+
+/**
+ * POST, PUT, PATCH /api/debts/:id/reopen & /api/hutang/:id/aktifkan
+ * Mengaktifkan kembali catatan hutang yang sebelumnya sudah lunas
+ */
+export function reopenDebtHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromRequest(db, req);
+    const id = Number(req.params.id);
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID hutang harus berupa bilangan bulat positif.',
+      });
+    }
+
+    const body = req.body || {};
+    const newRemainingAmount = body.remainingAmount !== undefined
+      ? body.remainingAmount
+      : (body.remaining_amount !== undefined ? body.remaining_amount : null);
+
+    const reopened = reopenDebt(db, id, userId, newRemainingAmount);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Catatan hutang berhasil diaktifkan kembali.',
+      data: reopened,
+      debt: reopened,
+    });
+  } catch (error) {
+    const notFound = error.message.includes('tidak ditemukan');
+    const statusCode = notFound ? 404 : 400;
+    return res.status(statusCode).json({
+      success: false,
+      error: error.message || 'Gagal mengaktifkan kembali hutang.',
     });
   }
 }

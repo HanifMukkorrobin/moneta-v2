@@ -19,6 +19,7 @@ import {
   getDebtByIdHandler,
   updateDebtHandler,
   markDebtAsPaidHandler,
+  reopenDebtHandler,
   deleteDebtHandler,
 } from '../controllers/debtController.js';
 
@@ -47,8 +48,18 @@ router.patch('/:id', updateDebtHandler);
 // Tandai lunas
 router.post('/:id/pay', markDebtAsPaidHandler);
 router.put('/:id/pay', markDebtAsPaidHandler);
+router.patch('/:id/pay', markDebtAsPaidHandler);
 router.post('/:id/lunas', markDebtAsPaidHandler);
 router.put('/:id/lunas', markDebtAsPaidHandler);
+router.patch('/:id/lunas', markDebtAsPaidHandler);
+
+// Aktifkan kembali / batalkan lunas
+router.post('/:id/reopen', reopenDebtHandler);
+router.put('/:id/reopen', reopenDebtHandler);
+router.patch('/:id/reopen', reopenDebtHandler);
+router.post('/:id/aktifkan', reopenDebtHandler);
+router.put('/:id/aktifkan', reopenDebtHandler);
+router.patch('/:id/aktifkan', reopenDebtHandler);
 
 // Hapus catatan hutang
 router.delete('/:id', deleteDebtHandler);
