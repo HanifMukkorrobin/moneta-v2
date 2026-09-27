@@ -555,3 +555,354 @@ export function getUserActiveSessions(db, userId) {
   }));
 }
 
+export const DEFAULT_USER_PREFERENCES = {
+  currency: 'IDR',
+  currencySymbol: 'Rp',
+  dateFormat: 'DD/MM/YYYY',
+  firstDayOfWeek: 'Senin',
+  themeMode: 'Terang',
+  aiAdviceTone: 'Standar',
+  autoConfirmChat: false,
+  budgetAlertThreshold: 80,
+  hideBalance: false,
+  hapticFeedback: true,
+  notificationsEnabled: true,
+  monthlyBudgetLimit: 6000000,
+};
+
+export const VALID_DATE_FORMATS = [
+  'DD/MM/YYYY',
+  'YYYY-MM-DD',
+  'DD MMMM YYYY',
+  'MM/DD/YYYY',
+];
+
+export const VALID_FIRST_DAYS = [
+  'Senin',
+  'Minggu',
+  'Sabtu',
+  'Monday',
+  'Sunday',
+  'Saturday',
+];
+
+export function normalizeThemeMode(mode) {
+  if (mode === undefined || mode === null) return null;
+  const raw = String(mode).trim();
+  const lower = raw.toLowerCase();
+  if (lower === 'terang' || lower === 'light') return 'Terang';
+  if (lower === 'gelap' || lower === 'dark') return 'Gelap';
+  if (
+    lower === 'ikuti sistem' ||
+    lower === 'ikuti_sistem' ||
+    lower === 'sistem' ||
+    lower === 'system'
+  ) {
+    return 'Ikuti Sistem';
+  }
+  return null;
+}
+
+export function normalizeAiTone(tone) {
+  if (tone === undefined || tone === null) return null;
+  const lower = String(tone).trim().toLowerCase();
+  if (lower === 'santai' || lower === 'casual') return 'Santai';
+  if (lower === 'standar' || lower === 'standard' || lower === 'normal') return 'Standar';
+  if (lower === 'tegas' || lower === 'strict') return 'Tegas';
+  return null;
+}
+
+function buildPreferencesPayload(user) {
+  return {
+    userId: user.id,
+    displayName: user.displayName,
+    email: user.email,
+    currency: user.currency,
+    currencySymbol: user.currencySymbol,
+    dateFormat: user.dateFormat,
+    firstDayOfWeek: user.firstDayOfWeek,
+    themeMode: user.themeMode,
+    aiAdviceTone: user.aiAdviceTone,
+    autoConfirmChat: user.autoConfirmChat,
+    budgetAlertThreshold: user.budgetAlertThreshold,
+    hideBalance: user.hideBalance,
+    hapticFeedback: user.hapticFeedback,
+    notificationsEnabled: user.notificationsEnabled,
+    monthlyBudgetLimit: user.monthlyBudgetLimit,
+    pinEnabled: user.pinEnabled,
+    biometricEnabled: user.biometricEnabled,
+    accountTier: user.accountTier,
+    updatedAt: user.updatedAt,
+  };
+}
+
+export function getUserPreferences(db, userId) {
+  const numId = Number(userId);
+  if (!numId || isNaN(numId) || numId <= 0) {
+    const err = new Error('ID pengguna tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_USER_ID';
+    throw err;
+  }
+
+  const user = getUserById(db, numId);
+  if (!user) {
+    const err = new Error('Pengguna tidak ditemukan.');
+    err.statusCode = 404;
+    err.code = 'USER_NOT_FOUND';
+    throw err;
+  }
+
+  const preferences = buildPreferencesPayload(user);
+  return {
+    preferences,
+    user,
+    ...preferences,
+  };
+}
+
+export function updateUserPreferences(db, userId, payload = {}) {
+  const numId = Number(userId);
+  if (!numId || isNaN(numId) || numId <= 0) {
+    const err = new Error('ID pengguna tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_USER_ID';
+    throw err;
+  }
+
+  const existingRow = db.prepare('SELECT * FROM users WHERE id = ?').get(numId);
+  if (!existingRow) {
+    const err = new Error('Pengguna tidak ditemukan.');
+    err.statusCode = 404;
+    err.code = 'USER_NOT_FOUND';
+    throw err;
+  }
+
+  const updates = [];
+  const params = [];
+
+  // 1. Display Name / Profile Name
+  const rawName = payload.displayName ?? payload.display_name ?? payload.name ?? payload.nama;
+  if (rawName !== undefined) {
+    const trimmedName = String(rawName).trim();
+    if (!trimmedName) {
+      const err = new Error('Nama tampilan tidak boleh kosong.');
+      err.statusCode = 400;
+      err.code = 'INVALID_DISPLAY_NAME';
+      throw err;
+    }
+    updates.push('display_name = ?');
+    params.push(trimmedName);
+  }
+
+  // 2. Email
+  if (payload.email !== undefined) {
+    const trimmedEmail = String(payload.email).trim().toLowerCase();
+    if (!isValidEmail(trimmedEmail)) {
+      const err = new Error('Format alamat email tidak valid.');
+      err.statusCode = 400;
+      err.code = 'INVALID_EMAIL';
+      throw err;
+    }
+    const existingByEmail = getUserByEmail(db, trimmedEmail);
+    if (existingByEmail && existingByEmail.id !== numId) {
+      const err = new Error('Email sudah digunakan oleh akun lain.');
+      err.statusCode = 409;
+      err.code = 'EMAIL_ALREADY_EXISTS';
+      throw err;
+    }
+    updates.push('email = ?');
+    params.push(trimmedEmail);
+  }
+
+  // 3. Currency & Currency Symbol
+  const rawCurrency = payload.currency ?? payload.mataUang ?? payload.mata_uang;
+  const rawSymbol = payload.currencySymbol ?? payload.currency_symbol ?? payload.simbolMataUang;
+  if (rawCurrency !== undefined) {
+    const code = String(rawCurrency).trim().toUpperCase();
+    if (!code || code.length < 2 || code.length > 5) {
+      const err = new Error('Kode mata uang tidak valid.');
+      err.statusCode = 400;
+      err.code = 'INVALID_CURRENCY';
+      throw err;
+    }
+    const symbol = getCurrencySymbol(code, rawSymbol);
+    updates.push('currency = ?', 'currency_symbol = ?');
+    params.push(code, symbol);
+  } else if (rawSymbol !== undefined) {
+    updates.push('currency_symbol = ?');
+    params.push(String(rawSymbol).trim());
+  }
+
+  // 4. Date Format
+  const rawDateFormat = payload.dateFormat ?? payload.date_format ?? payload.formatTanggal;
+  if (rawDateFormat !== undefined) {
+    const df = String(rawDateFormat).trim();
+    if (!VALID_DATE_FORMATS.includes(df)) {
+      const err = new Error(`Format tanggal tidak valid. Pilihan: ${VALID_DATE_FORMATS.join(', ')}`);
+      err.statusCode = 400;
+      err.code = 'INVALID_DATE_FORMAT';
+      throw err;
+    }
+    updates.push('date_format = ?');
+    params.push(df);
+  }
+
+  // 5. First Day of Week
+  const rawFirstDay = payload.firstDayOfWeek ?? payload.first_day_of_week ?? payload.hariPertamaPekan;
+  if (rawFirstDay !== undefined) {
+    const fd = String(rawFirstDay).trim();
+    if (!VALID_FIRST_DAYS.includes(fd)) {
+      const err = new Error('Hari pertama pekan harus Senin, Minggu, atau Sabtu.');
+      err.statusCode = 400;
+      err.code = 'INVALID_FIRST_DAY';
+      throw err;
+    }
+    updates.push('first_day_of_week = ?');
+    params.push(fd);
+  }
+
+  // 6. Theme Mode
+  const rawTheme = payload.themeMode ?? payload.theme_mode ?? payload.tema;
+  if (rawTheme !== undefined) {
+    const normalizedTheme = normalizeThemeMode(rawTheme);
+    if (!normalizedTheme) {
+      const err = new Error('Tema aplikasi harus Terang, Gelap, atau Ikuti Sistem.');
+      err.statusCode = 400;
+      err.code = 'INVALID_THEME_MODE';
+      throw err;
+    }
+    updates.push('theme_mode = ?');
+    params.push(normalizedTheme);
+  }
+
+  // 7. AI Advice Tone
+  const rawTone = payload.aiAdviceTone ?? payload.ai_advice_tone ?? payload.gayaBahasaAi;
+  if (rawTone !== undefined) {
+    const normalizedTone = normalizeAiTone(rawTone);
+    if (!normalizedTone) {
+      const err = new Error('Gaya bahasa AI harus Santai, Standar, atau Tegas.');
+      err.statusCode = 400;
+      err.code = 'INVALID_AI_TONE';
+      throw err;
+    }
+    updates.push('ai_advice_tone = ?');
+    params.push(normalizedTone);
+  }
+
+  // 8. Budget Alert Threshold
+  const rawThreshold =
+    payload.budgetAlertThreshold ??
+    payload.budget_alert_threshold ??
+    payload.ambangPeringatanBudget;
+  if (rawThreshold !== undefined) {
+    const numThresh = Number(rawThreshold);
+    if (isNaN(numThresh) || numThresh <= 0 || numThresh > 100) {
+      const err = new Error('Ambang peringatan budget harus berupa angka antara 1 hingga 100.');
+      err.statusCode = 400;
+      err.code = 'INVALID_BUDGET_THRESHOLD';
+      throw err;
+    }
+    updates.push('budget_alert_threshold = ?');
+    params.push(Math.round(numThresh));
+  }
+
+  // 9. Boolean Switches (autoConfirmChat, hideBalance, hapticFeedback, notificationsEnabled)
+  const rawAutoConfirm = payload.autoConfirmChat ?? payload.auto_confirm_chat;
+  if (rawAutoConfirm !== undefined) {
+    updates.push('auto_confirm_chat = ?');
+    params.push(rawAutoConfirm ? 1 : 0);
+  }
+
+  const rawHideBalance = payload.hideBalance ?? payload.hide_balance;
+  if (rawHideBalance !== undefined) {
+    updates.push('hide_balance = ?');
+    params.push(rawHideBalance ? 1 : 0);
+  }
+
+  const rawHaptic = payload.hapticFeedback ?? payload.haptic_feedback;
+  if (rawHaptic !== undefined) {
+    updates.push('haptic_feedback = ?');
+    params.push(rawHaptic ? 1 : 0);
+  }
+
+  const rawNotifications = payload.notificationsEnabled ?? payload.notifications_enabled;
+  if (rawNotifications !== undefined) {
+    updates.push('notifications_enabled = ?');
+    params.push(rawNotifications ? 1 : 0);
+  }
+
+  // 10. Monthly Budget Limit
+  const rawBudgetLimit = payload.monthlyBudgetLimit ?? payload.monthly_budget_limit;
+  if (rawBudgetLimit !== undefined) {
+    const limitNum = Number(rawBudgetLimit);
+    if (isNaN(limitNum) || limitNum < 0) {
+      const err = new Error('Batas budget bulanan tidak boleh negatif.');
+      err.statusCode = 400;
+      err.code = 'INVALID_BUDGET_LIMIT';
+      throw err;
+    }
+    updates.push('monthly_budget_limit = ?');
+    params.push(limitNum);
+  }
+
+  if (updates.length > 0) {
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    params.push(numId);
+    db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+  }
+
+  return getUserPreferences(db, numId);
+}
+
+export function resetUserPreferences(db, userId) {
+  const numId = Number(userId);
+  if (!numId || isNaN(numId) || numId <= 0) {
+    const err = new Error('ID pengguna tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_USER_ID';
+    throw err;
+  }
+
+  const existingRow = db.prepare('SELECT id FROM users WHERE id = ?').get(numId);
+  if (!existingRow) {
+    const err = new Error('Pengguna tidak ditemukan.');
+    err.statusCode = 404;
+    err.code = 'USER_NOT_FOUND';
+    throw err;
+  }
+
+  db.prepare(`
+    UPDATE users
+    SET
+      currency = ?,
+      currency_symbol = ?,
+      date_format = ?,
+      first_day_of_week = ?,
+      theme_mode = ?,
+      ai_advice_tone = ?,
+      auto_confirm_chat = ?,
+      budget_alert_threshold = ?,
+      hide_balance = ?,
+      haptic_feedback = ?,
+      notifications_enabled = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).run(
+    DEFAULT_USER_PREFERENCES.currency,
+    DEFAULT_USER_PREFERENCES.currencySymbol,
+    DEFAULT_USER_PREFERENCES.dateFormat,
+    DEFAULT_USER_PREFERENCES.firstDayOfWeek,
+    DEFAULT_USER_PREFERENCES.themeMode,
+    DEFAULT_USER_PREFERENCES.aiAdviceTone,
+    DEFAULT_USER_PREFERENCES.autoConfirmChat ? 1 : 0,
+    DEFAULT_USER_PREFERENCES.budgetAlertThreshold,
+    DEFAULT_USER_PREFERENCES.hideBalance ? 1 : 0,
+    DEFAULT_USER_PREFERENCES.hapticFeedback ? 1 : 0,
+    DEFAULT_USER_PREFERENCES.notificationsEnabled ? 1 : 0,
+    numId
+  );
+
+  return getUserPreferences(db, numId);
+}
+

@@ -1,5 +1,5 @@
 /**
- * Auth & User Account Routes (Rute Endpoint Autentikasi, Akun, PIN, Biometrik & Pengaturan)
+ * Auth & User Account Routes (Rute Endpoint Autentikasi, Akun, PIN, Biometrik & Preferensi)
  *
  * Menyediakan endpoint:
  * - POST /register, /daftar, /signup (registrasi akun pengguna baru)
@@ -17,6 +17,8 @@
  * - POST, PUT & PATCH /pin/toggle (aktifkan/nonaktifkan kunci PIN)
  * - POST, PUT & PATCH /biometric/toggle, /biometric (aktifkan/nonaktifkan biometrik)
  * - POST /biometric/verify, /biometric/unlock (verifikasi autentikasi biometrik)
+ * - GET, PUT, PATCH & POST /preferences, /preferensi, /profile, /profil, /settings, /pengaturan (preferensi aplikasi & profil pengguna)
+ * - POST & DELETE /preferences/reset, /preferensi/reset (reset preferensi ke nilai bawaan)
  */
 
 import { Router } from 'express';
@@ -36,9 +38,34 @@ import {
   togglePinHandler,
   toggleBiometricHandler,
   verifyBiometricHandler,
+  getUserPreferencesHandler,
+  updateUserPreferencesHandler,
+  resetUserPreferencesHandler,
 } from '../controllers/authController.js';
 
 const router = Router();
+export const preferencesRouter = Router();
+
+// Dedicated Preferences Router (mounted at /preferences, /api/preferences, /preferensi, /api/preferensi, /settings, /api/settings, /pengaturan, /api/pengaturan)
+preferencesRouter.get('/', getUserPreferencesHandler);
+preferencesRouter.put('/', updateUserPreferencesHandler);
+preferencesRouter.patch('/', updateUserPreferencesHandler);
+preferencesRouter.post('/', updateUserPreferencesHandler);
+preferencesRouter.post('/reset', resetUserPreferencesHandler);
+preferencesRouter.delete('/reset', resetUserPreferencesHandler);
+preferencesRouter.delete('/', resetUserPreferencesHandler);
+preferencesRouter.put('/theme', updateUserPreferencesHandler);
+preferencesRouter.patch('/theme', updateUserPreferencesHandler);
+preferencesRouter.put('/tema', updateUserPreferencesHandler);
+preferencesRouter.patch('/tema', updateUserPreferencesHandler);
+preferencesRouter.put('/currency', updateUserPreferencesHandler);
+preferencesRouter.patch('/currency', updateUserPreferencesHandler);
+preferencesRouter.put('/mata-uang', updateUserPreferencesHandler);
+preferencesRouter.patch('/mata-uang', updateUserPreferencesHandler);
+preferencesRouter.put('/ai-tone', updateUserPreferencesHandler);
+preferencesRouter.patch('/ai-tone', updateUserPreferencesHandler);
+preferencesRouter.put('/gaya-bahasa', updateUserPreferencesHandler);
+preferencesRouter.patch('/gaya-bahasa', updateUserPreferencesHandler);
 
 // Registrasi akun baru
 router.post('/register', registerUserHandler);
@@ -121,5 +148,40 @@ router.post('/biometrik/toggle', toggleBiometricHandler);
 router.post('/biometric/verify', verifyBiometricHandler);
 router.post('/biometric/unlock', verifyBiometricHandler);
 router.post('/biometrik/verifikasi', verifyBiometricHandler);
+
+// Preferensi Aplikasi & Profil Pengguna
+router.get('/preferences', getUserPreferencesHandler);
+router.put('/preferences', updateUserPreferencesHandler);
+router.patch('/preferences', updateUserPreferencesHandler);
+router.post('/preferences', updateUserPreferencesHandler);
+router.post('/preferences/reset', resetUserPreferencesHandler);
+router.delete('/preferences/reset', resetUserPreferencesHandler);
+
+router.get('/preferensi', getUserPreferencesHandler);
+router.put('/preferensi', updateUserPreferencesHandler);
+router.patch('/preferensi', updateUserPreferencesHandler);
+router.post('/preferensi', updateUserPreferencesHandler);
+router.post('/preferensi/reset', resetUserPreferencesHandler);
+router.delete('/preferensi/reset', resetUserPreferencesHandler);
+
+router.get('/profile', getUserPreferencesHandler);
+router.put('/profile', updateUserPreferencesHandler);
+router.patch('/profile', updateUserPreferencesHandler);
+router.post('/profile', updateUserPreferencesHandler);
+
+router.get('/profil', getUserPreferencesHandler);
+router.put('/profil', updateUserPreferencesHandler);
+router.patch('/profil', updateUserPreferencesHandler);
+router.post('/profil', updateUserPreferencesHandler);
+
+router.get('/settings', getUserPreferencesHandler);
+router.put('/settings', updateUserPreferencesHandler);
+router.patch('/settings', updateUserPreferencesHandler);
+router.post('/settings', updateUserPreferencesHandler);
+
+router.get('/pengaturan', getUserPreferencesHandler);
+router.put('/pengaturan', updateUserPreferencesHandler);
+router.patch('/pengaturan', updateUserPreferencesHandler);
+router.post('/pengaturan', updateUserPreferencesHandler);
 
 export default router;

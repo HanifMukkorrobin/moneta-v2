@@ -26,6 +26,9 @@ import {
   deleteAllUserSessions,
   cleanupExpiredSessions,
   getUserActiveSessions,
+  getUserPreferences,
+  updateUserPreferences,
+  resetUserPreferences,
 } from '../services/userService.js';
 import {
   getSecurityStatus,
@@ -618,3 +621,81 @@ export async function verifyBiometricHandler(req, res) {
     });
   }
 }
+
+/**
+ * GET /api/preferences, /api/preferensi, /api/auth/preferences, /api/users/profile
+ * Mengambil preferensi aplikasi & profil pengguna
+ */
+export async function getUserPreferencesHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = getUserPreferences(db, userId);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PREFERENCES_FETCH_FAILED',
+      error: err.message || 'Gagal mengambil preferensi aplikasi pengguna.',
+    });
+  }
+}
+
+/**
+ * PUT, PATCH & POST /api/preferences, /api/preferensi, /api/auth/preferences, /api/users/profile
+ * Memperbarui preferensi aplikasi & profil pengguna
+ */
+export async function updateUserPreferencesHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = updateUserPreferences(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'Preferensi aplikasi berhasil diperbarui.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PREFERENCES_UPDATE_FAILED',
+      error: err.message || 'Gagal memperbarui preferensi aplikasi pengguna.',
+    });
+  }
+}
+
+/**
+ * POST & DELETE /api/preferences/reset, /api/preferensi/reset
+ * Mengembalikan preferensi aplikasi pengguna ke nilai bawaan (default)
+ */
+export async function resetUserPreferencesHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = resetUserPreferences(db, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Preferensi aplikasi dikembalikan ke pengaturan default.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PREFERENCES_RESET_FAILED',
+      error: err.message || 'Gagal mengembalikan preferensi ke pengaturan default.',
+    });
+  }
+}
+

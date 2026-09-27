@@ -13,7 +13,7 @@ import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
 import reminderSettingsRoutes, { notifikasiRouter } from './routes/reminderSettingsRoutes.js';
 import debtRoutes from './routes/debtRoutes.js';
-import authRoutes from './routes/authRoutes.js';
+import authRoutes, { preferencesRouter } from './routes/authRoutes.js';
 import { globalReminderScheduler } from './services/reminderSchedulerService.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
@@ -101,6 +101,20 @@ app.use('/security', authRoutes);
 app.use('/api/security', authRoutes);
 app.use('/keamanan', authRoutes);
 app.use('/api/keamanan', authRoutes);
+
+// Mount Preferensi Aplikasi & Profil Pengguna endpoints
+app.use('/preferences', preferencesRouter);
+app.use('/api/preferences', preferencesRouter);
+app.use('/preferensi', preferencesRouter);
+app.use('/api/preferensi', preferencesRouter);
+app.use('/settings', preferencesRouter);
+app.use('/api/settings', preferencesRouter);
+app.use('/pengaturan', preferencesRouter);
+app.use('/api/pengaturan', preferencesRouter);
+app.use('/profile', preferencesRouter);
+app.use('/api/profile', preferencesRouter);
+app.use('/profil', preferencesRouter);
+app.use('/api/profil', preferencesRouter);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
