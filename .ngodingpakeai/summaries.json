@@ -1,17 +1,3093 @@
 {
+  ".agents/skills/ngodingpakeai/SKILL.md": {
+    "summary": "Dokumentasi skill agen NgodingPakeAI untuk menghubungkan, mengindeks, menyinkronkan repositori, serta menjalankan siklus pengerjaan task terstruktur."
+  },
   ".claude/skills/ngodingpakeai/SKILL.md": {
-    "summary": "Definisi skill Claude Code untuk integrasi NgodingPakeAI, memuat panduan sinkronisasi metadata dan ringkasan codebase, reverse planning, serta aturan privasi data."
+    "summary": "Salinan konfigurasi skill NgodingPakeAI untuk integrasi asisten AI Claude pada alur sinkronisasi proyek dan manajemen task."
   },
   ".codex/skills/ngodingpakeai/SKILL.md": {
-    "summary": "Definisi skill OpenAI Codex untuk integrasi NgodingPakeAI, memuat instruksi alur kerja sync CLI, reverse planning otomatis, serta batasan keamanan kode."
+    "summary": "Salinan konfigurasi skill NgodingPakeAI untuk agen Codex dalam mengelola memori proyek, konteks kode, dan eksekusi task."
+  },
+  ".gitignore": {
+    "summary": "Konfigurasi daftar file dan direktori yang diabaikan oleh Git seperti node_modules, file database lokal SQLite, dan artefak build."
   },
   ".ngodingpakeaiignore": {
-    "summary": "File konfigurasi pengabaian sinkronisasi NgodingPakeAI dengan sintaks gitignore untuk mengecualikan path dan file tambahan dari indeks repositori."
+    "summary": "Daftar pola file dan direktori yang dikecualikan dari pemindaian indeks CLI NgodingPakeAI."
   },
   "AGENTS.md": {
-    "summary": "Instruksi dan aturan repositori untuk AI agent mengenai alur sinkronisasi NgodingPakeAI, manajemen konteks proyek, reverse PRD, dan kepatuhan privasi kode sumber."
+    "summary": "Panduan utama dan instruksi aturan kerja bagi agen AI (NgodingPakeAI) dalam menyinkronkan repositori serta menyelesaikan task proyek Catat Uang AI."
   },
   "README.md": {
-    "summary": "Dokumentasi utama proyek moneta-v2 yang mendeskripsikan aplikasi mobile pencatatan keuangan pribadi dengan pengalaman semudah interaksi percakapan chat."
+    "summary": "Dokumentasi pengantar repositori Moneta (Catat Uang AI) yang menjelaskan arsitektur aplikasi pencatatan keuangan berbasis AI dengan Flutter dan Express SQLite."
+  },
+  "backend/package-lock.json": {
+    "summary": "Lockfile dependensi NPM untuk paket backend Node.js Express dan pustaka pendukung seperti better-sqlite3, cors, dan dotenv."
+  },
+  "backend/package.json": {
+    "summary": "Manifes paket backend Node.js (moneta-backend) yang mendefinisikan skrip start, dev, migrate, test, serta dependensi Express dan better-sqlite3."
+  },
+  "backend/src/config/database.js": {
+    "summary": "Modul konfigurasi koneksi database SQLite menggunakan better-sqlite3 melalui fungsi getDatabase dan closeDatabase dengan dukungan mode WAL serta foreign keys.",
+    "sections": [
+      {
+        "symbol": "createDatabaseConnection",
+        "startLine": 9,
+        "endLine": 49,
+        "summary": "Implementasi simbol createDatabaseConnection pada berkas database.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDatabase",
+        "startLine": 36,
+        "endLine": 49,
+        "summary": "Implementasi simbol getDatabase pada berkas database.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "closeDatabase",
+        "startLine": 43,
+        "endLine": 49,
+        "summary": "Implementasi simbol closeDatabase pada berkas database.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/analysisController.js": {
+    "summary": "Controller HTTP untuk fitur Analisa Keuangan AI yang menangani endpoint rata-rata pengeluaran harian, proyeksi ketahanan dana, early warning, dan rekalkulasi analisa (/api/analisa).",
+    "sections": [
+      {
+        "symbol": "getFullFinancialAnalysisHandler",
+        "startLine": 59,
+        "endLine": 99,
+        "summary": "Implementasi simbol getFullFinancialAnalysisHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getAnalysisSummaryHandler",
+        "startLine": 112,
+        "endLine": 152,
+        "summary": "Implementasi simbol getAnalysisSummaryHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDailyAverageSpendingHandler",
+        "startLine": 150,
+        "endLine": 190,
+        "summary": "Implementasi simbol getDailyAverageSpendingHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMoneyDepletionHandler",
+        "startLine": 188,
+        "endLine": 228,
+        "summary": "Implementasi simbol getMoneyDepletionHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getEarlyWarningStatusHandler",
+        "startLine": 228,
+        "endLine": 268,
+        "summary": "Implementasi simbol getEarlyWarningStatusHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "recalculateAnalysisHandler",
+        "startLine": 264,
+        "endLine": 300,
+        "summary": "Implementasi simbol recalculateAnalysisHandler pada berkas analysisController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/authController.js": {
+    "summary": "Controller HTTP autentikasi, akun, keamanan PIN/biometrik, preferensi aplikasi, serta sinkronisasi catatan per akun (/api/auth, /api/preferences, /api/sync) beserta middleware attachAuthUserMiddleware.",
+    "sections": [
+      {
+        "symbol": "extractTokenFromRequest",
+        "startLine": 52,
+        "endLine": 92,
+        "summary": "Implementasi simbol extractTokenFromRequest pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "resolveUserIdFromAuthOrRequest",
+        "startLine": 80,
+        "endLine": 120,
+        "summary": "Implementasi simbol resolveUserIdFromAuthOrRequest pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "attachAuthUserMiddleware",
+        "startLine": 106,
+        "endLine": 146,
+        "summary": "Implementasi simbol attachAuthUserMiddleware pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "registerUserHandler",
+        "startLine": 155,
+        "endLine": 195,
+        "summary": "Implementasi simbol registerUserHandler pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "loginUserHandler",
+        "startLine": 191,
+        "endLine": 231,
+        "summary": "Implementasi simbol loginUserHandler pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "verifyTokenHandler",
+        "startLine": 227,
+        "endLine": 267,
+        "summary": "Implementasi simbol verifyTokenHandler pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "refreshTokenHandler",
+        "startLine": 261,
+        "endLine": 301,
+        "summary": "Implementasi simbol refreshTokenHandler pada berkas authController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "logoutUserHandler",
+        "startLine": 301,
+        "endLine": 341,
+        "summary": "Implementasi simbol logoutUserHandler pada berkas authController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/categoryController.js": {
+    "summary": "Controller HTTP untuk manajemen kategori transaksi bawaan maupun kustom, klasifikasi otomatis berbasis AI (/api/classify), serta saran kategori yang sering dipakai (/api/categories).",
+    "sections": [
+      {
+        "symbol": "classifyCategoryAndTypeHandler",
+        "startLine": 16,
+        "endLine": 56,
+        "summary": "Implementasi simbol classifyCategoryAndTypeHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "listCategoriesHandler",
+        "startLine": 215,
+        "endLine": 255,
+        "summary": "Implementasi simbol listCategoriesHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getCategorySuggestionsHandler",
+        "startLine": 273,
+        "endLine": 313,
+        "summary": "Implementasi simbol getCategorySuggestionsHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getContextualSuggestionsHandler",
+        "startLine": 338,
+        "endLine": 378,
+        "summary": "Implementasi simbol getContextualSuggestionsHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getCategoryStatsHandler",
+        "startLine": 375,
+        "endLine": 415,
+        "summary": "Implementasi simbol getCategoryStatsHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createCustomCategoryHandler",
+        "startLine": 404,
+        "endLine": 444,
+        "summary": "Implementasi simbol createCustomCategoryHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "listCustomCategoriesHandler",
+        "startLine": 495,
+        "endLine": 535,
+        "summary": "Implementasi simbol listCustomCategoriesHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getCategoryByIdHandler",
+        "startLine": 551,
+        "endLine": 591,
+        "summary": "Implementasi simbol getCategoryByIdHandler pada berkas categoryController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/chatController.js": {
+    "summary": "Controller HTTP utama untuk parsing chat pencatatan keuangan berbasis AI (/api/chat), konfirmasi transaksi dari obrolan, serta pengelolaan riwayat log percakapan pada tabel chat_logs.",
+    "sections": [
+      {
+        "symbol": "getOrCreateDefaultUser",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol getOrCreateDefaultUser pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getUserCategoryNames",
+        "startLine": 30,
+        "endLine": 70,
+        "summary": "Implementasi simbol getUserCategoryNames pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "findCategoryByName",
+        "startLine": 43,
+        "endLine": 83,
+        "summary": "Implementasi simbol findCategoryByName pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "parseChatHandler",
+        "startLine": 56,
+        "endLine": 96,
+        "summary": "Implementasi simbol parseChatHandler pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getChatHistoryHandler",
+        "startLine": 227,
+        "endLine": 267,
+        "summary": "Implementasi simbol getChatHistoryHandler pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getChatLogByIdHandler",
+        "startLine": 306,
+        "endLine": 346,
+        "summary": "Implementasi simbol getChatLogByIdHandler pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "deleteChatLogHandler",
+        "startLine": 363,
+        "endLine": 403,
+        "summary": "Implementasi simbol deleteChatLogHandler pada berkas chatController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "restoreChatLogHandler",
+        "startLine": 404,
+        "endLine": 444,
+        "summary": "Implementasi simbol restoreChatLogHandler pada berkas chatController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/dailyAdviceController.js": {
+    "summary": "Controller HTTP untuk fitur Saran Harian AI (/api/saran, /api/daily-advice) yang menyajikan rekomendasi anggaran harian, batas belanja aman, dan pembaruan saran otomatis setelah transaksi.",
+    "sections": [
+      {
+        "symbol": "resolveUserIdFromRequest",
+        "startLine": 30,
+        "endLine": 70,
+        "summary": "Implementasi simbol resolveUserIdFromRequest pada berkas dailyAdviceController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTodayAdviceHandler",
+        "startLine": 87,
+        "endLine": 127,
+        "summary": "Implementasi simbol getTodayAdviceHandler pada berkas dailyAdviceController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "applyTodayAdviceHandler",
+        "startLine": 153,
+        "endLine": 193,
+        "summary": "Implementasi simbol applyTodayAdviceHandler pada berkas dailyAdviceController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "refreshTodayAdviceHandler",
+        "startLine": 198,
+        "endLine": 238,
+        "summary": "Implementasi simbol refreshTodayAdviceHandler pada berkas dailyAdviceController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "simulateDailyAdviceHandler",
+        "startLine": 239,
+        "endLine": 271,
+        "summary": "Implementasi simbol simulateDailyAdviceHandler pada berkas dailyAdviceController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/dailyTipsController.js": {
+    "summary": "Controller HTTP untuk fitur Tips Hemat Harian AI (/api/tips, /api/riwayat-tips) yang menangani pembuatan tips hemat kontekstual, penyimpanan favorit (bookmark), dan riwayat tips pengguna.",
+    "sections": [
+      {
+        "symbol": "resolveUserIdFromRequest",
+        "startLine": 29,
+        "endLine": 69,
+        "summary": "Implementasi simbol resolveUserIdFromRequest pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDailyTipsHandler",
+        "startLine": 45,
+        "endLine": 85,
+        "summary": "Implementasi simbol getDailyTipsHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTipsHistoryHandler",
+        "startLine": 96,
+        "endLine": 136,
+        "summary": "Implementasi simbol getTipsHistoryHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTipsHistorySummaryHandler",
+        "startLine": 132,
+        "endLine": 172,
+        "summary": "Implementasi simbol getTipsHistorySummaryHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "toggleTipStatusHandler",
+        "startLine": 163,
+        "endLine": 203,
+        "summary": "Implementasi simbol toggleTipStatusHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "generateTipsHandler",
+        "startLine": 230,
+        "endLine": 270,
+        "summary": "Implementasi simbol generateTipsHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTipDetailHandler",
+        "startLine": 261,
+        "endLine": 301,
+        "summary": "Implementasi simbol getTipDetailHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createTipHandler",
+        "startLine": 290,
+        "endLine": 330,
+        "summary": "Implementasi simbol createTipHandler pada berkas dailyTipsController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/debtController.js": {
+    "summary": "Controller HTTP untuk fitur Catatan Hutang, Paylater, dan Cicilan (/api/debts, /api/hutang) yang mencakup pembuatan hutang, daftar filter jatuh tempo, ringkasan kewajiban, dan pelunasan.",
+    "sections": [
+      {
+        "symbol": "resolveUserIdFromRequest",
+        "startLine": 33,
+        "endLine": 73,
+        "summary": "Implementasi simbol resolveUserIdFromRequest pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createDebtHandler",
+        "startLine": 49,
+        "endLine": 89,
+        "summary": "Implementasi simbol createDebtHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "listDebtsHandler",
+        "startLine": 188,
+        "endLine": 228,
+        "summary": "Implementasi simbol listDebtsHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDebtSummaryHandler",
+        "startLine": 262,
+        "endLine": 302,
+        "summary": "Implementasi simbol getDebtSummaryHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDebtByIdHandler",
+        "startLine": 289,
+        "endLine": 329,
+        "summary": "Implementasi simbol getDebtByIdHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "updateDebtHandler",
+        "startLine": 327,
+        "endLine": 367,
+        "summary": "Implementasi simbol updateDebtHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "markDebtAsPaidHandler",
+        "startLine": 363,
+        "endLine": 403,
+        "summary": "Implementasi simbol markDebtAsPaidHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "reopenDebtHandler",
+        "startLine": 435,
+        "endLine": 475,
+        "summary": "Implementasi simbol reopenDebtHandler pada berkas debtController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/reminderSettingsController.js": {
+    "summary": "Controller HTTP untuk Pengaturan Pengingat Harian dan Notifikasi (/api/pengaturan-pengingat, /api/notifikasi) termasuk jadwal jam pengingat, pemicu tes pengingat, dan status baca notifikasi.",
+    "sections": [
+      {
+        "symbol": "resolveUserIdFromRequest",
+        "startLine": 33,
+        "endLine": 73,
+        "summary": "Implementasi simbol resolveUserIdFromRequest pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getReminderSettingsHandler",
+        "startLine": 100,
+        "endLine": 140,
+        "summary": "Implementasi simbol getReminderSettingsHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "updateReminderSettingsHandler",
+        "startLine": 128,
+        "endLine": 168,
+        "summary": "Implementasi simbol updateReminderSettingsHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "resetReminderSettingsHandler",
+        "startLine": 190,
+        "endLine": 230,
+        "summary": "Implementasi simbol resetReminderSettingsHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "testReminderNotificationHandler",
+        "startLine": 219,
+        "endLine": 259,
+        "summary": "Implementasi simbol testReminderNotificationHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "triggerReminderSchedulerHandler",
+        "startLine": 290,
+        "endLine": 330,
+        "summary": "Implementasi simbol triggerReminderSchedulerHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getReminderSchedulerStatusHandler",
+        "startLine": 354,
+        "endLine": 394,
+        "summary": "Implementasi simbol getReminderSchedulerStatusHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "startReminderSchedulerHandler",
+        "startLine": 373,
+        "endLine": 413,
+        "summary": "Implementasi simbol startReminderSchedulerHandler pada berkas reminderSettingsController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/summaryBudgetController.js": {
+    "summary": "Controller HTTP untuk Rekap Bulanan dan Manajemen Budget (/api/rekap, /api/budgets) yang mengelola agregasi pemasukan/pengeluaran, komparasi antarbulan, alokasi pos 50/30/20, dan peringatan batas anggaran.",
+    "sections": [
+      {
+        "symbol": "getCurrentMonthString",
+        "startLine": 40,
+        "endLine": 80,
+        "summary": "Implementasi simbol getCurrentMonthString pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateMonthlyRekap",
+        "startLine": 49,
+        "endLine": 89,
+        "summary": "Implementasi simbol calculateMonthlyRekap pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthlyRekapHandler",
+        "startLine": 150,
+        "endLine": 190,
+        "summary": "Implementasi simbol getMonthlyRekapHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "refreshMonthlyRekapHandler",
+        "startLine": 186,
+        "endLine": 226,
+        "summary": "Implementasi simbol refreshMonthlyRekapHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getAvailableMonthsHandler",
+        "startLine": 217,
+        "endLine": 257,
+        "summary": "Implementasi simbol getAvailableMonthsHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getIncomeExpenseSummaryHandler",
+        "startLine": 243,
+        "endLine": 283,
+        "summary": "Implementasi simbol getIncomeExpenseSummaryHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getSummaryAggregationHandler",
+        "startLine": 299,
+        "endLine": 339,
+        "summary": "Implementasi simbol getSummaryAggregationHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getComparisonHandler",
+        "startLine": 307,
+        "endLine": 347,
+        "summary": "Implementasi simbol getComparisonHandler pada berkas summaryBudgetController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/controllers/transactionController.js": {
+    "summary": "Controller HTTP untuk operasi CRUD transaksi keuangan (/api/transactions) meliputi konfirmasi transaksi, detail transaksi tunggal, pembaruan kategori/jenis transaksi, serta penghapusan transaksi.",
+    "sections": [
+      {
+        "symbol": "resolveCategory",
+        "startLine": 10,
+        "endLine": 50,
+        "summary": "Implementasi simbol resolveCategory pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "confirmTransactionHandler",
+        "startLine": 33,
+        "endLine": 73,
+        "summary": "Implementasi simbol confirmTransactionHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "listTransactionsHandler",
+        "startLine": 286,
+        "endLine": 326,
+        "summary": "Implementasi simbol listTransactionsHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTransactionDetailById",
+        "startLine": 352,
+        "endLine": 392,
+        "summary": "Implementasi simbol getTransactionDetailById pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTransactionByIdHandler",
+        "startLine": 473,
+        "endLine": 513,
+        "summary": "Implementasi simbol getTransactionByIdHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "updateTransactionHandler",
+        "startLine": 512,
+        "endLine": 552,
+        "summary": "Implementasi simbol updateTransactionHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "deleteTransactionHandler",
+        "startLine": 671,
+        "endLine": 711,
+        "summary": "Implementasi simbol deleteTransactionHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "updateTransactionCategoryAndTypeHandler",
+        "startLine": 740,
+        "endLine": 780,
+        "summary": "Implementasi simbol updateTransactionCategoryAndTypeHandler pada berkas transactionController.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/db/migrate.js": {
+    "summary": "Modul migrasi skema database SQLite (runMigrations) yang memastikan seluruh tabel, kolom tambahan, indeks, trigger, view berbahasa Indonesia, dan kategori bawaan tersedia secara idempoten.",
+    "sections": [
+      {
+        "symbol": "ensureTransactionCategoryAndTypeColumns",
+        "startLine": 29,
+        "endLine": 69,
+        "summary": "Implementasi simbol ensureTransactionCategoryAndTypeColumns pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "ensureMonthlyBudgetSchema",
+        "startLine": 53,
+        "endLine": 93,
+        "summary": "Implementasi simbol ensureMonthlyBudgetSchema pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "ensureAiInsightsSchema",
+        "startLine": 224,
+        "endLine": 264,
+        "summary": "Implementasi simbol ensureAiInsightsSchema pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "ensureSaranHarianSchema",
+        "startLine": 385,
+        "endLine": 425,
+        "summary": "Implementasi simbol ensureSaranHarianSchema pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "seedDefaultSavingTips",
+        "startLine": 580,
+        "endLine": 620,
+        "summary": "Implementasi simbol seedDefaultSavingTips pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "ensureDebtsSchema",
+        "startLine": 600,
+        "endLine": 640,
+        "summary": "Implementasi simbol ensureDebtsSchema pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "ensureUsersSchema",
+        "startLine": 671,
+        "endLine": 711,
+        "summary": "Implementasi simbol ensureUsersSchema pada berkas migrate.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "runMigrations",
+        "startLine": 834,
+        "endLine": 874,
+        "summary": "Implementasi simbol runMigrations pada berkas migrate.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/db/schema.sql": {
+    "summary": "Definisi skema SQL utama SQLite untuk tabel users, user_sessions, categories, transactions, chat_logs, budgets, monthly_budgets, ai_insights, daily_advice_cache, debts, serta view alias Bahasa Indonesia."
+  },
+  "backend/src/index.js": {
+    "summary": "Entry point server Express backend Moneta yang menginisialisasi koneksi SQLite, menjalankan migrasi otomatis, memasang middleware autentikasi akun, mendaftarkan seluruh rute API, dan menjalankan scheduler pengingat."
+  },
+  "backend/src/routes/analysisRoutes.js": {
+    "summary": "Definisi rute Express untuk fitur Analisa Keuangan AI (/analisa dan /api/analisa) mencakup rata-rata harian, proyeksi habis uang, early warning, dan refresh analisa."
+  },
+  "backend/src/routes/authRoutes.js": {
+    "summary": "Definisi rute Express untuk autentikasi akun (/api/auth), keamanan PIN dan biometrik (/api/security), preferensi aplikasi (preferencesRouter), serta sinkronisasi catatan per akun (syncRouter)."
+  },
+  "backend/src/routes/categoryRoutes.js": {
+    "summary": "Definisi rute Express untuk daftar kategori, pembuatan kategori kustom, saran kategori populer, klasifikasi AI, dan pengubahan kategori/jenis transaksi (/api/categories)."
+  },
+  "backend/src/routes/chatRoutes.js": {
+    "summary": "Definisi rute Express untuk pencatatan transaksi lewat chat AI, konfirmasi hasil parsing, serta pengelolaan riwayat pesan chat (/chat dan /api/chat)."
+  },
+  "backend/src/routes/dailyAdviceRoutes.js": {
+    "summary": "Definisi rute Express untuk pengambilan dan pembaruan Saran Harian AI serta perhitungan batas belanja aman harian (/saran, /api/saran, /api/daily-advice)."
+  },
+  "backend/src/routes/dailyTipsRoutes.js": {
+    "summary": "Definisi rute Express untuk Tips Hemat Harian AI (dailyTipsRoutes) dan Riwayat Tips Hemat (riwayatTipsRouter) pada endpoint /api/tips dan /api/riwayat-tips."
+  },
+  "backend/src/routes/debtRoutes.js": {
+    "summary": "Definisi rute Express untuk pengelolaan catatan hutang, paylater, dan cicilan (/debts, /api/debts, /hutang, /api/hutang) beserta aksi pelunasan dan ringkasan."
+  },
+  "backend/src/routes/reminderSettingsRoutes.js": {
+    "summary": "Definisi rute Express untuk pengaturan pengingat harian (reminderSettingsRoutes) dan manajemen daftar notifikasi dalam aplikasi (notifikasiRouter)."
+  },
+  "backend/src/routes/summaryBudgetRoutes.js": {
+    "summary": "Definisi rute Express gabungan untuk Rekapitulasi Bulanan (rekapRouter) dan Pengaturan Anggaran/Budget (budgetRouter) pada endpoint /api/rekap, /api/summary, dan /api/budgets."
+  },
+  "backend/src/routes/transactionRoutes.js": {
+    "summary": "Definisi rute Express untuk operasi transaksi (/api/transactions) mencakup daftar transaksi, detail per ID, konfirmasi, ubah kategori/jenis, dan hapus transaksi."
+  },
+  "backend/src/services/accountSyncService.js": {
+    "summary": "Service layer untuk isolasi dan sinkronisasi catatan keuangan per akun pengguna (getAccountSyncSnapshot, syncAccountRecords, exportAccountData, resetAccountRecords) dalam mode merge maupun replace.",
+    "sections": [
+      {
+        "symbol": "getAccountSyncSnapshot",
+        "startLine": 40,
+        "endLine": 80,
+        "summary": "Implementasi simbol getAccountSyncSnapshot pada berkas accountSyncService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "syncAccountRecords",
+        "startLine": 224,
+        "endLine": 264,
+        "summary": "Implementasi simbol syncAccountRecords pada berkas accountSyncService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "exportAccountData",
+        "startLine": 451,
+        "endLine": 491,
+        "summary": "Implementasi simbol exportAccountData pada berkas accountSyncService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "resetAccountRecords",
+        "startLine": 505,
+        "endLine": 545,
+        "summary": "Implementasi simbol resetAccountRecords pada berkas accountSyncService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/aiParserService.js": {
+    "summary": "Service NLP/AI parser pesan chat keuangan berbahasa Indonesia yang mengekstrak nominal uang (ribu, rb, k, juta), jenis pemasukan/pengeluaran, kategori, serta skor keyakinan (confidenceScore).",
+    "sections": [
+      {
+        "symbol": "heuristicParseIndonesian",
+        "startLine": 11,
+        "endLine": 51,
+        "summary": "Implementasi simbol heuristicParseIndonesian pada berkas aiParserService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "heuristicClassifyIndonesian",
+        "startLine": 153,
+        "endLine": 193,
+        "summary": "Implementasi simbol heuristicClassifyIndonesian pada berkas aiParserService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildClassifierSystemPrompt",
+        "startLine": 405,
+        "endLine": 445,
+        "summary": "Implementasi simbol buildClassifierSystemPrompt pada berkas aiParserService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildParserSystemPrompt",
+        "startLine": 441,
+        "endLine": 481,
+        "summary": "Implementasi simbol buildParserSystemPrompt pada berkas aiParserService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "AiParserService",
+        "startLine": 475,
+        "endLine": 515,
+        "summary": "Implementasi simbol AiParserService pada berkas aiParserService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/aiSavingTipsGeneratorService.js": {
+    "summary": "Service generator Tips Hemat Harian berbasis AI kontekstual yang menganalisis pola pengeluaran terbesar, rasio penggunaan budget, dan tren kategori pengguna.",
+    "sections": [
+      {
+        "symbol": "AiSavingTipsGeneratorService",
+        "startLine": 124,
+        "endLine": 164,
+        "summary": "Implementasi simbol AiSavingTipsGeneratorService pada berkas aiSavingTipsGeneratorService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/analysisCacheService.js": {
+    "summary": "Service pengelolaan cache hasil Analisa Keuangan AI pada tabel ai_insights agar hasil perhitungan rata-rata harian, proyeksi dana, dan status risiko tersimpan efisien.",
+    "sections": [
+      {
+        "symbol": "getTodayDateString",
+        "startLine": 11,
+        "endLine": 51,
+        "summary": "Implementasi simbol getTodayDateString pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getCachedAnalysis",
+        "startLine": 29,
+        "endLine": 69,
+        "summary": "Implementasi simbol getCachedAnalysis pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "saveCachedAnalysis",
+        "startLine": 108,
+        "endLine": 148,
+        "summary": "Implementasi simbol saveCachedAnalysis pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "invalidateAnalysisCache",
+        "startLine": 195,
+        "endLine": 235,
+        "summary": "Implementasi simbol invalidateAnalysisCache pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "deleteCachedAnalysis",
+        "startLine": 227,
+        "endLine": 255,
+        "summary": "Implementasi simbol deleteCachedAnalysis pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "hasValidCachedAnalysis",
+        "startLine": 251,
+        "endLine": 255,
+        "summary": "Implementasi simbol hasValidCachedAnalysis pada berkas analysisCacheService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/budgetService.js": {
+    "summary": "Service manajemen anggaran bulanan pada tabel budgets dan monthly_budgets yang menghitung alokasi pos Kebutuhan/Tabungan/Keinginan, sisa batas anggaran, serta peringatan lonjakan pengeluaran.",
+    "sections": [
+      {
+        "symbol": "formatRupiah",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol formatRupiah pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "inferBucketTypeFromCategory",
+        "startLine": 15,
+        "endLine": 55,
+        "summary": "Implementasi simbol inferBucketTypeFromCategory pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildBudgetBuckets",
+        "startLine": 48,
+        "endLine": 88,
+        "summary": "Implementasi simbol buildBudgetBuckets pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateRemainingAndBucketNominals",
+        "startLine": 155,
+        "endLine": 195,
+        "summary": "Implementasi simbol calculateRemainingAndBucketNominals pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildDailySpendingAdvice",
+        "startLine": 363,
+        "endLine": 403,
+        "summary": "Implementasi simbol buildDailySpendingAdvice pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthlyBudgetSummaryQuery",
+        "startLine": 505,
+        "endLine": 545,
+        "summary": "Implementasi simbol getMonthlyBudgetSummaryQuery pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getRemainingAndBucketNominalsQuery",
+        "startLine": 795,
+        "endLine": 835,
+        "summary": "Implementasi simbol getRemainingAndBucketNominalsQuery pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "upsertMonthlyBudgetLimit",
+        "startLine": 845,
+        "endLine": 885,
+        "summary": "Implementasi simbol upsertMonthlyBudgetLimit pada berkas budgetService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/categorySuggestionService.js": {
+    "summary": "Service rekomendasi dan klasifikasi kategori transaksi yang menggabungkan pencocokan kata kunci kamus Bahasa Indonesia dengan frekuensi pemakaian kategori historis pengguna.",
+    "sections": [
+      {
+        "symbol": "CategorySuggestionService",
+        "startLine": 24,
+        "endLine": 64,
+        "summary": "Implementasi simbol CategorySuggestionService pada berkas categorySuggestionService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/dailyAdviceCacheService.js": {
+    "summary": "Service pengelolaan penyimpanan dan invalidasi cache Saran Harian AI pada tabel daily_advice_cache serta sinkronisasi dengan tabel ai_insights.",
+    "sections": [
+      {
+        "symbol": "getTodayDateString",
+        "startLine": 8,
+        "endLine": 48,
+        "summary": "Implementasi simbol getTodayDateString pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getCachedDailyAdvice",
+        "startLine": 26,
+        "endLine": 66,
+        "summary": "Implementasi simbol getCachedDailyAdvice pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "saveCachedDailyAdvice",
+        "startLine": 94,
+        "endLine": 134,
+        "summary": "Implementasi simbol saveCachedDailyAdvice pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "markAdviceAsApplied",
+        "startLine": 192,
+        "endLine": 232,
+        "summary": "Implementasi simbol markAdviceAsApplied pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "invalidateDailyAdviceCache",
+        "startLine": 218,
+        "endLine": 258,
+        "summary": "Implementasi simbol invalidateDailyAdviceCache pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "deleteCachedDailyAdvice",
+        "startLine": 250,
+        "endLine": 278,
+        "summary": "Implementasi simbol deleteCachedDailyAdvice pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "hasValidCachedDailyAdvice",
+        "startLine": 274,
+        "endLine": 278,
+        "summary": "Implementasi simbol hasValidCachedDailyAdvice pada berkas dailyAdviceCacheService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/dailyAverageSpendingService.js": {
+    "summary": "Service kalkulasi rata-rata pengeluaran harian (calculateDailyAverageSpending) dan pemformatan nominal mata uang Rupiah (formatRupiah) berdasarkan histori transaksi.",
+    "sections": [
+      {
+        "symbol": "formatRupiah",
+        "startLine": 34,
+        "endLine": 74,
+        "summary": "Implementasi simbol formatRupiah pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatCompactRupiah",
+        "startLine": 43,
+        "endLine": 83,
+        "summary": "Implementasi simbol formatCompactRupiah pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDayName",
+        "startLine": 66,
+        "endLine": 106,
+        "summary": "Implementasi simbol getDayName pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDayShortLabel",
+        "startLine": 75,
+        "endLine": 115,
+        "summary": "Implementasi simbol getDayShortLabel pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "toIsoDateString",
+        "startLine": 84,
+        "endLine": 124,
+        "summary": "Implementasi simbol toIsoDateString pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDatesInRange",
+        "startLine": 98,
+        "endLine": 138,
+        "summary": "Implementasi simbol getDatesInRange pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTargetDailySpend",
+        "startLine": 115,
+        "endLine": 155,
+        "summary": "Implementasi simbol getTargetDailySpend pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateDailySpendingPoints",
+        "startLine": 162,
+        "endLine": 202,
+        "summary": "Implementasi simbol calculateDailySpendingPoints pada berkas dailyAverageSpendingService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/dailyTipsService.js": {
+    "summary": "Service pengelolaan siklus hidup Tips Hemat Harian pada tabel daily_saving_tips yang mencakup pengambilan tips harian, rotasi tips baru, penandaan favorit, dan filter riwayat.",
+    "sections": [
+      {
+        "symbol": "getTodayDateString",
+        "startLine": 10,
+        "endLine": 50,
+        "summary": "Implementasi simbol getTodayDateString pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getAllTips",
+        "startLine": 29,
+        "endLine": 69,
+        "summary": "Implementasi simbol getAllTips pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getTipById",
+        "startLine": 55,
+        "endLine": 95,
+        "summary": "Implementasi simbol getTipById pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getUserSavingTips",
+        "startLine": 71,
+        "endLine": 111,
+        "summary": "Implementasi simbol getUserSavingTips pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "toggleUserSavingTip",
+        "startLine": 145,
+        "endLine": 185,
+        "summary": "Implementasi simbol toggleUserSavingTip pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createDailyTip",
+        "startLine": 177,
+        "endLine": 217,
+        "summary": "Implementasi simbol createDailyTip pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatTipDisplayDate",
+        "startLine": 245,
+        "endLine": 285,
+        "summary": "Implementasi simbol formatTipDisplayDate pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getUserTipsHistory",
+        "startLine": 282,
+        "endLine": 322,
+        "summary": "Implementasi simbol getUserTipsHistory pada berkas dailyTipsService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/debtService.js": {
+    "summary": "Service pengelolaan catatan hutang, paylater, dan cicilan pada tabel debts yang menangani kalkulasi sisa tagihan, hari menuju jatuh tempo, status lunas, dan ringkasan kewajiban.",
+    "sections": [
+      {
+        "symbol": "normalizeDebtType",
+        "startLine": 25,
+        "endLine": 65,
+        "summary": "Implementasi simbol normalizeDebtType pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "normalizeDebtStatus",
+        "startLine": 37,
+        "endLine": 77,
+        "summary": "Implementasi simbol normalizeDebtStatus pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateDaysUntilDue",
+        "startLine": 52,
+        "endLine": 92,
+        "summary": "Implementasi simbol calculateDaysUntilDue pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDueStatusLabel",
+        "startLine": 66,
+        "endLine": 106,
+        "summary": "Implementasi simbol getDueStatusLabel pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatDebtRow",
+        "startLine": 77,
+        "endLine": 117,
+        "summary": "Implementasi simbol formatDebtRow pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createDebt",
+        "startLine": 140,
+        "endLine": 180,
+        "summary": "Implementasi simbol createDebt pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDebtsByUserId",
+        "startLine": 221,
+        "endLine": 261,
+        "summary": "Implementasi simbol getDebtsByUserId pada berkas debtService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDebtById",
+        "startLine": 305,
+        "endLine": 345,
+        "summary": "Implementasi simbol getDebtById pada berkas debtService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/earlyWarningService.js": {
+    "summary": "Service pendeteksi peringatan dini (early warning) laju pengeluaran bulanan yang membandingkan persentase pemakaian anggaran terhadap persentase hari berjalan.",
+    "sections": [
+      {
+        "symbol": "getWarningDiagnostics",
+        "startLine": 61,
+        "endLine": 101,
+        "summary": "Implementasi simbol getWarningDiagnostics pada berkas earlyWarningService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "evaluateEarlyWarningStatus",
+        "startLine": 76,
+        "endLine": 116,
+        "summary": "Implementasi simbol evaluateEarlyWarningStatus pada berkas earlyWarningService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getOrUpdateCachedEarlyWarning",
+        "startLine": 234,
+        "endLine": 274,
+        "summary": "Implementasi simbol getOrUpdateCachedEarlyWarning pada berkas earlyWarningService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/financialAnalysisService.js": {
+    "summary": "Service orkestrasi Analisa Keuangan AI menyeluruh yang memadukan rata-rata pengeluaran harian, proyeksi ketahanan dana, dan indikator peringatan dini beserta mekanisme rekalkulasi otomatis.",
+    "sections": [
+      {
+        "symbol": "recalculateFinancialAnalysis",
+        "startLine": 26,
+        "endLine": 66,
+        "summary": "Implementasi simbol recalculateFinancialAnalysis pada berkas financialAnalysisService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getFinancialAnalysis",
+        "startLine": 127,
+        "endLine": 158,
+        "summary": "Implementasi simbol getFinancialAnalysis pada berkas financialAnalysisService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/moneyDepletionProjectionService.js": {
+    "summary": "Service kalkulasi proyeksi ketahanan dana dan estimasi tanggal habisnya sisa anggaran atau saldo berdasarkan laju pengeluaran harian pengguna.",
+    "sections": [
+      {
+        "symbol": "formatIndonesianDate",
+        "startLine": 45,
+        "endLine": 85,
+        "summary": "Implementasi simbol formatIndonesianDate pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatShortIndonesianDate",
+        "startLine": 56,
+        "endLine": 96,
+        "summary": "Implementasi simbol formatShortIndonesianDate pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateDaysUntilEndOfMonth",
+        "startLine": 67,
+        "endLine": 107,
+        "summary": "Implementasi simbol calculateDaysUntilEndOfMonth pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "simulateDepletion",
+        "startLine": 83,
+        "endLine": 123,
+        "summary": "Implementasi simbol simulateDepletion pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthlyFinancialContext",
+        "startLine": 122,
+        "endLine": 162,
+        "summary": "Implementasi simbol getMonthlyFinancialContext pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateMoneyDepletionProjection",
+        "startLine": 210,
+        "endLine": 250,
+        "summary": "Implementasi simbol calculateMoneyDepletionProjection pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getOrUpdateCachedDepletionProjection",
+        "startLine": 333,
+        "endLine": 373,
+        "summary": "Implementasi simbol getOrUpdateCachedDepletionProjection pada berkas moneyDepletionProjectionService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/pinBiometricService.js": {
+    "summary": "Service keamanan aplikasi untuk pengelolaan kunci PIN 4-6 digit (setupPin, verifyPin, changePin, togglePinLock) dan verifikasi autentikasi biometrik perangkat (toggleBiometric, verifyBiometric).",
+    "sections": [
+      {
+        "symbol": "isValidPinFormat",
+        "startLine": 16,
+        "endLine": 56,
+        "summary": "Implementasi simbol isValidPinFormat pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getSecurityStatus",
+        "startLine": 42,
+        "endLine": 82,
+        "summary": "Implementasi simbol getSecurityStatus pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "setupPin",
+        "startLine": 55,
+        "endLine": 95,
+        "summary": "Implementasi simbol setupPin pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "verifyPin",
+        "startLine": 100,
+        "endLine": 140,
+        "summary": "Implementasi simbol verifyPin pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "changePin",
+        "startLine": 146,
+        "endLine": 186,
+        "summary": "Implementasi simbol changePin pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "togglePinLock",
+        "startLine": 216,
+        "endLine": 256,
+        "summary": "Implementasi simbol togglePinLock pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "toggleBiometric",
+        "startLine": 268,
+        "endLine": 308,
+        "summary": "Implementasi simbol toggleBiometric pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "verifyBiometric",
+        "startLine": 300,
+        "endLine": 329,
+        "summary": "Implementasi simbol verifyBiometric pada berkas pinBiometricService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/rekapQueryService.js": {
+    "summary": "Service kueri agregasi Rekap Bulanan pada tabel transactions dan categories untuk menghitung total pemasukan/pengeluaran, rincian proporsi per kategori, perbandingan bulan lalu, dan filter daftar transaksi.",
+    "sections": [
+      {
+        "symbol": "getCurrentMonthString",
+        "startLine": 10,
+        "endLine": 50,
+        "summary": "Implementasi simbol getCurrentMonthString pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getPreviousMonthString",
+        "startLine": 19,
+        "endLine": 59,
+        "summary": "Implementasi simbol getPreviousMonthString pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getDaysInMonth",
+        "startLine": 35,
+        "endLine": 75,
+        "summary": "Implementasi simbol getDaysInMonth pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthLabel",
+        "startLine": 49,
+        "endLine": 89,
+        "summary": "Implementasi simbol getMonthLabel pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getIncomeExpenseSummaryQuery",
+        "startLine": 69,
+        "endLine": 109,
+        "summary": "Implementasi simbol getIncomeExpenseSummaryQuery pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthlyTotalsQuery",
+        "startLine": 273,
+        "endLine": 313,
+        "summary": "Implementasi simbol getMonthlyTotalsQuery pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatRupiah",
+        "startLine": 280,
+        "endLine": 320,
+        "summary": "Implementasi simbol formatRupiah pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthOverMonthComparisonQuery",
+        "startLine": 288,
+        "endLine": 328,
+        "summary": "Implementasi simbol getMonthOverMonthComparisonQuery pada berkas rekapQueryService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/reminderSchedulerService.js": {
+    "summary": "Service background scheduler (ReminderScheduler) yang memeriksa jadwal pengingat harian pengguna secara berkala dan menerbitkan notifikasi otomatis ke tabel reminder_notifications.",
+    "sections": [
+      {
+        "symbol": "getCurrentTimeInTimezone",
+        "startLine": 20,
+        "endLine": 60,
+        "summary": "Implementasi simbol getCurrentTimeInTimezone pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createNotificationLog",
+        "startLine": 76,
+        "endLine": 116,
+        "summary": "Implementasi simbol createNotificationLog pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "hasNotificationBeenSentToday",
+        "startLine": 119,
+        "endLine": 159,
+        "summary": "Implementasi simbol hasNotificationBeenSentToday pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getNotificationLogs",
+        "startLine": 133,
+        "endLine": 173,
+        "summary": "Implementasi simbol getNotificationLogs pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "deleteNotificationLog",
+        "startLine": 184,
+        "endLine": 224,
+        "summary": "Implementasi simbol deleteNotificationLog pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildMorningAdviceNotification",
+        "startLine": 202,
+        "endLine": 242,
+        "summary": "Implementasi simbol buildMorningAdviceNotification pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "buildEveningReminderNotification",
+        "startLine": 252,
+        "endLine": 292,
+        "summary": "Implementasi simbol buildEveningReminderNotification pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "defaultNotificationSender",
+        "startLine": 295,
+        "endLine": 335,
+        "summary": "Implementasi simbol defaultNotificationSender pada berkas reminderSchedulerService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/reminderSettingsService.js": {
+    "summary": "Service pengelolaan konfigurasi pengingat harian (tabel reminder_settings) dan daftar notifikasi pengguna (tabel reminder_notifications) beserta rute target navigasi layar.",
+    "sections": [
+      {
+        "symbol": "getReminderSettings",
+        "startLine": 31,
+        "endLine": 71,
+        "summary": "Implementasi simbol getReminderSettings pada berkas reminderSettingsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "updateReminderSettings",
+        "startLine": 82,
+        "endLine": 122,
+        "summary": "Implementasi simbol updateReminderSettings pada berkas reminderSettingsService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "resetReminderSettings",
+        "startLine": 159,
+        "endLine": 199,
+        "summary": "Implementasi simbol resetReminderSettings pada berkas reminderSettingsService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/safeDailySpendingService.js": {
+    "summary": "Service perhitungan batas belanja aman harian (safe daily spending limit) berdasarkan sisa anggaran bulanan dibagi sisa hari aktif dalam bulan berjalan.",
+    "sections": [
+      {
+        "symbol": "getDaysRemainingInMonth",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol getDaysRemainingInMonth pada berkas safeDailySpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getMonthDateMetrics",
+        "startLine": 40,
+        "endLine": 80,
+        "summary": "Implementasi simbol getMonthDateMetrics pada berkas safeDailySpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "calculateSafeDailySpending",
+        "startLine": 67,
+        "endLine": 107,
+        "summary": "Implementasi simbol calculateSafeDailySpending pada berkas safeDailySpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getSafeDailySpendingForUser",
+        "startLine": 208,
+        "endLine": 248,
+        "summary": "Implementasi simbol getSafeDailySpendingForUser pada berkas safeDailySpendingService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "simulateSafeDailySpending",
+        "startLine": 366,
+        "endLine": 389,
+        "summary": "Implementasi simbol simulateSafeDailySpending pada berkas safeDailySpendingService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/src/services/userService.js": {
+    "summary": "Service manajemen akun pengguna dan sesi autentikasi pada tabel users serta user_sessions yang mencakup registrasi, login, verifikasi/rotasi/pencabutan token sesi, dan pengelolaan preferensi aplikasi.",
+    "sections": [
+      {
+        "symbol": "getCurrencySymbol",
+        "startLine": 16,
+        "endLine": 56,
+        "summary": "Implementasi simbol getCurrencySymbol pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "hashSecret",
+        "startLine": 24,
+        "endLine": 64,
+        "summary": "Implementasi simbol hashSecret pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "verifySecret",
+        "startLine": 30,
+        "endLine": 70,
+        "summary": "Implementasi simbol verifySecret pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "isValidEmail",
+        "startLine": 46,
+        "endLine": 86,
+        "summary": "Implementasi simbol isValidEmail pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "formatUserRow",
+        "startLine": 52,
+        "endLine": 92,
+        "summary": "Implementasi simbol formatUserRow pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getUserById",
+        "startLine": 105,
+        "endLine": 145,
+        "summary": "Implementasi simbol getUserById pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "getUserByEmail",
+        "startLine": 110,
+        "endLine": 150,
+        "summary": "Implementasi simbol getUserByEmail pada berkas userService.js untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "createUserSession",
+        "startLine": 117,
+        "endLine": 157,
+        "summary": "Implementasi simbol createUserSession pada berkas userService.js untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "backend/test/accountSyncEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul accountSyncEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/aiInsightsCacheMigration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul aiInsightsCacheMigration pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/aiParserService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul aiParserService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/autoRecalculateFinancialAnalysis.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul autoRecalculateFinancialAnalysis pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/budgetAlertSettingsEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul budgetAlertSettingsEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/budgetAllocationEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul budgetAllocationEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/budgetRekapDailyAdviceIntegration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul budgetRekapDailyAdviceIntegration pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/budgetRemainingAndBucketsService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul budgetRemainingAndBucketsService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/budgetWarningService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul budgetWarningService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/categoriesMigration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul categoriesMigration pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/categorySuggestionService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul categorySuggestionService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/chatEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul chatEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/chatHistoryEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul chatHistoryEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/classifyCategoryAndTypeEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul classifyCategoryAndTypeEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/customCategoryEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul customCategoryEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/dailyAdviceEndpoints.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul dailyAdviceEndpoints pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/dailyAverageSpendingService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul dailyAverageSpendingService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/dailyTipsEndpoints.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul dailyTipsEndpoints pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/debtCreateEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul debtCreateEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/debtListEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul debtListEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/debtMarkPaidAndFilter.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul debtMarkPaidAndFilter pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/debtSummaryEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul debtSummaryEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/debtsMigrationAndService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul debtsMigrationAndService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/earlyWarningService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul earlyWarningService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/expensesByCategoryEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul expensesByCategoryEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/financialAnalysisEndpoints.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul financialAnalysisEndpoints pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/incomeExpenseSummaryEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul incomeExpenseSummaryEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/loginAndTokenEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul loginAndTokenEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/logoutAndDeleteSessionEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul logoutAndDeleteSessionEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/moneyDepletionProjectionService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul moneyDepletionProjectionService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/monthComparisonEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul monthComparisonEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/monthlyBudgetCrudEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul monthlyBudgetCrudEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/monthlyBudgetMigration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul monthlyBudgetMigration pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/monthlyTransactionListEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul monthlyTransactionListEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/pinBiometricService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul pinBiometricService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/registerEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul registerEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/rekapEmptyAndRefreshEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul rekapEmptyAndRefreshEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/rekapMonthlyAggregation.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul rekapMonthlyAggregation pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/reminderScheduler.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul reminderScheduler pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/reminderSettingsEndpoints.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul reminderSettingsEndpoints pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/riwayatTipsEndpoints.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul riwayatTipsEndpoints pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/safeDailySpendingService.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul safeDailySpendingService pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/saranHarianSchema.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul saranHarianSchema pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/schema.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul schema pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/summaryBudgetIntegration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul summaryBudgetIntegration pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/transactionCategoryAndTypeColumns.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul transactionCategoryAndTypeColumns pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/transactionDetailEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul transactionDetailEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/transactionEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul transactionEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/updateCategoryAndTypeEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul updateCategoryAndTypeEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/updateDeleteTransaction.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul updateDeleteTransaction pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/userPreferencesEndpoint.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul userPreferencesEndpoint pada layanan API dan database SQLite Moneta."
+  },
+  "backend/test/usersMigration.test.js": {
+    "summary": "Pengujian otomatis (integration & unit test) backend untuk memverifikasi modul usersMigration pada layanan API dan database SQLite Moneta."
+  },
+  "frontend/.gitignore": {
+    "summary": "Konfigurasi daftar file build dan cache Flutter/Dart yang diabaikan oleh Git pada direktori frontend."
+  },
+  "frontend/.idea/libraries/Dart_SDK.xml": {
+    "summary": "File konfigurasi IDE IntelliJ/Android Studio untuk referensi pustaka Dart SDK pada proyek Flutter frontend."
+  },
+  "frontend/.idea/libraries/KotlinJavaRuntime.xml": {
+    "summary": "File konfigurasi IDE IntelliJ/Android Studio untuk runtime Kotlin/Java pada modul Flutter."
+  },
+  "frontend/.idea/modules.xml": {
+    "summary": "File konfigurasi daftar modul proyek IntelliJ/Android Studio untuk aplikasi Flutter Moneta."
+  },
+  "frontend/.idea/runConfigurations/main_dart.xml": {
+    "summary": "Konfigurasi eksekusi (run configuration) IDE untuk menjalankan entry point lib/main.dart pada aplikasi Flutter."
+  },
+  "frontend/.idea/workspace.xml": {
+    "summary": "Pengaturan ruang kerja lokal IDE Android Studio/IntelliJ untuk proyek frontend Flutter."
+  },
+  "frontend/.metadata": {
+    "summary": "File metadata otomatis Flutter SDK yang mencatat informasi versi channel dan revisi proyek."
+  },
+  "frontend/README.md": {
+    "summary": "Dokumentasi pengantar modul aplikasi mobile/web Flutter Moneta (Catat Uang AI)."
+  },
+  "frontend/analysis_options.yaml": {
+    "summary": "Konfigurasi aturan linter dan analisis statis kode Dart/Flutter (flutter_lints) untuk menjaga kualitas kode frontend."
+  },
+  "frontend/lib/main.dart": {
+    "summary": "Entry point utama aplikasi Flutter Moneta (MonetaApp) yang menginisialisasi AppState, tema terang/gelap dinamis, gerbang kunci keamanan PIN, serta navigasi utama.",
+    "sections": [
+      {
+        "symbol": "MonetaApp",
+        "startLine": 26,
+        "endLine": 66,
+        "summary": "Implementasi simbol MonetaApp pada berkas main.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/ai_insight_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul ai_insight_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "AiInsightMockData",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol AiInsightMockData pada berkas ai_insight_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/budget_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul budget_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "BudgetMockData",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol BudgetMockData pada berkas budget_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/category_confirmation_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul category_confirmation_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "CategoryConfirmationMockData",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol CategoryConfirmationMockData pada berkas category_confirmation_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/daily_spending_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul daily_spending_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "DailySpendingMockData",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol DailySpendingMockData pada berkas daily_spending_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/debt_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul debt_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "DebtMockData",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol DebtMockData pada berkas debt_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "MockData",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol MockData pada berkas mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/rekap_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul rekap_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "RekapMockData",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol RekapMockData pada berkas rekap_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/mock/saving_tips_mock_data.dart": {
+    "summary": "Data tiruan (mock data) awal Bahasa Indonesia pada modul saving_tips_mock_data untuk mendukung simulasi antarmuka dan pengujian fitur di aplikasi Flutter.",
+    "sections": [
+      {
+        "symbol": "SavingTipsMockData",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol SavingTipsMockData pada berkas saving_tips_mock_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/ai_insight_item.dart": {
+    "summary": "Model data Dart (ai_insight_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "AiInsightItem",
+        "startLine": 70,
+        "endLine": 110,
+        "summary": "Implementasi simbol AiInsightItem pada berkas ai_insight_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/budget_item.dart": {
+    "summary": "Model data Dart (budget_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "BudgetBucketItem",
+        "startLine": 10,
+        "endLine": 50,
+        "summary": "Implementasi simbol BudgetBucketItem pada berkas budget_item.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "CategoryBudgetItem",
+        "startLine": 52,
+        "endLine": 92,
+        "summary": "Implementasi simbol CategoryBudgetItem pada berkas budget_item.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "MonthlyBudgetSummary",
+        "startLine": 105,
+        "endLine": 145,
+        "summary": "Implementasi simbol MonthlyBudgetSummary pada berkas budget_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/category_confirmation_item.dart": {
+    "summary": "Model data Dart (category_confirmation_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "CategoryConfirmationItem",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol CategoryConfirmationItem pada berkas category_confirmation_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/category_item.dart": {
+    "summary": "Model data Dart (category_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "CategoryItem",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol CategoryItem pada berkas category_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/category_usage.dart": {
+    "summary": "Model data Dart (category_usage) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "CategoryUsage",
+        "startLine": 3,
+        "endLine": 23,
+        "summary": "Implementasi simbol CategoryUsage pada berkas category_usage.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/chat_log_item.dart": {
+    "summary": "Model data Dart (chat_log_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "ChatLogItem",
+        "startLine": 38,
+        "endLine": 60,
+        "summary": "Implementasi simbol ChatLogItem pada berkas chat_log_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/chat_message.dart": {
+    "summary": "Model data Dart (chat_message) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "ChatMessage",
+        "startLine": 3,
+        "endLine": 24,
+        "summary": "Implementasi simbol ChatMessage pada berkas chat_message.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/daily_reminder_settings.dart": {
+    "summary": "Model data Dart (daily_reminder_settings) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "DailyReminderSettings",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol DailyReminderSettings pada berkas daily_reminder_settings.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/daily_spending_item.dart": {
+    "summary": "Model data Dart (daily_spending_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "DailySpendingPoint",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol DailySpendingPoint pada berkas daily_spending_item.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "DailySpendingAnalysis",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol DailySpendingAnalysis pada berkas daily_spending_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/debt_item.dart": {
+    "summary": "Model data Dart (debt_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "DebtItem",
+        "startLine": 57,
+        "endLine": 97,
+        "summary": "Implementasi simbol DebtItem pada berkas debt_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/monthly_rekap_data.dart": {
+    "summary": "Model data Dart (monthly_rekap_data) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "CategoryBreakdownItem",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol CategoryBreakdownItem pada berkas monthly_rekap_data.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "MonthlyRekapData",
+        "startLine": 43,
+        "endLine": 83,
+        "summary": "Implementasi simbol MonthlyRekapData pada berkas monthly_rekap_data.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/saving_tip_item.dart": {
+    "summary": "Model data Dart (saving_tip_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "SavingTipItem",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol SavingTipItem pada berkas saving_tip_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/transaction_item.dart": {
+    "summary": "Model data Dart (transaction_item) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "TransactionItem",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol TransactionItem pada berkas transaction_item.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/models/user_profile.dart": {
+    "summary": "Model data Dart (user_profile) beserta serialisasi JSON dan properti terhitung untuk representasi entitas pada aplikasi Flutter Moneta.",
+    "sections": [
+      {
+        "symbol": "UserProfile",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol UserProfile pada berkas user_profile.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/akun_pengaturan/akun_pengaturan_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (akun_pengaturan_screen) pada fitur akun_pengaturan di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "AkunPengaturanScreen",
+        "startLine": 14,
+        "endLine": 54,
+        "summary": "Implementasi simbol AkunPengaturanScreen pada berkas akun_pengaturan_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AkunPengaturanScreenState",
+        "startLine": 26,
+        "endLine": 66,
+        "summary": "Implementasi simbol _AkunPengaturanScreenState pada berkas akun_pengaturan_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/akun_pengaturan/preferensi_aplikasi_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (preferensi_aplikasi_screen) pada fitur akun_pengaturan di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "PreferensiAplikasiScreen",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol PreferensiAplikasiScreen pada berkas preferensi_aplikasi_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/analisa/analisa_keuangan_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (analisa_keuangan_screen) pada fitur analisa di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "AnalisaKeuanganScreen",
+        "startLine": 14,
+        "endLine": 54,
+        "summary": "Implementasi simbol AnalisaKeuanganScreen pada berkas analisa_keuangan_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AnalisaKeuanganScreenState",
+        "startLine": 30,
+        "endLine": 70,
+        "summary": "Implementasi simbol _AnalisaKeuanganScreenState pada berkas analisa_keuangan_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_TipItem",
+        "startLine": 248,
+        "endLine": 281,
+        "summary": "Implementasi simbol _TipItem pada berkas analisa_keuangan_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/analisa/widgets/analisa_empty_state_card.dart": {
+    "summary": "Komponen widget antarmuka (analisa_empty_state_card) pada fitur analisa untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "AnalisaEmptyStateCard",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol AnalisaEmptyStateCard pada berkas analisa_empty_state_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_SampleChip",
+        "startLine": 195,
+        "endLine": 220,
+        "summary": "Implementasi simbol _SampleChip pada berkas analisa_empty_state_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/analisa/widgets/avg_daily_spend_card.dart": {
+    "summary": "Komponen widget antarmuka (avg_daily_spend_card) pada fitur analisa untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "AvgDailySpendCard",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol AvgDailySpendCard pada berkas avg_daily_spend_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_StatPill",
+        "startLine": 305,
+        "endLine": 345,
+        "summary": "Implementasi simbol _StatPill pada berkas avg_daily_spend_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/analisa/widgets/early_warning_indicator_card.dart": {
+    "summary": "Komponen widget antarmuka (early_warning_indicator_card) pada fitur analisa untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "EarlyWarningIndicatorCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol EarlyWarningIndicatorCard pada berkas early_warning_indicator_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_LevelSegment",
+        "startLine": 306,
+        "endLine": 346,
+        "summary": "Implementasi simbol _LevelSegment pada berkas early_warning_indicator_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/analisa/widgets/money_depletion_projection_card.dart": {
+    "summary": "Komponen widget antarmuka (money_depletion_projection_card) pada fitur analisa untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "MoneyDepletionProjectionCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol MoneyDepletionProjectionCard pada berkas money_depletion_projection_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_MoneyDepletionProjectionCardState",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol _MoneyDepletionProjectionCardState pada berkas money_depletion_projection_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/auth/auth_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (auth_screen) pada fitur auth di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "AuthScreen",
+        "startLine": 8,
+        "endLine": 48,
+        "summary": "Implementasi simbol AuthScreen pada berkas auth_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AuthScreenState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _AuthScreenState pada berkas auth_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/auth/widgets/login_form.dart": {
+    "summary": "Komponen widget antarmuka (login_form) pada fitur auth untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "LoginForm",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol LoginForm pada berkas login_form.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_LoginFormState",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol _LoginFormState pada berkas login_form.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/beranda_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (beranda_screen) pada fitur beranda di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "BerandaScreen",
+        "startLine": 17,
+        "endLine": 57,
+        "summary": "Implementasi simbol BerandaScreen pada berkas beranda_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_BerandaScreenState",
+        "startLine": 37,
+        "endLine": 77,
+        "summary": "Implementasi simbol _BerandaScreenState pada berkas beranda_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_BerandaStatTile",
+        "startLine": 539,
+        "endLine": 579,
+        "summary": "Implementasi simbol _BerandaStatTile pada berkas beranda_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_QuickActionBtn",
+        "startLine": 597,
+        "endLine": 637,
+        "summary": "Implementasi simbol _QuickActionBtn pada berkas beranda_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_RecentTxRow",
+        "startLine": 645,
+        "endLine": 685,
+        "summary": "Implementasi simbol _RecentTxRow pada berkas beranda_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/pengaturan_pengingat_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (pengaturan_pengingat_screen) pada fitur beranda di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "PengaturanPengingatScreen",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol PengaturanPengingatScreen pada berkas pengaturan_pengingat_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_PengaturanPengingatScreenState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _PengaturanPengingatScreenState pada berkas pengaturan_pengingat_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/riwayat_tips_hemat_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (riwayat_tips_hemat_screen) pada fitur beranda di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "RiwayatTipsHematScreen",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol RiwayatTipsHematScreen pada berkas riwayat_tips_hemat_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_RiwayatTipsHematScreenState",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol _RiwayatTipsHematScreenState pada berkas riwayat_tips_hemat_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/widgets/daily_advice_card.dart": {
+    "summary": "Komponen widget antarmuka (daily_advice_card) pada fitur beranda untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "DailyAdviceCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol DailyAdviceCard pada berkas daily_advice_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AdviceMiniStat",
+        "startLine": 339,
+        "endLine": 379,
+        "summary": "Implementasi simbol _AdviceMiniStat pada berkas daily_advice_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/widgets/daily_saving_tips_card.dart": {
+    "summary": "Komponen widget antarmuka (daily_saving_tips_card) pada fitur beranda untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "DailySavingTipsCard",
+        "startLine": 8,
+        "endLine": 48,
+        "summary": "Implementasi simbol DailySavingTipsCard pada berkas daily_saving_tips_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_DailySavingTipsCardState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _DailySavingTipsCardState pada berkas daily_saving_tips_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_TipItemTile",
+        "startLine": 304,
+        "endLine": 344,
+        "summary": "Implementasi simbol _TipItemTile pada berkas daily_saving_tips_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/beranda/widgets/safe_spending_limit_card.dart": {
+    "summary": "Komponen widget antarmuka (safe_spending_limit_card) pada fitur beranda untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "SafeSpendingLimitCard",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol SafeSpendingLimitCard pada berkas safe_spending_limit_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/atur_budget_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (atur_budget_screen) pada fitur budget di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "AturBudgetScreen",
+        "startLine": 13,
+        "endLine": 53,
+        "summary": "Implementasi simbol AturBudgetScreen pada berkas atur_budget_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AturBudgetScreenState",
+        "startLine": 25,
+        "endLine": 65,
+        "summary": "Implementasi simbol _AturBudgetScreenState pada berkas atur_budget_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/adjust_allocation_percentages_sheet.dart": {
+    "summary": "Komponen widget antarmuka (adjust_allocation_percentages_sheet) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "AdjustAllocationPercentagesSheet",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol AdjustAllocationPercentagesSheet pada berkas adjust_allocation_percentages_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AdjustAllocationPercentagesSheetState",
+        "startLine": 47,
+        "endLine": 87,
+        "summary": "Implementasi simbol _AdjustAllocationPercentagesSheetState pada berkas adjust_allocation_percentages_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/budget_alert_settings_card.dart": {
+    "summary": "Komponen widget antarmuka (budget_alert_settings_card) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "BudgetAlertSettingsCard",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol BudgetAlertSettingsCard pada berkas budget_alert_settings_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/budget_allocation_buckets_section.dart": {
+    "summary": "Komponen widget antarmuka (budget_allocation_buckets_section) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "BudgetAllocationBucketsSection",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol BudgetAllocationBucketsSection pada berkas budget_allocation_buckets_section.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/budget_header_summary_card.dart": {
+    "summary": "Komponen widget antarmuka (budget_header_summary_card) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "BudgetHeaderSummaryCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol BudgetHeaderSummaryCard pada berkas budget_header_summary_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/budget_warning_banner.dart": {
+    "summary": "Komponen widget antarmuka (budget_warning_banner) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "BudgetWarningBanner",
+        "startLine": 11,
+        "endLine": 51,
+        "summary": "Implementasi simbol BudgetWarningBanner pada berkas budget_warning_banner.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/category_budget_list_section.dart": {
+    "summary": "Komponen widget antarmuka (category_budget_list_section) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryBudgetListSection",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol CategoryBudgetListSection pada berkas category_budget_list_section.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/edit_budget_limit_sheet.dart": {
+    "summary": "Komponen widget antarmuka (edit_budget_limit_sheet) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "EditBudgetLimitSheet",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol EditBudgetLimitSheet pada berkas edit_budget_limit_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_EditBudgetLimitSheetState",
+        "startLine": 46,
+        "endLine": 86,
+        "summary": "Implementasi simbol _EditBudgetLimitSheetState pada berkas edit_budget_limit_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/budget/widgets/sisa_batas_bulan_berjalan_card.dart": {
+    "summary": "Komponen widget antarmuka (sisa_batas_bulan_berjalan_card) pada fitur budget untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "SisaBatasBulanBerjalanCard",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol SisaBatasBulanBerjalanCard pada berkas sisa_batas_bulan_berjalan_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (category_confirmation_screen) pada fitur category_confirmation di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "CategoryConfirmationScreen",
+        "startLine": 13,
+        "endLine": 53,
+        "summary": "Implementasi simbol CategoryConfirmationScreen pada berkas category_confirmation_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_CategoryConfirmationScreenState",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol _CategoryConfirmationScreenState pada berkas category_confirmation_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/category_confirmation_card.dart": {
+    "summary": "Komponen widget antarmuka (category_confirmation_card) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryConfirmationCard",
+        "startLine": 9,
+        "endLine": 49,
+        "summary": "Implementasi simbol CategoryConfirmationCard pada berkas category_confirmation_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/category_picker_sheet.dart": {
+    "summary": "Komponen widget antarmuka (category_picker_sheet) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryPickerSheet",
+        "startLine": 9,
+        "endLine": 49,
+        "summary": "Implementasi simbol CategoryPickerSheet pada berkas category_picker_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_CategoryPickerSheetState",
+        "startLine": 44,
+        "endLine": 84,
+        "summary": "Implementasi simbol _CategoryPickerSheetState pada berkas category_picker_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/edit_category_sheet.dart": {
+    "summary": "Komponen widget antarmuka (edit_category_sheet) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "EditCategorySheet",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol EditCategorySheet pada berkas edit_category_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_EditCategorySheetState",
+        "startLine": 34,
+        "endLine": 74,
+        "summary": "Implementasi simbol _EditCategorySheetState pada berkas edit_category_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/frequent_category_suggestions.dart": {
+    "summary": "Komponen widget antarmuka (frequent_category_suggestions) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "FrequentCategorySuggestions",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol FrequentCategorySuggestions pada berkas frequent_category_suggestions.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/guessed_category_badge.dart": {
+    "summary": "Komponen widget antarmuka (guessed_category_badge) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "GuessedCategoryBadge",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol GuessedCategoryBadge pada berkas guessed_category_badge.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_confirmation/widgets/transaction_type_indicator.dart": {
+    "summary": "Komponen widget antarmuka (transaction_type_indicator) pada fitur category_confirmation untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TransactionTypeIndicator",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol TransactionTypeIndicator pada berkas transaction_type_indicator.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/category_management/manage_categories_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (manage_categories_screen) pada fitur category_management di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "ManageCategoriesScreen",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol ManageCategoriesScreen pada berkas manage_categories_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_ManageCategoriesScreenState",
+        "startLine": 19,
+        "endLine": 59,
+        "summary": "Implementasi simbol _ManageCategoriesScreenState pada berkas manage_categories_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/chat_history_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (chat_history_screen) pada fitur chat di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "ChatHistoryScreen",
+        "startLine": 10,
+        "endLine": 50,
+        "summary": "Implementasi simbol ChatHistoryScreen pada berkas chat_history_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_ChatHistoryScreenState",
+        "startLine": 24,
+        "endLine": 64,
+        "summary": "Implementasi simbol _ChatHistoryScreenState pada berkas chat_history_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/chat_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (chat_screen) pada fitur chat di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "ChatScreen",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol ChatScreen pada berkas chat_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_ChatScreenState",
+        "startLine": 28,
+        "endLine": 68,
+        "summary": "Implementasi simbol _ChatScreenState pada berkas chat_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/ai_fallback_card.dart": {
+    "summary": "Komponen widget antarmuka (ai_fallback_card) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "AiFallbackCard",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol AiFallbackCard pada berkas ai_fallback_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/chat_bubble.dart": {
+    "summary": "Komponen widget antarmuka (chat_bubble) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "ChatBubble",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol ChatBubble pada berkas chat_bubble.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/chat_input_bar.dart": {
+    "summary": "Komponen widget antarmuka (chat_input_bar) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "ChatInputBar",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol ChatInputBar pada berkas chat_input_bar.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_ChatInputBarState",
+        "startLine": 20,
+        "endLine": 60,
+        "summary": "Implementasi simbol _ChatInputBarState pada berkas chat_input_bar.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/edit_transaction_sheet.dart": {
+    "summary": "Komponen widget antarmuka (edit_transaction_sheet) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "EditTransactionSheet",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol EditTransactionSheet pada berkas edit_transaction_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_EditTransactionSheetState",
+        "startLine": 37,
+        "endLine": 77,
+        "summary": "Implementasi simbol _EditTransactionSheetState pada berkas edit_transaction_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/financial_analysis_card.dart": {
+    "summary": "Komponen widget antarmuka (financial_analysis_card) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "FinancialAnalysisCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol FinancialAnalysisCard pada berkas financial_analysis_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_FinancialAnalysisCardState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _FinancialAnalysisCardState pada berkas financial_analysis_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_MetricTile",
+        "startLine": 389,
+        "endLine": 429,
+        "summary": "Implementasi simbol _MetricTile pada berkas financial_analysis_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_FinancialAnalysisDetailModal",
+        "startLine": 464,
+        "endLine": 504,
+        "summary": "Implementasi simbol _FinancialAnalysisDetailModal pada berkas financial_analysis_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_DetailRow",
+        "startLine": 768,
+        "endLine": 808,
+        "summary": "Implementasi simbol _DetailRow pada berkas financial_analysis_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/manual_input_sheet.dart": {
+    "summary": "Komponen widget antarmuka (manual_input_sheet) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "ManualInputSheet",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol ManualInputSheet pada berkas manual_input_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_ManualInputSheetState",
+        "startLine": 37,
+        "endLine": 77,
+        "summary": "Implementasi simbol _ManualInputSheetState pada berkas manual_input_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart": {
+    "summary": "Komponen widget antarmuka (quick_suggestion_chips) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "QuickSuggestionChips",
+        "startLine": 4,
+        "endLine": 44,
+        "summary": "Implementasi simbol QuickSuggestionChips pada berkas quick_suggestion_chips.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/chat/widgets/transaction_card.dart": {
+    "summary": "Komponen widget antarmuka (transaction_card) pada fitur chat untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TransactionCard",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol TransactionCard pada berkas transaction_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/history/transaction_history_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (transaction_history_screen) pada fitur history di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "TransactionHistoryScreen",
+        "startLine": 11,
+        "endLine": 51,
+        "summary": "Implementasi simbol TransactionHistoryScreen pada berkas transaction_history_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_TransactionHistoryScreenState",
+        "startLine": 24,
+        "endLine": 64,
+        "summary": "Implementasi simbol _TransactionHistoryScreenState pada berkas transaction_history_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/history/widgets/transaction_history_card.dart": {
+    "summary": "Komponen widget antarmuka (transaction_history_card) pada fitur history untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TransactionHistoryCard",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol TransactionHistoryCard pada berkas transaction_history_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/hutang_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (hutang_screen) pada fitur hutang di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "HutangScreen",
+        "startLine": 13,
+        "endLine": 53,
+        "summary": "Implementasi simbol HutangScreen pada berkas hutang_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_HutangScreenState",
+        "startLine": 25,
+        "endLine": 65,
+        "summary": "Implementasi simbol _HutangScreenState pada berkas hutang_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/debt_card.dart": {
+    "summary": "Komponen widget antarmuka (debt_card) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "DebtCard",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol DebtCard pada berkas debt_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/debt_summary_card.dart": {
+    "summary": "Komponen widget antarmuka (debt_summary_card) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "DebtSummaryCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol DebtSummaryCard pada berkas debt_summary_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/jadwal_jatuh_tempo_section.dart": {
+    "summary": "Komponen widget antarmuka (jadwal_jatuh_tempo_section) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "JadwalJatuhTempoSection",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol JadwalJatuhTempoSection pada berkas jadwal_jatuh_tempo_section.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_JadwalJatuhTempoSectionState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _JadwalJatuhTempoSectionState pada berkas jadwal_jatuh_tempo_section.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/pelunasan_dialog.dart": {
+    "summary": "Komponen widget antarmuka (pelunasan_dialog) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "PelunasanDialog",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol PelunasanDialog pada berkas pelunasan_dialog.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_PelunasanDialogState",
+        "startLine": 36,
+        "endLine": 76,
+        "summary": "Implementasi simbol _PelunasanDialogState pada berkas pelunasan_dialog.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/tambah_hutang_bottom_sheet.dart": {
+    "summary": "Komponen widget antarmuka (tambah_hutang_bottom_sheet) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TambahHutangBottomSheet",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol TambahHutangBottomSheet pada berkas tambah_hutang_bottom_sheet.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_TambahHutangBottomSheetState",
+        "startLine": 31,
+        "endLine": 71,
+        "summary": "Implementasi simbol _TambahHutangBottomSheetState pada berkas tambah_hutang_bottom_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/hutang/widgets/total_sisa_hutang_card.dart": {
+    "summary": "Komponen widget antarmuka (total_sisa_hutang_card) pada fitur hutang untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TotalSisaHutangCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol TotalSisaHutangCard pada berkas total_sisa_hutang_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/main_navigation_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (main_navigation_screen) pada fitur main_navigation_screen di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "MainNavigationScreen",
+        "startLine": 12,
+        "endLine": 52,
+        "summary": "Implementasi simbol MainNavigationScreen pada berkas main_navigation_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_MainNavigationScreenState",
+        "startLine": 19,
+        "endLine": 59,
+        "summary": "Implementasi simbol _MainNavigationScreenState pada berkas main_navigation_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_PlaceholderScreen",
+        "startLine": 108,
+        "endLine": 148,
+        "summary": "Implementasi simbol _PlaceholderScreen pada berkas main_navigation_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/rekap_bulanan_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (rekap_bulanan_screen) pada fitur rekap di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "RekapBulananScreen",
+        "startLine": 12,
+        "endLine": 52,
+        "summary": "Implementasi simbol RekapBulananScreen pada berkas rekap_bulanan_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_RekapBulananScreenState",
+        "startLine": 24,
+        "endLine": 64,
+        "summary": "Implementasi simbol _RekapBulananScreenState pada berkas rekap_bulanan_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/category_breakdown_section.dart": {
+    "summary": "Komponen widget antarmuka (category_breakdown_section) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryBreakdownSection",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol CategoryBreakdownSection pada berkas category_breakdown_section.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_CategoryBreakdownSectionState",
+        "startLine": 22,
+        "endLine": 62,
+        "summary": "Implementasi simbol _CategoryBreakdownSectionState pada berkas category_breakdown_section.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/category_nominal_persentase_list.dart": {
+    "summary": "Komponen widget antarmuka (category_nominal_persentase_list) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryNominalPersentaseList",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol CategoryNominalPersentaseList pada berkas category_nominal_persentase_list.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_CategoryNominalPersentaseListState",
+        "startLine": 30,
+        "endLine": 70,
+        "summary": "Implementasi simbol _CategoryNominalPersentaseListState pada berkas category_nominal_persentase_list.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/category_proportion_chart.dart": {
+    "summary": "Komponen widget antarmuka (category_proportion_chart) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "CategoryProportionChart",
+        "startLine": 12,
+        "endLine": 52,
+        "summary": "Implementasi simbol CategoryProportionChart pada berkas category_proportion_chart.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_CategoryProportionChartState",
+        "startLine": 34,
+        "endLine": 74,
+        "summary": "Implementasi simbol _CategoryProportionChartState pada berkas category_proportion_chart.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "CategoryDonutChartPainter",
+        "startLine": 325,
+        "endLine": 365,
+        "summary": "Implementasi simbol CategoryDonutChartPainter pada berkas category_proportion_chart.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/expense_comparison_card.dart": {
+    "summary": "Komponen widget antarmuka (expense_comparison_card) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan."
+  },
+  "frontend/lib/screens/rekap/widgets/income_expense_summary_card.dart": {
+    "summary": "Komponen widget antarmuka (income_expense_summary_card) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan."
+  },
+  "frontend/lib/screens/rekap/widgets/month_navigator_bar.dart": {
+    "summary": "Komponen widget antarmuka (month_navigator_bar) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "MonthNavigatorBar",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol MonthNavigatorBar pada berkas month_navigator_bar.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/monthly_transaction_list_section.dart": {
+    "summary": "Komponen widget antarmuka (monthly_transaction_list_section) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "MonthlyTransactionListSection",
+        "startLine": 8,
+        "endLine": 48,
+        "summary": "Implementasi simbol MonthlyTransactionListSection pada berkas monthly_transaction_list_section.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_MonthlyTransactionListSectionState",
+        "startLine": 27,
+        "endLine": 67,
+        "summary": "Implementasi simbol _MonthlyTransactionListSectionState pada berkas monthly_transaction_list_section.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/monthly_transaction_search_filter.dart": {
+    "summary": "Komponen widget antarmuka (monthly_transaction_search_filter) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan."
+  },
+  "frontend/lib/screens/rekap/widgets/rekap_comparison_card.dart": {
+    "summary": "Komponen widget antarmuka (rekap_comparison_card) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "RekapComparisonCard",
+        "startLine": 6,
+        "endLine": 46,
+        "summary": "Implementasi simbol RekapComparisonCard pada berkas rekap_comparison_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/rekap_summary_card.dart": {
+    "summary": "Komponen widget antarmuka (rekap_summary_card) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "RekapSummaryCard",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol RekapSummaryCard pada berkas rekap_summary_card.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_RekapSummaryCardState",
+        "startLine": 23,
+        "endLine": 63,
+        "summary": "Implementasi simbol _RekapSummaryCardState pada berkas rekap_summary_card.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/rekap/widgets/selected_month_transaction_list.dart": {
+    "summary": "Komponen widget antarmuka (selected_month_transaction_list) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan."
+  },
+  "frontend/lib/screens/rekap/widgets/transaction_detail_sheet.dart": {
+    "summary": "Komponen widget antarmuka (transaction_detail_sheet) pada fitur rekap untuk menyajikan kartu informasi, formulir interaktif, atau visualisasi data keuangan.",
+    "sections": [
+      {
+        "symbol": "TransactionDetailSheet",
+        "startLine": 8,
+        "endLine": 48,
+        "summary": "Implementasi simbol TransactionDetailSheet pada berkas transaction_detail_sheet.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/screens/security/pin_lock_screen.dart": {
+    "summary": "Layar utama antarmuka pengguna (pin_lock_screen) pada fitur security di aplikasi Flutter Moneta yang terhubung secara reaktif dengan AppState.",
+    "sections": [
+      {
+        "symbol": "PinLockScreen",
+        "startLine": 11,
+        "endLine": 51,
+        "summary": "Implementasi simbol PinLockScreen pada berkas pin_lock_screen.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_PinLockScreenState",
+        "startLine": 31,
+        "endLine": 71,
+        "summary": "Implementasi simbol _PinLockScreenState pada berkas pin_lock_screen.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/services/local_preference_service.dart": {
+    "summary": "Service penyimpanan lokal (LocalPreferenceService) berbasis SharedPreferences untuk menyimpan preferensi tema, mata uang, PIN, biometrik, sesi akun, serta snapshot catatan per akun.",
+    "sections": [
+      {
+        "symbol": "LocalPreferenceService",
+        "startLine": 7,
+        "endLine": 47,
+        "summary": "Implementasi simbol LocalPreferenceService pada berkas local_preference_service.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/services/mock_notification_service.dart": {
+    "summary": "Service simulasi pengiriman dan penjadwalan notifikasi pengingat harian lokal di sisi klien Flutter.",
+    "sections": [
+      {
+        "symbol": "NotificationPayload",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol NotificationPayload pada berkas mock_notification_service.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "MockNotificationService",
+        "startLine": 21,
+        "endLine": 61,
+        "summary": "Implementasi simbol MockNotificationService pada berkas mock_notification_service.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/state/app_state.dart": {
+    "summary": "State management terpusat (AppState ChangeNotifier) yang mengelola transaksi, chat AI, rekap bulanan, budget 50/30/20, analisa keuangan, saran harian, hutang/paylater, kategori, pengingat, keamanan PIN/biometrik, dan isolasi data per akun.",
+    "sections": [
+      {
+        "symbol": "AppState",
+        "startLine": 20,
+        "endLine": 60,
+        "summary": "Implementasi simbol AppState pada berkas app_state.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "AppStateScope",
+        "startLine": 990,
+        "endLine": 1004,
+        "summary": "Implementasi simbol AppStateScope pada berkas app_state.dart untuk mendukung logika fitur terkait."
+      },
+      {
+        "symbol": "_AppStateScope",
+        "startLine": 998,
+        "endLine": 1004,
+        "summary": "Implementasi simbol _AppStateScope pada berkas app_state.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/theme/app_theme.dart": {
+    "summary": "Definisi desain visual dan sistem tema aplikasi (AppTheme) untuk mode Terang dan Gelap dengan palet warna emerald/teal modern dan tipografi konsisten.",
+    "sections": [
+      {
+        "symbol": "AppTheme",
+        "startLine": 3,
+        "endLine": 43,
+        "summary": "Implementasi simbol AppTheme pada berkas app_theme.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/utils/currency_format.dart": {
+    "summary": "Utilitas pemformatan angka dan nominal mata uang Rupiah (CurrencyFormat) untuk tampilan ringkas maupun lengkap di seluruh antarmuka.",
+    "sections": [
+      {
+        "symbol": "CurrencyFormat",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol CurrencyFormat pada berkas currency_format.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/lib/widgets/in_app_notification_banner.dart": {
+    "summary": "Widget banner notifikasi mengambang di dalam aplikasi (InAppNotificationBanner) untuk menampilkan pengingat harian dan mengarahkan pengguna ke layar tujuan.",
+    "sections": [
+      {
+        "symbol": "InAppNotificationBanner",
+        "startLine": 5,
+        "endLine": 45,
+        "summary": "Implementasi simbol InAppNotificationBanner pada berkas in_app_notification_banner.dart untuk mendukung logika fitur terkait."
+      }
+    ]
+  },
+  "frontend/moneta.iml": {
+    "summary": "File modul proyek IntelliJ IDEA (IML) untuk konfigurasi sumber daya Dart/Flutter pada aplikasi Moneta."
+  },
+  "frontend/pubspec.lock": {
+    "summary": "Lockfile resolusi versi paket dependensi Dart dan Flutter untuk aplikasi frontend Moneta."
+  },
+  "frontend/pubspec.yaml": {
+    "summary": "Manifes proyek Flutter (moneta) yang mendefinisikan dependensi paket seperti provider, shared_preferences, fl_chart, dan intl."
+  },
+  "frontend/test/adjust_allocation_percentages_sheet_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (adjust_allocation_percentages_sheet_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/akun_pengaturan_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (akun_pengaturan_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/analisa_empty_state_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (analisa_empty_state_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/analisa_state_and_rupiah_format_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (analisa_state_and_rupiah_format_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/app_state_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (app_state_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/atur_budget_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (atur_budget_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/auth_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (auth_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/avg_daily_spend_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (avg_daily_spend_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/beranda_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (beranda_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/budget_alert_settings_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (budget_alert_settings_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/budget_warning_banner_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (budget_warning_banner_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/category_confirmation_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (category_confirmation_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/category_nominal_persentase_list_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (category_nominal_persentase_list_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/category_proportion_chart_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (category_proportion_chart_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/chat_history_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (chat_history_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/chat_input_bar_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (chat_input_bar_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/daily_saving_tips_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (daily_saving_tips_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/early_warning_indicator_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (early_warning_indicator_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/edit_budget_limit_sheet_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (edit_budget_limit_sheet_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/edit_transaction_sheet_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (edit_transaction_sheet_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/empty_category_fallback_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (empty_category_fallback_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/expense_comparison_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (expense_comparison_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/financial_analysis_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (financial_analysis_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/frequent_category_suggestions_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (frequent_category_suggestions_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/guessed_category_and_type_indicator_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (guessed_category_and_type_indicator_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/handle_reminder_notification_routing_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (handle_reminder_notification_routing_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/hutang_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (hutang_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/hutang_state_integration_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (hutang_state_integration_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/income_expense_summary_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (income_expense_summary_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/jadwal_jatuh_tempo_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (jadwal_jatuh_tempo_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/login_form_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (login_form_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/manage_categories_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (manage_categories_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/manual_category_picker_and_type_changer_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (manual_category_picker_and_type_changer_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/manual_input_flow_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (manual_input_flow_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/money_depletion_projection_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (money_depletion_projection_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/month_navigator_bar_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (month_navigator_bar_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/monthly_transaction_list_section_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (monthly_transaction_list_section_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/monthly_transaction_search_filter_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (monthly_transaction_search_filter_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/pengaturan_pengingat_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (pengaturan_pengingat_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/pin_lock_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (pin_lock_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/preferensi_aplikasi_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (preferensi_aplikasi_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/refresh_saran_setelah_catat_pengeluaran_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (refresh_saran_setelah_catat_pengeluaran_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/rekap_bulanan_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (rekap_bulanan_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/rekap_empty_states_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (rekap_empty_states_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/riwayat_tips_hemat_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (riwayat_tips_hemat_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/safe_spending_limit_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (safe_spending_limit_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/sisa_batas_bulan_berjalan_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (sisa_batas_bulan_berjalan_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/tambah_hutang_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (tambah_hutang_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/tandai_lunas_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (tandai_lunas_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/theme_mode_local_storage_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (theme_mode_local_storage_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/total_sisa_hutang_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (total_sisa_hutang_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/transaction_card_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (transaction_card_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/transaction_detail_sheet_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (transaction_detail_sheet_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/transaction_edit_delete_actions_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (transaction_edit_delete_actions_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/transaction_history_screen_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (transaction_history_screen_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
+  },
+  "frontend/test/widget_test.dart": {
+    "summary": "Pengujian widget dan state Flutter (widget_test) untuk memastikan komponen antarmuka, interaksi pengguna, serta alur bisnis berjalan akurat."
   }
 }
