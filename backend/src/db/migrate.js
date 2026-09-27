@@ -63,3 +63,16 @@ export function seedDefaultCategories(db) {
 
   transaction();
 }
+
+// Support running directly via `node src/db/migrate.js` or `npm run migrate`
+const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1]);
+if (isMain) {
+  const { getDatabase, closeDatabase } = await import('../config/database.js');
+  const db = getDatabase();
+  console.log('[Migrate] Running migrations and seeding default categories...');
+  runMigrations(db);
+  const count = db.prepare('SELECT COUNT(*) as count FROM categories WHERE is_default = 1').get().count;
+  console.log(`[Migrate] Migration complete. Total ${count} default categories seeded.`);
+  closeDatabase();
+}
+
