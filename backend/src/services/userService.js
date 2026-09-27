@@ -409,7 +409,7 @@ export function refreshUserSession(db, token, options = {}) {
   return tx();
 }
 
-export function revokeUserSession(db, token) {
+export function revokeUserSession(db, token, options = {}) {
   if (!token || typeof token !== 'string' || !token.trim()) {
     const err = new Error('Token sesi wajib disertakan untuk logout.');
     err.statusCode = 400;
@@ -418,24 +418,118 @@ export function revokeUserSession(db, token) {
   }
 
   const cleanToken = token.trim();
+  const existing = db
+    .prepare('SELECT id, user_id, token, device_name, is_revoked FROM user_sessions WHERE token = ?')
+    .get(cleanToken);
+
+  const hardDelete = Boolean(options.hardDelete || options.deleteSession || options.hapusSesi);
+
+  if (hardDelete) {
+    const delRes = db.prepare('DELETE FROM user_sessions WHERE token = ?').run(cleanToken);
+    return {
+      revoked: delRes.changes > 0,
+      deleted: delRes.changes > 0,
+      sessionId: existing ? existing.id : null,
+      userId: existing ? existing.user_id : null,
+      token: cleanToken,
+    };
+  }
+
   const res = db
     .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE token = ?')
     .run(cleanToken);
 
   return {
     revoked: res.changes > 0,
+    deleted: false,
+    sessionId: existing ? existing.id : null,
+    userId: existing ? existing.user_id : null,
     token: cleanToken,
   };
 }
 
-export function revokeAllUserSessions(db, userId) {
-  const res = db
-    .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE user_id = ? AND is_revoked = 0')
-    .run(userId);
+export function revokeAllUserSessions(db, userId, options = {}) {
+  const numUserId = Number(userId);
+  if (!numUserId || isNaN(numUserId) || numUserId <= 0) {
+    const err = new Error('ID pengguna tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_USER_ID';
+    throw err;
+  }
+
+  const hardDelete = Boolean(options.hardDelete || options.deleteSession || options.hapusSesi);
+  const exceptToken = options.exceptToken ? String(options.exceptToken).trim() : null;
+
+  if (hardDelete) {
+    const res = exceptToken
+      ? db.prepare('DELETE FROM user_sessions WHERE user_id = ? AND token != ?').run(numUserId, exceptToken)
+      : db.prepare('DELETE FROM user_sessions WHERE user_id = ?').run(numUserId);
+
+    return {
+      revokedCount: res.changes,
+      deletedCount: res.changes,
+      deleted: true,
+      userId: numUserId,
+    };
+  }
+
+  const res = exceptToken
+    ? db
+        .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE user_id = ? AND is_revoked = 0 AND token != ?')
+        .run(numUserId, exceptToken)
+    : db
+        .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE user_id = ? AND is_revoked = 0')
+        .run(numUserId);
 
   return {
     revokedCount: res.changes,
-    userId: Number(userId),
+    deletedCount: 0,
+    deleted: false,
+    userId: numUserId,
+  };
+}
+
+export function deleteUserSessionById(db, sessionId, userId = null) {
+  const numId = Number(sessionId);
+  if (!numId || isNaN(numId) || numId <= 0 || !Number.isInteger(numId)) {
+    const err = new Error('ID sesi tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_SESSION_ID';
+    throw err;
+  }
+
+  const existing = userId
+    ? db.prepare('SELECT * FROM user_sessions WHERE id = ? AND user_id = ?').get(numId, Number(userId))
+    : db.prepare('SELECT * FROM user_sessions WHERE id = ?').get(numId);
+
+  if (!existing) {
+    const err = new Error('Sesi tidak ditemukan.');
+    err.statusCode = 404;
+    err.code = 'SESSION_NOT_FOUND';
+    throw err;
+  }
+
+  const res = db.prepare('DELETE FROM user_sessions WHERE id = ?').run(numId);
+  return {
+    deleted: res.changes > 0,
+    sessionId: numId,
+    userId: existing.user_id,
+    token: existing.token,
+    deviceName: existing.device_name,
+  };
+}
+
+export function deleteAllUserSessions(db, userId, options = {}) {
+  return revokeAllUserSessions(db, userId, { ...options, hardDelete: true });
+}
+
+export function cleanupExpiredSessions(db) {
+  const nowIso = new Date().toISOString();
+  const res = db
+    .prepare('DELETE FROM user_sessions WHERE is_revoked = 1 OR expires_at <= ?')
+    .run(nowIso);
+  return {
+    deletedCount: res.changes,
   };
 }
 

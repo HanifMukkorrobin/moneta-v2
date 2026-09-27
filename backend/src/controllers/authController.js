@@ -6,7 +6,9 @@
  * - POST /api/auth/login (masuk ke akun & buat token sesi)
  * - GET & POST /api/auth/verify / /api/auth/me (verifikasi token sesi aktif)
  * - POST /api/auth/refresh (rotasi / perbarui token sesi)
- * - POST /api/auth/logout (keluar & cabut token sesi)
+ * - POST & DELETE /api/auth/logout / /api/auth/session (keluar & hapus/cabut sesi)
+ * - DELETE /api/auth/sessions/:id (hapus satu sesi berdasarkan ID)
+ * - DELETE /api/auth/sessions & POST /api/auth/sessions/clear (hapus seluruh sesi pengguna)
  * - GET /api/auth/sessions (daftar sesi aktif pengguna)
  */
 
@@ -18,6 +20,9 @@ import {
   refreshUserSession,
   revokeUserSession,
   revokeAllUserSessions,
+  deleteUserSessionById,
+  deleteAllUserSessions,
+  cleanupExpiredSessions,
   getUserActiveSessions,
 } from '../services/userService.js';
 
@@ -196,34 +201,55 @@ export async function refreshTokenHandler(req, res) {
 }
 
 /**
- * POST /api/auth/logout & POST /api/auth/keluar & DELETE /api/auth/session
- * Mencabut token sesi saat ini atau seluruh sesi perangkat pengguna
+ * POST & DELETE /api/auth/logout, /api/auth/keluar, /api/auth/session, /api/auth/hapus-sesi
+ * Mencabut atau menghapus sesi saat ini maupun seluruh sesi perangkat pengguna
  */
 export async function logoutUserHandler(req, res) {
   try {
     const db = getDatabase();
     const token = extractTokenFromRequest(req);
     const body = req.body || {};
+    const query = req.query || {};
 
-    if (body.allDevices && (body.userId || token)) {
-      let targetUserId = body.userId ? Number(body.userId) : null;
+    const rawUserId = body.userId ?? query.userId ?? req.headers?.['x-user-id'];
+    const allDevices = Boolean(
+      body.allDevices ||
+      body.semuaPerangkat ||
+      query.allDevices === 'true' ||
+      (!token && rawUserId)
+    );
+    const hardDelete = Boolean(
+      body.hardDelete ||
+      body.deleteSession ||
+      body.hapusSesi ||
+      query.hardDelete === 'true' ||
+      query.deleteSession === 'true' ||
+      req.method === 'DELETE'
+    );
+
+    if (allDevices && (rawUserId || token)) {
+      let targetUserId = rawUserId ? Number(rawUserId) : null;
       if (!targetUserId && token) {
         const verified = verifySessionToken(db, token);
         targetUserId = verified.user.id;
       }
-      const result = revokeAllUserSessions(db, targetUserId);
+      const result = revokeAllUserSessions(db, targetUserId, { hardDelete });
       return res.status(200).json({
         success: true,
-        message: 'Berhasil keluar dari seluruh perangkat.',
+        message: hardDelete
+          ? 'Seluruh sesi perangkat berhasil dihapus.'
+          : 'Berhasil keluar dari seluruh perangkat.',
         data: result,
+        ...result,
       });
     }
 
-    const result = revokeUserSession(db, token);
+    const result = revokeUserSession(db, token, { hardDelete });
     return res.status(200).json({
       success: true,
-      message: 'Berhasil keluar dari sesi.',
+      message: hardDelete ? 'Sesi berhasil dihapus dan keluar dari akun.' : 'Berhasil keluar dari sesi.',
       data: result,
+      ...result,
     });
   } catch (err) {
     const status = err.statusCode || 400;
@@ -231,6 +257,99 @@ export async function logoutUserHandler(req, res) {
       success: false,
       code: err.code || 'LOGOUT_FAILED',
       error: err.message || 'Gagal keluar dari sesi.',
+    });
+  }
+}
+
+/**
+ * DELETE /api/auth/sessions/:id & DELETE /api/auth/sesi/:id
+ * Menghapus satu sesi spesifik berdasarkan ID sesi
+ */
+export async function deleteSessionByIdHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const sessionId = req.params.id;
+    const token = extractTokenFromRequest(req);
+    let userId = req.query?.userId || req.body?.userId || req.headers?.['x-user-id'] || null;
+
+    if (!userId && token) {
+      try {
+        const verified = verifySessionToken(db, token);
+        userId = verified.user.id;
+      } catch {
+        // Allow deletion by sessionId if valid
+      }
+    }
+
+    const result = deleteUserSessionById(db, sessionId, userId);
+    return res.status(200).json({
+      success: true,
+      message: 'Sesi perangkat berhasil dihapus.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'DELETE_SESSION_FAILED',
+      error: err.message || 'Gagal menghapus sesi perangkat.',
+    });
+  }
+}
+
+/**
+ * DELETE /api/auth/sessions & POST /api/auth/sessions/clear
+ * Menghapus semua sesi pengguna atau membersihkan sesi kedaluwarsa
+ */
+export async function clearUserSessionsHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const token = extractTokenFromRequest(req);
+    const body = req.body || {};
+    const query = req.query || {};
+
+    if (body.expiredOnly || query.expiredOnly === 'true') {
+      const cleaned = cleanupExpiredSessions(db);
+      return res.status(200).json({
+        success: true,
+        message: 'Sesi kedaluwarsa dan dicabut berhasil dibersihkan.',
+        data: cleaned,
+        ...cleaned,
+      });
+    }
+
+    let userId = body.userId ?? query.userId ?? req.headers?.['x-user-id'];
+    if (!userId && token) {
+      const verified = verifySessionToken(db, token);
+      userId = verified.user.id;
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        code: 'USER_ID_OR_TOKEN_REQUIRED',
+        error: 'Token sesi atau userId wajib disertakan untuk menghapus sesi.',
+      });
+    }
+
+    const keepCurrent = Boolean(body.keepCurrent || query.keepCurrent === 'true');
+    const result = deleteAllUserSessions(db, userId, {
+      exceptToken: keepCurrent && token ? token : null,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Seluruh sesi pengguna berhasil dihapus.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'CLEAR_SESSIONS_FAILED',
+      error: err.message || 'Gagal menghapus sesi pengguna.',
     });
   }
 }

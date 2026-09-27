@@ -6,8 +6,10 @@
  * - POST /login, /masuk, /signin (login akun & pembuatan token sesi)
  * - GET & POST /verify, /me, /session (verifikasi token sesi aktif)
  * - POST /refresh, /token/refresh (perbarui / rotasi token sesi)
- * - POST & DELETE /logout, /keluar, /session (keluar & cabut token sesi)
- * - GET /sessions, /tokens (daftar sesi aktif pengguna)
+ * - POST & DELETE /logout, /keluar, /session, /sesi, /hapus-sesi (keluar & cabut/hapus sesi)
+ * - DELETE /sessions/:id, /tokens/:id, /sesi/:id (hapus satu sesi perangkat)
+ * - DELETE /sessions, /sesi & POST /sessions/clear (hapus seluruh sesi / bersihkan kedaluwarsa)
+ * - GET /sessions, /tokens, /sesi (daftar sesi aktif pengguna)
  */
 
 import { Router } from 'express';
@@ -17,6 +19,8 @@ import {
   verifyTokenHandler,
   refreshTokenHandler,
   logoutUserHandler,
+  deleteSessionByIdHandler,
+  clearUserSessionsHandler,
   listSessionsHandler,
 } from '../controllers/authController.js';
 
@@ -43,13 +47,28 @@ router.get('/session', verifyTokenHandler);
 router.post('/refresh', refreshTokenHandler);
 router.post('/token/refresh', refreshTokenHandler);
 
-// Keluar / cabut token sesi
+// Keluar & hapus/cabut token sesi
 router.post('/logout', logoutUserHandler);
+router.delete('/logout', logoutUserHandler);
 router.post('/keluar', logoutUserHandler);
+router.delete('/keluar', logoutUserHandler);
 router.delete('/session', logoutUserHandler);
+router.delete('/sesi', logoutUserHandler);
+router.post('/hapus-sesi', logoutUserHandler);
+
+// Hapus satu sesi perangkat berdasarkan ID
+router.delete('/sessions/:id', deleteSessionByIdHandler);
+router.delete('/tokens/:id', deleteSessionByIdHandler);
+router.delete('/sesi/:id', deleteSessionByIdHandler);
+
+// Hapus seluruh sesi pengguna / bersihkan sesi kedaluwarsa
+router.delete('/sessions', clearUserSessionsHandler);
+router.post('/sessions/clear', clearUserSessionsHandler);
+router.post('/sesi/hapus-semua', clearUserSessionsHandler);
 
 // Daftar sesi aktif pengguna
 router.get('/sessions', listSessionsHandler);
 router.get('/tokens', listSessionsHandler);
+router.get('/sesi', listSessionsHandler);
 
 export default router;
