@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../mock/ai_insight_mock_data.dart';
 import '../mock/daily_spending_mock_data.dart';
+import '../mock/debt_mock_data.dart';
 import '../mock/mock_data.dart';
 import '../models/ai_insight_item.dart';
 import '../models/category_item.dart';
@@ -9,6 +10,7 @@ import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
 import '../models/daily_reminder_settings.dart';
 import '../models/daily_spending_item.dart';
+import '../models/debt_item.dart';
 import '../models/transaction_item.dart';
 import '../utils/currency_format.dart';
 
@@ -25,6 +27,7 @@ class AppState extends ChangeNotifier {
   List<ChatMessage> _messages = [];
   List<ChatLogItem> _chatLogs = [];
   List<CategoryItem> _categories = [];
+  List<DebtItem> _debts = [];
   bool _isAiTyping = false;
   AiInsightItem _aiInsight = AiInsightMockData.getDefaultInsight();
   DailySpendingAnalysis _dailySpendingAnalysis =
@@ -34,10 +37,19 @@ class AppState extends ChangeNotifier {
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
   List<CategoryItem> get categories => List.unmodifiable(_categories);
+  List<DebtItem> get debts => List.unmodifiable(_debts);
   bool get isAiTyping => _isAiTyping;
   AiInsightItem get aiInsight => _aiInsight;
   DailySpendingAnalysis get dailySpendingAnalysis => _dailySpendingAnalysis;
   DailyReminderSettings get reminderSettings => _reminderSettings;
+
+  int get activeDebtsCount => _debts.where((d) => !d.isPaid).length;
+  int get paidDebtsCount => _debts.where((d) => d.isPaid).length;
+  int get dueSoonDebtsCount => _debts.where((d) => d.isDueSoon).length;
+  double get totalRemainingDebt =>
+      _debts.where((d) => !d.isPaid).fold(0.0, (sum, d) => sum + d.remainingAmount);
+  double get totalOriginalDebt =>
+      _debts.fold(0.0, (sum, d) => sum + d.totalAmount);
 
   List<CategoryItem> get expenseCategories =>
       _categories.where((c) => c.isExpense).toList();
@@ -99,6 +111,7 @@ class AppState extends ChangeNotifier {
     _messages = MockData.getInitialMessages();
     _chatLogs = MockData.getMockChatLogs();
     _categories = MockData.getInitialCategories();
+    _debts = DebtMockData.getInitialDebts();
     _isAiTyping = false;
     _aiInsight = AiInsightMockData.getDefaultInsight();
     _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
@@ -768,6 +781,99 @@ class AppState extends ChangeNotifier {
     );
 
     recalculateAnalysis(notify: false);
+    notifyListeners();
+  }
+
+  // ==========================================
+  // CATATAN HUTANG & PAYLATER MOCK STATE
+  // ==========================================
+
+  /// Add a new debt to mock state
+  void addDebt(DebtItem debt) {
+    _debts.insert(0, debt);
+    notifyListeners();
+  }
+
+  /// Mark a debt as paid in mock state
+  void markDebtPaid(String id) {
+    final idx = _debts.indexWhere((d) => d.id == id);
+    if (idx != -1) {
+      _debts[idx] = _debts[idx].copyWith(
+        status: 'paid',
+        remainingAmount: 0,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Reopen a paid debt back to active status
+  void reopenDebt(String id) {
+    final idx = _debts.indexWhere((d) => d.id == id);
+    if (idx != -1) {
+      final d = _debts[idx];
+      _debts[idx] = d.copyWith(
+        status: 'active',
+        remainingAmount: d.totalAmount > 0 ? d.totalAmount : 100000,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Record a payment (full or partial) for a debt
+  void recordDebtPayment(
+    String id,
+    double amount, {
+    bool isFull = false,
+    String? notes,
+  }) {
+    final idx = _debts.indexWhere((d) => d.id == id);
+    if (idx != -1) {
+      final d = _debts[idx];
+      final newRemaining =
+          isFull ? 0.0 : (d.remainingAmount - amount).clamp(0.0, d.totalAmount);
+      final isNowPaid = newRemaining <= 0;
+      _debts[idx] = d.copyWith(
+        remainingAmount: newRemaining,
+        status: isNowPaid ? 'paid' : 'active',
+        notes: notes ?? d.notes,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Restore debt to previous state (used for Undo)
+  void restoreDebt(String id, DebtItem previousState) {
+    final idx = _debts.indexWhere((d) => d.id == id);
+    if (idx != -1) {
+      _debts[idx] = previousState;
+      notifyListeners();
+    }
+  }
+
+  /// Update debt details
+  void updateDebt(DebtItem debt) {
+    final idx = _debts.indexWhere((d) => d.id == debt.id);
+    if (idx != -1) {
+      _debts[idx] = debt;
+      notifyListeners();
+    }
+  }
+
+  /// Delete a debt by id
+  void deleteDebt(String id) {
+    _debts.removeWhere((d) => d.id == id);
+    notifyListeners();
+  }
+
+  /// Reset debts list back to default initial mock data
+  void resetDebts() {
+    _debts = DebtMockData.getInitialDebts();
+    notifyListeners();
+  }
+
+  /// Overwrite debts list (useful for test setups)
+  void setDebts(List<DebtItem> debts) {
+    _debts = List.of(debts);
     notifyListeners();
   }
 

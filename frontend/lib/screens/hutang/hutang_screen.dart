@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../mock/debt_mock_data.dart';
 import '../../models/debt_item.dart';
+import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/currency_format.dart';
 import 'widgets/debt_card.dart';
@@ -30,14 +31,30 @@ class _HutangScreenState extends State<HutangScreen> {
   @override
   void initState() {
     super.initState();
-    _debts = List.of(widget.initialDebts ?? DebtMockData.getInitialDebts());
+    if (widget.initialDebts != null) {
+      _debts = List.of(widget.initialDebts!);
+    } else {
+      _debts = List.of(AppState.instance.debts);
+      AppState.instance.addListener(_onAppStateChanged);
+    }
     _searchController = TextEditingController();
   }
 
   @override
   void dispose() {
+    if (widget.initialDebts == null) {
+      AppState.instance.removeListener(_onAppStateChanged);
+    }
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onAppStateChanged() {
+    if (mounted) {
+      setState(() {
+        _debts = List.of(AppState.instance.debts);
+      });
+    }
   }
 
   List<DebtItem> get _filteredDebts {
@@ -69,12 +86,16 @@ class _HutangScreenState extends State<HutangScreen> {
     final index = _debts.indexWhere((d) => d.id == debt.id);
     if (index != -1) {
       final previousDebt = _debts[index];
-      setState(() {
-        _debts[index] = debt.copyWith(
-          status: 'paid',
-          remainingAmount: 0,
-        );
-      });
+      if (widget.initialDebts == null) {
+        AppState.instance.markDebtPaid(debt.id);
+      } else {
+        setState(() {
+          _debts[index] = debt.copyWith(
+            status: 'paid',
+            remainingAmount: 0,
+          );
+        });
+      }
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,12 +108,16 @@ class _HutangScreenState extends State<HutangScreen> {
             label: 'Urungkan',
             textColor: Colors.amberAccent,
             onPressed: () {
-              setState(() {
-                final curIdx = _debts.indexWhere((d) => d.id == debt.id);
-                if (curIdx != -1) {
-                  _debts[curIdx] = previousDebt;
-                }
-              });
+              if (widget.initialDebts == null) {
+                AppState.instance.restoreDebt(debt.id, previousDebt);
+              } else {
+                setState(() {
+                  final curIdx = _debts.indexWhere((d) => d.id == debt.id);
+                  if (curIdx != -1) {
+                    _debts[curIdx] = previousDebt;
+                  }
+                });
+              }
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -111,12 +136,16 @@ class _HutangScreenState extends State<HutangScreen> {
   void _reopenDebt(DebtItem debt) {
     final index = _debts.indexWhere((d) => d.id == debt.id);
     if (index != -1) {
-      setState(() {
-        _debts[index] = debt.copyWith(
-          status: 'active',
-          remainingAmount: debt.totalAmount > 0 ? debt.totalAmount : 100000,
-        );
-      });
+      if (widget.initialDebts == null) {
+        AppState.instance.reopenDebt(debt.id);
+      } else {
+        setState(() {
+          _debts[index] = debt.copyWith(
+            status: 'active',
+            remainingAmount: debt.totalAmount > 0 ? debt.totalAmount : 100000,
+          );
+        });
+      }
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -143,13 +172,22 @@ class _HutangScreenState extends State<HutangScreen> {
               : (debt.remainingAmount - amount).clamp(0.0, debt.totalAmount);
           final isNowPaid = newRemaining <= 0;
 
-          setState(() {
-            _debts[index] = debt.copyWith(
-              remainingAmount: newRemaining,
-              status: isNowPaid ? 'paid' : 'active',
-              notes: notes ?? debt.notes,
+          if (widget.initialDebts == null) {
+            AppState.instance.recordDebtPayment(
+              debt.id,
+              amount,
+              isFull: isFull,
+              notes: notes,
             );
-          });
+          } else {
+            setState(() {
+              _debts[index] = debt.copyWith(
+                remainingAmount: newRemaining,
+                status: isNowPaid ? 'paid' : 'active',
+                notes: notes ?? debt.notes,
+              );
+            });
+          }
 
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,15 +198,29 @@ class _HutangScreenState extends State<HutangScreen> {
               duration: const Duration(seconds: 4),
               behavior: SnackBarBehavior.floating,
               action: SnackBarAction(
+                key: const Key('btn_undo_pelunasan'),
                 label: 'Urungkan',
                 textColor: Colors.amberAccent,
                 onPressed: () {
-                  setState(() {
-                    final curIdx = _debts.indexWhere((d) => d.id == debt.id);
-                    if (curIdx != -1) {
-                      _debts[curIdx] = previousDebt;
-                    }
-                  });
+                  if (widget.initialDebts == null) {
+                    AppState.instance.restoreDebt(debt.id, previousDebt);
+                  } else {
+                    setState(() {
+                      final curIdx = _debts.indexWhere((d) => d.id == debt.id);
+                      if (curIdx != -1) {
+                        _debts[curIdx] = previousDebt;
+                      }
+                    });
+                  }
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text('Pembayaran "${debt.name}" berhasil dibatalkan.'),
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 },
               ),
             ),
@@ -187,10 +239,17 @@ class _HutangScreenState extends State<HutangScreen> {
   }
 
   void _refreshDebts() {
-    setState(() {
-      _debts = List.of(widget.initialDebts ?? DebtMockData.getInitialDebts());
-      _selectedFilter = 'all';
-    });
+    if (widget.initialDebts == null) {
+      AppState.instance.resetDebts();
+      setState(() {
+        _selectedFilter = 'all';
+      });
+    } else {
+      setState(() {
+        _debts = List.of(widget.initialDebts!);
+        _selectedFilter = 'all';
+      });
+    }
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -206,9 +265,13 @@ class _HutangScreenState extends State<HutangScreen> {
     TambahHutangBottomSheet.show(
       context,
       onAdd: (newDebt) {
-        setState(() {
-          _debts.insert(0, newDebt);
-        });
+        if (widget.initialDebts == null) {
+          AppState.instance.addDebt(newDebt);
+        } else {
+          setState(() {
+            _debts.insert(0, newDebt);
+          });
+        }
 
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
