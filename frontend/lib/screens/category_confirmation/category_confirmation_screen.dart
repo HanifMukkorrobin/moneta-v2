@@ -48,6 +48,12 @@ class _CategoryConfirmationScreenState
       if (_selectedFilter == 'confirmed' && !item.isConfirmed) return false;
       if (_selectedFilter == 'expense' && !item.isExpense) return false;
       if (_selectedFilter == 'income' && !item.isIncome) return false;
+      if (_selectedFilter == 'unclassified' &&
+          !(item.detectedCategory.isEmpty ||
+              item.detectedCategory == 'Belum Dikategorikan' ||
+              item.detectedCategory == 'Kategori Kosong')) {
+        return false;
+      }
 
       // Filter by search query
       if (_searchQuery.trim().isNotEmpty) {
@@ -66,6 +72,13 @@ class _CategoryConfirmationScreenState
   int get _confirmedCount => _items.where((i) => i.isConfirmed).length;
   int get _expenseCount => _items.where((i) => i.isExpense).length;
   int get _incomeCount => _items.where((i) => i.isIncome).length;
+  int get _unclassifiedCount => _items
+      .where((i) =>
+          !i.isConfirmed &&
+          (i.detectedCategory.isEmpty ||
+              i.detectedCategory == 'Belum Dikategorikan' ||
+              i.detectedCategory == 'Kategori Kosong'))
+      .length;
 
   double get _pendingTotalAmount {
     double total = 0;
@@ -78,6 +91,14 @@ class _CategoryConfirmationScreenState
   }
 
   void _handleConfirmItem(CategoryConfirmationItem item) {
+    bool defaulted = false;
+    if (item.detectedCategory.isEmpty ||
+        item.detectedCategory == 'Belum Dikategorikan' ||
+        item.detectedCategory == 'Kategori Kosong') {
+      item.detectedCategory = 'Lainnya';
+      defaulted = true;
+    }
+
     setState(() {
       item.isConfirmed = true;
     });
@@ -103,12 +124,15 @@ class _CategoryConfirmationScreenState
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${item.detectedCategory} (${item.formattedAmount}) dikonfirmasi!',
+                defaulted
+                    ? 'Kategori belum dipilih. Disimpan sebagai "Lainnya" (${item.formattedAmount})!'
+                    : '${item.detectedCategory} (${item.formattedAmount}) dikonfirmasi!',
               ),
             ),
           ],
         ),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor:
+            defaulted ? Colors.amber.shade900 : AppTheme.primaryColor,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -472,6 +496,8 @@ class _CategoryConfirmationScreenState
             child: Row(
               children: [
                 _buildFilterChip('pending', 'Perlu Ditinjau ($_pendingCount)'),
+                const SizedBox(width: 8),
+                _buildFilterChip('unclassified', 'Perlu Kategori ($_unclassifiedCount)'),
                 const SizedBox(width: 8),
                 _buildFilterChip('all', 'Semua (${_items.length})'),
                 const SizedBox(width: 8),

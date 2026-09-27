@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "b1e0ea2c7940186fcbd52de81042c53a37b246ec",
+  "generatedForCommit": "bc3d61a46e7ad169a685795f006d35cc5f988cd2",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -112,7 +112,7 @@
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 10441
     },
@@ -136,21 +136,27 @@
     },
     {
       "path": "frontend/lib/models/transaction_item.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 1904
     },
     {
       "path": "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 19811
+      "size": 20597
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/category_confirmation_card.dart",
       "reason": "changed",
       "language": null,
-      "size": 12688
+      "size": 12789
+    },
+    {
+      "path": "frontend/lib/screens/category_confirmation/widgets/category_picker_sheet.dart",
+      "reason": "new",
+      "language": null,
+      "size": 23556
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/edit_category_sheet.dart",
@@ -160,13 +166,13 @@
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/guessed_category_badge.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 9231
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/transaction_type_indicator.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 2764
     },
@@ -220,7 +226,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 12198
     },
@@ -268,9 +274,9 @@
     },
     {
       "path": "frontend/test/category_confirmation_screen_test.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 7753
+      "size": 7747
     },
     {
       "path": "frontend/test/chat_history_screen_test.dart",
@@ -292,9 +298,15 @@
     },
     {
       "path": "frontend/test/guessed_category_and_type_indicator_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 5390
+    },
+    {
+      "path": "frontend/test/manual_category_picker_and_type_changer_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 7100
     },
     {
       "path": "frontend/test/manual_input_flow_test.dart",

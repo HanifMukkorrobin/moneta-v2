@@ -61,7 +61,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap "Pengeluaran" filter chip
-    final expenseChip = find.widgetWithText(FilterChip, 'Pengeluaran (4)');
+    final expenseChip = find.widgetWithText(FilterChip, 'Pengeluaran (5)');
     expect(expenseChip, findsOneWidget);
     await tester.tap(expenseChip);
     await tester.pumpAndSettle();

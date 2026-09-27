@@ -165,7 +165,75 @@ class CategoryConfirmationCard extends StatelessWidget {
                   onTap: onEditCategory,
                 ),
 
-                // Alternative Category Suggestions
+                // Fallback Quick Picker Box for Empty / Failed Guess
+                if ((item.detectedCategory.isEmpty ||
+                        item.detectedCategory == 'Belum Dikategorikan' ||
+                        item.detectedCategory == 'Kategori Kosong') &&
+                    !isConfirmed) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.amber.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.touch_app_outlined,
+                                size: 14, color: Colors.amber.shade900),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Pilih kategori langsung (Fallback Cepat):',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber.shade900,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: (isExpense
+                                  ? [
+                                      'Makan & Minuman',
+                                      'Transportasi',
+                                      'Belanja',
+                                      'Tagihan & Utilitas',
+                                      'Lainnya'
+                                    ]
+                                  : [
+                                      'Gaji',
+                                      'Freelance',
+                                      'Bonus',
+                                      'Transfer Masuk',
+                                      'Lainnya'
+                                    ])
+                              .map((quickCat) => ActionChip(
+                                    label: Text(quickCat),
+                                    labelStyle: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(
+                                        color: Colors.amber.shade300),
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: () =>
+                                        onSelectAlternative(quickCat),
+                                  ))
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 if (item.alternativeCategories.isNotEmpty && !isConfirmed) ...[
                   const SizedBox(height: 10),
                   Text(

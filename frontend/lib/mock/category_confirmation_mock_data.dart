@@ -82,6 +82,19 @@ class CategoryConfirmationMockData {
         isConfirmed: false,
         alternativeCategories: ['Bonus', 'Bisnis Sampingan', 'Transfer Masuk'],
       ),
+      CategoryConfirmationItem(
+        id: 'conf_7',
+        rawSentence: 'Transfer bayar urusan tadi siang 75rb',
+        detectedCategory: 'Belum Dikategorikan',
+        confidenceScore: 0.35,
+        aiReasoning: 'Tebakan kategori gagal: kalimat tidak mengandung kata kunci yang spesifik',
+        type: 'expense',
+        typeReasoning: 'Kata "transfer bayar" terdeteksi sebagai pengeluaran',
+        amount: 75000,
+        occurredAt: now.subtract(const Duration(hours: 5)),
+        isConfirmed: false,
+        alternativeCategories: ['Belanja', 'Kebutuhan Rumah', 'Hiburan', 'Lainnya'],
+      ),
     ];
   }
 }
