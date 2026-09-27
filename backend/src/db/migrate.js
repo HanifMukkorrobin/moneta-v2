@@ -668,12 +668,181 @@ export function ensureDebtsSchema(db) {
   db.exec("CREATE VIEW IF NOT EXISTS hutang AS SELECT * FROM debts;");
 }
 
+export function ensureUsersSchema(db) {
+  // 1. Ensure users table exists with full Akun & Pengaturan schema
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT,
+        display_name TEXT,
+        currency TEXT NOT NULL DEFAULT 'IDR',
+        currency_symbol TEXT NOT NULL DEFAULT 'Rp',
+        pin_hash TEXT,
+        pin_enabled INTEGER NOT NULL DEFAULT 0 CHECK(pin_enabled IN (0, 1)),
+        biometric_enabled INTEGER NOT NULL DEFAULT 0 CHECK(biometric_enabled IN (0, 1)),
+        notifications_enabled INTEGER NOT NULL DEFAULT 1 CHECK(notifications_enabled IN (0, 1)),
+        ai_advice_tone TEXT NOT NULL DEFAULT 'Standar' CHECK(ai_advice_tone IN ('Santai', 'Standar', 'Tegas', 'santai', 'standar', 'tegas')),
+        monthly_budget_limit REAL NOT NULL DEFAULT 6000000 CHECK(monthly_budget_limit >= 0),
+        account_tier TEXT NOT NULL DEFAULT 'Personal AI',
+        date_format TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
+        first_day_of_week TEXT NOT NULL DEFAULT 'Senin',
+        theme_mode TEXT NOT NULL DEFAULT 'Terang' CHECK(theme_mode IN ('Terang', 'Gelap', 'Ikuti Sistem', 'Sistem', 'terang', 'gelap', 'ikuti_sistem', 'sistem', 'light', 'dark', 'system')),
+        hide_balance INTEGER NOT NULL DEFAULT 0 CHECK(hide_balance IN (0, 1)),
+        auto_confirm_chat INTEGER NOT NULL DEFAULT 0 CHECK(auto_confirm_chat IN (0, 1)),
+        haptic_feedback INTEGER NOT NULL DEFAULT 1 CHECK(haptic_feedback IN (0, 1)),
+        budget_alert_threshold INTEGER NOT NULL DEFAULT 80 CHECK(budget_alert_threshold >= 0 AND budget_alert_threshold <= 100),
+        phone TEXT,
+        avatar_url TEXT,
+        last_login_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // 2. Ensure all columns exist on pre-existing/legacy users tables
+  const userCols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+
+  if (!userCols.includes('password_hash')) {
+    db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
+  }
+  if (!userCols.includes('display_name')) {
+    db.exec('ALTER TABLE users ADD COLUMN display_name TEXT');
+  }
+  if (!userCols.includes('currency')) {
+    db.exec("ALTER TABLE users ADD COLUMN currency TEXT NOT NULL DEFAULT 'IDR'");
+  }
+  if (!userCols.includes('currency_symbol')) {
+    db.exec("ALTER TABLE users ADD COLUMN currency_symbol TEXT NOT NULL DEFAULT 'Rp'");
+  }
+  if (!userCols.includes('pin_hash')) {
+    db.exec('ALTER TABLE users ADD COLUMN pin_hash TEXT');
+  }
+  if (!userCols.includes('pin_enabled')) {
+    db.exec('ALTER TABLE users ADD COLUMN pin_enabled INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!userCols.includes('biometric_enabled')) {
+    db.exec('ALTER TABLE users ADD COLUMN biometric_enabled INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!userCols.includes('notifications_enabled')) {
+    db.exec('ALTER TABLE users ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1');
+  }
+  if (!userCols.includes('ai_advice_tone')) {
+    db.exec("ALTER TABLE users ADD COLUMN ai_advice_tone TEXT NOT NULL DEFAULT 'Standar'");
+  }
+  if (!userCols.includes('monthly_budget_limit')) {
+    db.exec('ALTER TABLE users ADD COLUMN monthly_budget_limit REAL NOT NULL DEFAULT 6000000');
+  }
+  if (!userCols.includes('account_tier')) {
+    db.exec("ALTER TABLE users ADD COLUMN account_tier TEXT NOT NULL DEFAULT 'Personal AI'");
+  }
+  if (!userCols.includes('date_format')) {
+    db.exec("ALTER TABLE users ADD COLUMN date_format TEXT NOT NULL DEFAULT 'DD/MM/YYYY'");
+  }
+  if (!userCols.includes('first_day_of_week')) {
+    db.exec("ALTER TABLE users ADD COLUMN first_day_of_week TEXT NOT NULL DEFAULT 'Senin'");
+  }
+  if (!userCols.includes('theme_mode')) {
+    db.exec("ALTER TABLE users ADD COLUMN theme_mode TEXT NOT NULL DEFAULT 'Terang'");
+  }
+  if (!userCols.includes('hide_balance')) {
+    db.exec('ALTER TABLE users ADD COLUMN hide_balance INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!userCols.includes('auto_confirm_chat')) {
+    db.exec('ALTER TABLE users ADD COLUMN auto_confirm_chat INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!userCols.includes('haptic_feedback')) {
+    db.exec('ALTER TABLE users ADD COLUMN haptic_feedback INTEGER NOT NULL DEFAULT 1');
+  }
+  if (!userCols.includes('budget_alert_threshold')) {
+    db.exec('ALTER TABLE users ADD COLUMN budget_alert_threshold INTEGER NOT NULL DEFAULT 80');
+  }
+  if (!userCols.includes('phone')) {
+    db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+  }
+  if (!userCols.includes('avatar_url')) {
+    db.exec('ALTER TABLE users ADD COLUMN avatar_url TEXT');
+  }
+  if (!userCols.includes('last_login_at')) {
+    db.exec('ALTER TABLE users ADD COLUMN last_login_at DATETIME');
+  }
+  if (!userCols.includes('created_at')) {
+    db.exec('ALTER TABLE users ADD COLUMN created_at DATETIME');
+    db.exec('UPDATE users SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL');
+  }
+  if (!userCols.includes('updated_at')) {
+    db.exec('ALTER TABLE users ADD COLUMN updated_at DATETIME');
+    db.exec('UPDATE users SET updated_at = COALESCE(created_at, CURRENT_TIMESTAMP) WHERE updated_at IS NULL');
+  }
+
+  // 3. Ensure user_sessions table exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT UNIQUE NOT NULL,
+        device_name TEXT,
+        ip_address TEXT,
+        expires_at DATETIME NOT NULL,
+        is_revoked INTEGER NOT NULL DEFAULT 0 CHECK(is_revoked IN (0, 1)),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  const sessionCols = db.prepare('PRAGMA table_info(user_sessions)').all().map((c) => c.name);
+  if (!sessionCols.includes('device_name')) {
+    db.exec('ALTER TABLE user_sessions ADD COLUMN device_name TEXT');
+  }
+  if (!sessionCols.includes('ip_address')) {
+    db.exec('ALTER TABLE user_sessions ADD COLUMN ip_address TEXT');
+  }
+  if (!sessionCols.includes('expires_at')) {
+    db.exec("ALTER TABLE user_sessions ADD COLUMN expires_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  }
+  if (!sessionCols.includes('is_revoked')) {
+    db.exec('ALTER TABLE user_sessions ADD COLUMN is_revoked INTEGER NOT NULL DEFAULT 0');
+  }
+  if (!sessionCols.includes('created_at')) {
+    db.exec('ALTER TABLE user_sessions ADD COLUMN created_at DATETIME');
+    db.exec('UPDATE user_sessions SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL');
+  }
+
+  // 4. Performance indices
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_currency ON users(currency);');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_theme_mode ON users(theme_mode);');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token);');
+
+  // 5. Trigger for automatic updated_at timestamp on users
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS trg_users_updated_at
+    AFTER UPDATE ON users
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+    BEGIN
+        UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+    END;
+  `);
+
+  // 6. Views for Indonesian aliases
+  db.exec('CREATE VIEW IF NOT EXISTS pengguna AS SELECT * FROM users;');
+  db.exec('CREATE VIEW IF NOT EXISTS akun_pengguna AS SELECT * FROM users;');
+  db.exec('CREATE VIEW IF NOT EXISTS sesi_pengguna AS SELECT * FROM user_sessions;');
+}
+
 export function runMigrations(db) {
+  // Ensure users schema & columns exist first so indices in schema.sql succeed on legacy DBs
+  ensureUsersSchema(db);
+
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
   // Execute schema creation
   db.exec(schemaPath.endsWith('.sql') ? schemaSql : schemaSql);
+
+  // Ensure users schema, columns, indices, triggers, and views exist
+  ensureUsersSchema(db);
 
   // Ensure transaction columns (category, type, guessed flags) exist on pre-existing tables
   ensureTransactionCategoryAndTypeColumns(db);

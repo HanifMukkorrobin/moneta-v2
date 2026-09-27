@@ -5,16 +5,64 @@
 
 PRAGMA foreign_keys = ON;
 
--- 1. Users Table
+-- 1. Users Table (Akun & Pengaturan Pengguna)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT,
     display_name TEXT,
-    currency TEXT DEFAULT 'IDR',
+    currency TEXT NOT NULL DEFAULT 'IDR',
+    currency_symbol TEXT NOT NULL DEFAULT 'Rp',
     pin_hash TEXT,
+    pin_enabled INTEGER NOT NULL DEFAULT 0 CHECK(pin_enabled IN (0, 1)),
+    biometric_enabled INTEGER NOT NULL DEFAULT 0 CHECK(biometric_enabled IN (0, 1)),
+    notifications_enabled INTEGER NOT NULL DEFAULT 1 CHECK(notifications_enabled IN (0, 1)),
+    ai_advice_tone TEXT NOT NULL DEFAULT 'Standar' CHECK(ai_advice_tone IN ('Santai', 'Standar', 'Tegas', 'santai', 'standar', 'tegas')),
+    monthly_budget_limit REAL NOT NULL DEFAULT 6000000 CHECK(monthly_budget_limit >= 0),
+    account_tier TEXT NOT NULL DEFAULT 'Personal AI',
+    date_format TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
+    first_day_of_week TEXT NOT NULL DEFAULT 'Senin',
+    theme_mode TEXT NOT NULL DEFAULT 'Terang' CHECK(theme_mode IN ('Terang', 'Gelap', 'Ikuti Sistem', 'Sistem', 'terang', 'gelap', 'ikuti_sistem', 'sistem', 'light', 'dark', 'system')),
+    hide_balance INTEGER NOT NULL DEFAULT 0 CHECK(hide_balance IN (0, 1)),
+    auto_confirm_chat INTEGER NOT NULL DEFAULT 0 CHECK(auto_confirm_chat IN (0, 1)),
+    haptic_feedback INTEGER NOT NULL DEFAULT 1 CHECK(haptic_feedback IN (0, 1)),
+    budget_alert_threshold INTEGER NOT NULL DEFAULT 80 CHECK(budget_alert_threshold >= 0 AND budget_alert_threshold <= 100),
+    phone TEXT,
+    avatar_url TEXT,
+    last_login_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1b. User Sessions Table (Sesi Autentikasi Pengguna)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token TEXT UNIQUE NOT NULL,
+    device_name TEXT,
+    ip_address TEXT,
+    expires_at DATETIME NOT NULL,
+    is_revoked INTEGER NOT NULL DEFAULT 0 CHECK(is_revoked IN (0, 1)),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_currency ON users(currency);
+CREATE INDEX IF NOT EXISTS idx_users_theme_mode ON users(theme_mode);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token);
+
+CREATE TRIGGER IF NOT EXISTS trg_users_updated_at
+AFTER UPDATE ON users
+FOR EACH ROW
+WHEN NEW.updated_at = OLD.updated_at
+BEGIN
+    UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE VIEW IF NOT EXISTS pengguna AS SELECT * FROM users;
+CREATE VIEW IF NOT EXISTS akun_pengguna AS SELECT * FROM users;
+CREATE VIEW IF NOT EXISTS sesi_pengguna AS SELECT * FROM user_sessions;
 
 -- 2. Categories Table
 CREATE TABLE IF NOT EXISTS categories (
