@@ -34,8 +34,8 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
   @override
   void initState() {
     super.initState();
-    _spendingAnalysis =
-        widget.initialAnalysis ?? DailySpendingMockData.getDefaultDailyAnalysis();
+    _spendingAnalysis = widget.initialAnalysis ??
+        AppState.instance.dailySpendingAnalysis;
     _showEmptyState = widget.initialEmpty ?? false;
     AppState.instance.addListener(_onStateChange);
   }
@@ -47,7 +47,13 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
   }
 
   void _onStateChange() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {
+        if (widget.initialAnalysis == null) {
+          _spendingAnalysis = AppState.instance.dailySpendingAnalysis;
+        }
+      });
+    }
   }
 
   void _toggleAnalysisPreset() {
@@ -65,6 +71,32 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
           'Data simulasi diganti: Rata-rata ${_spendingAnalysis.formattedAvgDailySpend}/hari',
         ),
         duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _refreshAnalysisState({bool isReset = false}) {
+    final appState = AppState.instance;
+    setState(() {
+      _showEmptyState = false;
+      if (isReset) {
+        _spendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
+      }
+    });
+    if (isReset) {
+      appState.resetToDefault();
+    } else {
+      appState.recalculateAnalysis();
+      if (widget.initialAnalysis == null) {
+        _spendingAnalysis = appState.dailySpendingAnalysis;
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        key: Key('analysis_refreshed_snackbar'),
+        content: Text('Pembaruan state analisa berhasil.'),
+        duration: Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -100,24 +132,23 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
             onPressed: _toggleAnalysisPreset,
           ),
           IconButton(
+            key: const Key('action_refresh_analysis'),
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Reset Analisa',
-            onPressed: () {
-              setState(() {
-                _showEmptyState = false;
-                _spendingAnalysis =
-                    DailySpendingMockData.getDefaultDailyAnalysis();
-              });
-              appState.resetToDefault();
-            },
+            onPressed: () => _refreshAnalysisState(isReset: true),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        key: const Key('analisa_body_scroll_view'),
-        padding: const EdgeInsets.only(bottom: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _refreshAnalysisState();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          key: const Key('analisa_body_scroll_view'),
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_showEmptyState) ...[
               AnalisaEmptyStateCard(
@@ -188,14 +219,19 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const _TipItem(
+                  _TipItem(
                     text:
-                        'Pengeluaran di akhir pekan rata-rata 85% lebih tinggi daripada hari kerja. Tetapkan batas jajan khusus Sabtu-Minggu.',
+                        'Saran AI: ${insight.dailyAdvice}',
                   ),
                   const SizedBox(height: 8),
-                  const _TipItem(
+                  _TipItem(
                     text:
-                        'Kategori Makan & Minuman mendominasi 48% pengeluaran harian. Membawa bekal 2x seminggu dapat menghemat hingga Rp 150.000/pekan.',
+                        'Kategori ${_spendingAnalysis.topCategoryName} menyumbang ${_spendingAnalysis.topCategoryPercentage.toStringAsFixed(0)}% pengeluaran. Batasi jajan atau alokasi kategori ini agar tetap hemat.',
+                  ),
+                  const SizedBox(height: 8),
+                  _TipItem(
+                    text:
+                        'Batas rekomendasi harian Anda: ${insight.formattedRecommendedDailyBudget}/hari untuk sisa ${insight.estimatedDaysLeft} hari ke depan.',
                   ),
                 ],
               ),
@@ -204,7 +240,8 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
         ],
       ),
     ),
-  );
+  ),
+);
 }
 }
 

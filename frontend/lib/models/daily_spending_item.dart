@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import '../utils/currency_format.dart';
 
 class DailySpendingPoint {
   final String dayLabel; // e.g. 'Sen', 'Sel', 'Rab'
@@ -13,20 +13,10 @@ class DailySpendingPoint {
     this.isAboveAverage = false,
   });
 
-  String get formattedAmount => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(amount);
+  String get formattedAmount => CurrencyFormat.formatRupiah(amount);
 
-  String get formattedShortAmount {
-    if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)}jt';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)}rb';
-    }
-    return amount.toStringAsFixed(0);
-  }
+  String get formattedShortAmount =>
+      CurrencyFormat.formatCompactRupiah(amount, withSymbol: false);
 }
 
 class DailySpendingAnalysis {
@@ -57,29 +47,17 @@ class DailySpendingAnalysis {
   bool get isAboveTarget => avgDailySpend > targetDailySpend;
   bool get isSpendingIncreasing => weekOverWeekPercent > 0;
 
-  String get formattedAvgDailySpend => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(avgDailySpend);
+  String get formattedAvgDailySpend =>
+      CurrencyFormat.formatRupiah(avgDailySpend);
 
-  String get formattedTargetDailySpend => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(targetDailySpend);
+  String get formattedTargetDailySpend =>
+      CurrencyFormat.formatRupiah(targetDailySpend);
 
-  String get formattedHighestSpend => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(highestSpendAmount);
+  String get formattedHighestSpend =>
+      CurrencyFormat.formatRupiah(highestSpendAmount);
 
-  String get formattedLowestSpend => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(lowestSpendAmount);
+  String get formattedLowestSpend =>
+      CurrencyFormat.formatRupiah(lowestSpendAmount);
 
   String get comparisonBadgeLabel {
     final sign = weekOverWeekPercent > 0 ? '+' : '';

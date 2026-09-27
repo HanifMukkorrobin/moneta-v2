@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../models/ai_insight_item.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/currency_format.dart';
 
 class MoneyDepletionProjectionCard extends StatefulWidget {
   final AiInsightItem insight;
@@ -367,11 +367,7 @@ class _MoneyDepletionProjectionCardState
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        NumberFormat.currency(
-                          locale: 'id_ID',
-                          symbol: 'Rp ',
-                          decimalDigits: 0,
-                        ).format(_simulatedDailySpend),
+                        CurrencyFormat.formatRupiah(_simulatedDailySpend),
                         key: const Key('simulated_spend_label'),
                         style: const TextStyle(
                           fontSize: 11.5,

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../mock/ai_insight_mock_data.dart';
+import '../mock/daily_spending_mock_data.dart';
 import '../mock/mock_data.dart';
 import '../models/ai_insight_item.dart';
 import '../models/category_item.dart';
 import '../models/category_usage.dart';
 import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
+import '../models/daily_spending_item.dart';
 import '../models/transaction_item.dart';
+import '../utils/currency_format.dart';
 
 class AppState extends ChangeNotifier {
   static AppState? _instance;
@@ -23,12 +26,15 @@ class AppState extends ChangeNotifier {
   List<CategoryItem> _categories = [];
   bool _isAiTyping = false;
   AiInsightItem _aiInsight = AiInsightMockData.getDefaultInsight();
+  DailySpendingAnalysis _dailySpendingAnalysis =
+      DailySpendingMockData.getDefaultDailyAnalysis();
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
   List<CategoryItem> get categories => List.unmodifiable(_categories);
   bool get isAiTyping => _isAiTyping;
   AiInsightItem get aiInsight => _aiInsight;
+  DailySpendingAnalysis get dailySpendingAnalysis => _dailySpendingAnalysis;
 
   List<CategoryItem> get expenseCategories =>
       _categories.where((c) => c.isExpense).toList();
@@ -92,6 +98,7 @@ class AppState extends ChangeNotifier {
     _categories = MockData.getInitialCategories();
     _isAiTyping = false;
     _aiInsight = AiInsightMockData.getDefaultInsight();
+    _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
   }
 
   void resetToDefault() {
@@ -104,6 +111,11 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setDailySpendingAnalysis(DailySpendingAnalysis analysis) {
+    _dailySpendingAnalysis = analysis;
+    notifyListeners();
+  }
+
   void cycleAiInsightPreset() {
     if (_aiInsight.warnLevel == AiWarnLevel.normal) {
       _aiInsight = AiInsightMockData.getWarningInsight();
@@ -113,6 +125,212 @@ class AppState extends ChangeNotifier {
       _aiInsight = AiInsightMockData.getDefaultInsight();
     }
     notifyListeners();
+  }
+
+  static String _fullDayName(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Senin';
+      case DateTime.tuesday:
+        return 'Selasa';
+      case DateTime.wednesday:
+        return 'Rabu';
+      case DateTime.thursday:
+        return 'Kamis';
+      case DateTime.friday:
+        return 'Jumat';
+      case DateTime.saturday:
+        return 'Sabtu';
+      case DateTime.sunday:
+        return 'Minggu';
+      default:
+        return 'Hari ini';
+    }
+  }
+
+  /// Recalculates AI insight and daily spending analysis based on real confirmed transactions.
+  void recalculateAnalysis({
+    bool notify = true,
+    double monthlyBudget = 6000000,
+  }) {
+    final expenseTxs =
+        confirmedTransactions.where((t) => t.isExpense).toList();
+    final now = DateTime.now();
+
+    if (expenseTxs.isEmpty) {
+      _aiInsight = _aiInsight.copyWith(
+        totalSpent: 0,
+        remainingBalance: monthlyBudget,
+        avgDailySpend: 0,
+        dailyAdvice:
+            'Belum ada transaksi pengeluaran bulan ini. Catat transaksi pertamamu lewat chat!',
+        warnLevel: AiWarnLevel.normal,
+      );
+      _dailySpendingAnalysis = DailySpendingAnalysis(
+        avgDailySpend: 0,
+        targetDailySpend: 65000,
+        weekOverWeekPercent: 0,
+        highestSpendAmount: 0,
+        highestSpendDay: 'Belum Ada',
+        lowestSpendAmount: 0,
+        lowestSpendDay: 'Belum Ada',
+        topCategoryName: 'Belum Ada',
+        topCategoryPercentage: 0,
+        dailyPoints: List.generate(7, (i) {
+          final d = now.subtract(Duration(days: 6 - i));
+          const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+          return DailySpendingPoint(
+            dayLabel: days[(d.weekday - 1) % 7],
+            date: d,
+            amount: 0,
+            isAboveAverage: false,
+          );
+        }),
+      );
+      if (notify) notifyListeners();
+      return;
+    }
+
+    final today = DateTime(now.year, now.month, now.day);
+    const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    final List<DailySpendingPoint> rawPoints = [];
+    double total7Days = 0;
+    double highestSpend = 0;
+    String highestDay = 'Senin';
+    double lowestSpend = double.infinity;
+    String lowestDay = 'Senin';
+
+    final Map<String, double> categorySums = {};
+    double totalExpenseAmount = 0;
+
+    for (var tx in expenseTxs) {
+      totalExpenseAmount += tx.amount;
+      categorySums[tx.category] =
+          (categorySums[tx.category] ?? 0) + tx.amount;
+    }
+
+    for (int i = 6; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      double daySum = 0;
+      for (var tx in expenseTxs) {
+        final txDate = DateTime(
+            tx.occurredAt.year, tx.occurredAt.month, tx.occurredAt.day);
+        if (txDate.isAtSameMomentAs(date)) {
+          daySum += tx.amount;
+        }
+      }
+      total7Days += daySum;
+      final weekdayIdx = (date.weekday - 1) % 7;
+      final label = dayNames[weekdayIdx];
+      if (daySum > highestSpend) {
+        highestSpend = daySum;
+        highestDay = _fullDayName(date.weekday);
+      }
+      if (daySum < lowestSpend) {
+        lowestSpend = daySum;
+        lowestDay = _fullDayName(date.weekday);
+      }
+      rawPoints.add(DailySpendingPoint(
+        dayLabel: label,
+        date: date,
+        amount: daySum,
+        isAboveAverage: false,
+      ));
+    }
+
+    if (lowestSpend == double.infinity) {
+      lowestSpend = 0;
+      lowestDay = 'Senin';
+    }
+
+    final avgDaily =
+        total7Days > 0 ? (total7Days / 7.0) : (totalExpenseAmount / 7.0);
+
+    final updatedPoints = rawPoints
+        .map((p) => DailySpendingPoint(
+              dayLabel: p.dayLabel,
+              date: p.date,
+              amount: p.amount,
+              isAboveAverage: avgDaily > 0 && p.amount > avgDaily,
+            ))
+        .toList();
+
+    String topCat = 'Lainnya';
+    double topCatMax = 0;
+    categorySums.forEach((cat, amt) {
+      if (amt > topCatMax) {
+        topCatMax = amt;
+        topCat = cat;
+      }
+    });
+    final topCatPct = totalExpenseAmount > 0
+        ? ((topCatMax / totalExpenseAmount) * 100)
+        : 0.0;
+
+    _dailySpendingAnalysis = DailySpendingAnalysis(
+      avgDailySpend: avgDaily,
+      targetDailySpend: 65000,
+      weekOverWeekPercent: 5.2,
+      highestSpendAmount: highestSpend,
+      highestSpendDay: highestDay,
+      lowestSpendAmount: lowestSpend,
+      lowestSpendDay: lowestDay,
+      topCategoryName: topCat,
+      topCategoryPercentage: topCatPct,
+      dailyPoints: updatedPoints,
+    );
+
+    final remainingBalance =
+        (monthlyBudget - totalExpenseAmount).clamp(0.0, double.infinity);
+
+    final nextMonth = DateTime(now.year, now.month + 1, 1);
+    final lastDay = nextMonth.subtract(const Duration(days: 1));
+    final daysRemainingInMonth = (lastDay.day - now.day).clamp(1, 31);
+
+    final recommendedDailyBudget =
+        (remainingBalance / daysRemainingInMonth).roundToDouble();
+    final estimatedDaysLeft = avgDaily > 0
+        ? (remainingBalance / avgDaily).floor()
+        : daysRemainingInMonth;
+
+    final AiWarnLevel warnLevel;
+    if (remainingBalance <= 0 ||
+        estimatedDaysLeft <= 5 ||
+        (estimatedDaysLeft < daysRemainingInMonth &&
+            daysRemainingInMonth - estimatedDaysLeft > 10)) {
+      warnLevel = AiWarnLevel.critical;
+    } else if (estimatedDaysLeft < daysRemainingInMonth ||
+        avgDaily > recommendedDailyBudget * 1.25) {
+      warnLevel = AiWarnLevel.warning;
+    } else {
+      warnLevel = AiWarnLevel.normal;
+    }
+
+    final String dailyAdvice;
+    if (warnLevel == AiWarnLevel.critical) {
+      dailyAdvice =
+          'Kritis: Sisa saldo menipis! Batasi pengeluaran maksimal ${CurrencyFormat.formatRupiah(recommendedDailyBudget)}/hari agar bertahan sampai akhir bulan.';
+    } else if (warnLevel == AiWarnLevel.warning) {
+      dailyAdvice =
+          'Perhatian: Pengeluaran harian (${CurrencyFormat.formatRupiah(avgDaily)}) di atas target (${CurrencyFormat.formatRupiah(recommendedDailyBudget)}). Batasi pos jajan dan belanja non-esensial.';
+    } else {
+      dailyAdvice =
+          'Pertahankan ritme belanja Anda. Batasi pos non-esensial maksimal ${CurrencyFormat.formatRupiah(recommendedDailyBudget)} hari ini agar saldo aman sampai akhir bulan.';
+    }
+
+    _aiInsight = _aiInsight.copyWith(
+      date: now,
+      avgDailySpend: avgDaily,
+      estimatedDaysLeft: estimatedDaysLeft,
+      recommendedDailyBudget: recommendedDailyBudget,
+      dailyAdvice: dailyAdvice,
+      warnLevel: warnLevel,
+      totalMonthlyBudget: monthlyBudget,
+      totalSpent: totalExpenseAmount,
+      remainingBalance: remainingBalance,
+    );
+
+    if (notify) notifyListeners();
   }
 
   /// Add a custom category
@@ -379,6 +597,7 @@ class AppState extends ChangeNotifier {
       }
     }
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
   }
 
@@ -405,6 +624,7 @@ class AppState extends ChangeNotifier {
       }
     }
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
   }
 
@@ -435,6 +655,7 @@ class AppState extends ChangeNotifier {
       }
     }
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
   }
 
@@ -462,6 +683,7 @@ class AppState extends ChangeNotifier {
       }
     }
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
     return removedMessage;
   }
@@ -479,6 +701,7 @@ class AppState extends ChangeNotifier {
           }
         }
       }
+      recalculateAnalysis(notify: false);
       notifyListeners();
     }
     return index;
@@ -503,6 +726,7 @@ class AppState extends ChangeNotifier {
       }
     }
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
   }
 
@@ -534,6 +758,7 @@ class AppState extends ChangeNotifier {
       ),
     );
 
+    recalculateAnalysis(notify: false);
     notifyListeners();
   }
 

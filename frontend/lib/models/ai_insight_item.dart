@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../utils/currency_format.dart';
 
 enum AiWarnLevel {
   normal,
@@ -97,29 +98,17 @@ class AiInsightItem {
   bool get isWarning => warnLevel == AiWarnLevel.warning;
   bool get isCritical => warnLevel == AiWarnLevel.critical;
 
-  String get formattedAvgDailySpend => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(avgDailySpend);
+  String get formattedAvgDailySpend =>
+      CurrencyFormat.formatRupiah(avgDailySpend);
 
-  String get formattedRecommendedDailyBudget => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(recommendedDailyBudget);
+  String get formattedRecommendedDailyBudget =>
+      CurrencyFormat.formatRupiah(recommendedDailyBudget);
 
-  String get formattedRemainingBalance => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(remainingBalance);
+  String get formattedRemainingBalance =>
+      CurrencyFormat.formatRupiah(remainingBalance);
 
-  String get formattedTotalSpent => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(totalSpent);
+  String get formattedTotalSpent =>
+      CurrencyFormat.formatRupiah(totalSpent);
 
   static const _monthNames = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -161,11 +150,8 @@ class AiInsightItem {
     return 'Aman melampaui akhir bulan (+$surplusDays hari)';
   }
 
-  String get formattedTotalMonthlyBudget => NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(totalMonthlyBudget);
+  String get formattedTotalMonthlyBudget =>
+      CurrencyFormat.formatRupiah(totalMonthlyBudget);
 
   AiInsightItem copyWith({
     String? id,
