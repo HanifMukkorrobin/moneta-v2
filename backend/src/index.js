@@ -9,6 +9,7 @@ import transactionRoutes from './routes/transactionRoutes.js';
 import summaryBudgetRoutes, { rekapRouter, budgetRouter } from './routes/summaryBudgetRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
+import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
@@ -49,6 +50,14 @@ app.use('/analisa', analysisRoutes);
 app.use('/api/analisa', analysisRoutes);
 app.use('/analysis', analysisRoutes);
 app.use('/api/analysis', analysisRoutes);
+
+// Mount Saran Harian AI endpoints
+app.use('/saran', dailyAdviceRoutes);
+app.use('/api/saran', dailyAdviceRoutes);
+app.use('/saran-harian', dailyAdviceRoutes);
+app.use('/api/saran-harian', dailyAdviceRoutes);
+app.use('/daily-advice', dailyAdviceRoutes);
+app.use('/api/daily-advice', dailyAdviceRoutes);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
