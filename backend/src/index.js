@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { getDatabase, closeDatabase } from './config/database.js';
 import { runMigrations } from './db/migrate.js';
 
+import chatRoutes from './routes/chatRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -16,6 +18,10 @@ app.use(express.json());
 const db = getDatabase();
 runMigrations(db);
 
+// Mount Chat parsing endpoints
+app.use('/chat', chatRoutes);
+app.use('/api/chat', chatRoutes);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -26,7 +32,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'test') {
+// Start server when executed directly as main module
+const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1]);
+if (process.env.NODE_ENV !== 'test' && isMain) {
   app.listen(PORT, () => {
     console.log(`[Moneta Backend] Server listening on http://localhost:${PORT}`);
   });
