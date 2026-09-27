@@ -27,85 +27,229 @@ class RekapComparisonCard extends StatelessWidget {
       decimalDigits: 0,
     );
 
+    final thisMonthAmountFormatted = currencyFormatter.format(data.totalExpense);
+    final lastMonthAmountFormatted = currencyFormatter.format(data.lastMonthTotalExpense);
+    final nominalDiffFormatted = currencyFormatter.format(expenseNominalDiff);
+
+    // Proportions for visual bar comparison
+    final maxExpense = data.totalExpense > data.lastMonthTotalExpense
+        ? data.totalExpense
+        : data.lastMonthTotalExpense;
+    final thisMonthFraction = maxExpense > 0 ? (data.totalExpense / maxExpense).clamp(0.05, 1.0) : 0.5;
+    final lastMonthFraction = maxExpense > 0 ? (data.lastMonthTotalExpense / maxExpense).clamp(0.05, 1.0) : 0.5;
+
+    final statusColor = isExpenseLower ? AppTheme.incomeColor : Colors.amber.shade900;
+    final statusBgColor = isExpenseLower
+        ? AppTheme.incomeColor.withValues(alpha: 0.08)
+        : Colors.amber.shade50;
+    final statusBorderColor = isExpenseLower
+        ? AppTheme.incomeColor.withValues(alpha: 0.25)
+        : Colors.amber.shade200;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
+      key: const Key('rekap_comparison_card'),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: isExpenseLower
-            ? AppTheme.incomeColor.withValues(alpha: 0.05)
-            : Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isExpenseLower
-              ? AppTheme.incomeColor.withValues(alpha: 0.25)
-              : Colors.amber.shade200,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.borderSubtle),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isExpenseLower
-                  ? AppTheme.incomeColor.withValues(alpha: 0.15)
-                  : Colors.amber.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isExpenseLower
-                  ? Icons.trending_down_rounded
-                  : Icons.trending_up_rounded,
-              size: 20,
-              color: isExpenseLower ? AppTheme.incomeColor : Colors.amber.shade900,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      isExpenseLower ? 'Kabar Baik! ' : 'Perhatian Pengeluaran! ',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isExpenseLower
-                            ? AppTheme.incomeColor
-                            : Colors.amber.shade900,
-                      ),
+          // Header: Icon + Title + Delta Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: statusBgColor,
+                      shape: BoxShape.circle,
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: (isExpenseLower ? AppTheme.incomeColor : Colors.amber.shade800)
-                            .withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${isExpenseLower ? 'Hemat' : 'Naik'} ${expenseDiffAbs.toStringAsFixed(1)}%',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isExpenseLower
-                              ? AppTheme.incomeColor
-                              : Colors.amber.shade900,
-                        ),
+                    child: Icon(
+                      isExpenseLower ? Icons.trending_down_rounded : Icons.trending_up_rounded,
+                      size: 18,
+                      color: statusColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Perbandingan Bulan Lalu',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                key: const Key('comparison_badge'),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: statusBgColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: statusBorderColor),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isExpenseLower ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                      size: 12,
+                      color: statusColor,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${isExpenseLower ? 'Hemat' : 'Naik'} ${expenseDiffAbs.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: statusColor,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  isExpenseLower
-                      ? 'Pengeluaran bulan ini lebih hemat ${currencyFormatter.format(expenseNominalDiff)} dibandingkan bulan lalu.'
-                      : 'Pengeluaran bulan ini meningkat ${currencyFormatter.format(expenseNominalDiff)} dibandingkan bulan lalu.',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                    height: 1.35,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Two comparative metric cards: Bulan Lalu vs Bulan Ini
+          Row(
+            children: [
+              // Bulan Lalu
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bulan Lalu',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        lastMonthAmountFormatted,
+                        key: const Key('last_month_expense_text'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: lastMonthFraction,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.shade400),
+                          minHeight: 5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Bulan Ini
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: statusBgColor,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: statusBorderColor),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bulan Ini',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        thisMonthAmountFormatted,
+                        key: const Key('this_month_expense_text'),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: isExpenseLower ? AppTheme.primaryColor : Colors.amber.shade900,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: thisMonthFraction,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                          minHeight: 5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Insight & summary explanation text
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: statusBgColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isExpenseLower ? Icons.check_circle_outline_rounded : Icons.info_outline_rounded,
+                  size: 16,
+                  color: statusColor,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isExpenseLower
+                        ? 'Pengeluaran bulan ini lebih hemat $nominalDiffFormatted dibandingkan bulan lalu.'
+                        : 'Pengeluaran bulan ini meningkat $nominalDiffFormatted dibandingkan bulan lalu.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: statusColor,
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
                   ),
                 ),
               ],
@@ -116,3 +260,7 @@ class RekapComparisonCard extends StatelessWidget {
     );
   }
 }
+
+// Convenient export aliases
+typedef ExpenseComparisonCard = RekapComparisonCard;
+typedef KartuPerbandinganPengeluaran = RekapComparisonCard;
