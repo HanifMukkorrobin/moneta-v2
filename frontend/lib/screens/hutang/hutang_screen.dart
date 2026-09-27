@@ -4,6 +4,7 @@ import '../../models/debt_item.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/debt_card.dart';
 import 'widgets/debt_summary_card.dart';
+import 'widgets/tambah_hutang_bottom_sheet.dart';
 
 class HutangScreen extends StatefulWidget {
   final List<DebtItem>? initialDebts;
@@ -103,6 +104,27 @@ class _HutangScreenState extends State<HutangScreen> {
     );
   }
 
+  void _openAddDebtForm() {
+    TambahHutangBottomSheet.show(
+      context,
+      onAdd: (newDebt) {
+        setState(() {
+          _debts.insert(0, newDebt);
+        });
+
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            key: const Key('snackbar_debt_added'),
+            content: Text('Hutang "${newDebt.name}" berhasil ditambahkan!'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredDebts;
@@ -124,6 +146,12 @@ class _HutangScreenState extends State<HutangScreen> {
         centerTitle: false,
         iconTheme: const IconThemeData(color: AppTheme.textPrimary),
         actions: [
+          IconButton(
+            key: const Key('btn_add_debt_appbar'),
+            icon: const Icon(Icons.add_circle_outline_rounded),
+            tooltip: 'Tambah Hutang',
+            onPressed: _openAddDebtForm,
+          ),
           IconButton(
             key: const Key('btn_refresh_debts'),
             icon: const Icon(Icons.refresh_rounded),
@@ -229,16 +257,7 @@ class _HutangScreenState extends State<HutangScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('btn_add_debt_fab'),
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Fitur tambah hutang baru segera hadir!'),
-              duration: Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
+        onPressed: _openAddDebtForm,
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded, size: 20),
