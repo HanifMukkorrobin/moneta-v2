@@ -8,6 +8,7 @@ import '../analisa/analisa_keuangan_screen.dart';
 import '../budget/atur_budget_screen.dart';
 import '../chat/widgets/manual_input_sheet.dart';
 import '../rekap/rekap_bulanan_screen.dart';
+import 'pengaturan_pengingat_screen.dart';
 import 'riwayat_tips_hemat_screen.dart';
 import 'widgets/daily_advice_card.dart';
 import 'widgets/daily_saving_tips_card.dart';
@@ -118,6 +119,19 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const RiwayatTipsHematScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('beranda_pengaturan_pengingat_button'),
+            icon: const Icon(Icons.notifications_outlined),
+            tooltip: 'Pengaturan Pengingat Harian',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PengaturanPengingatScreen(),
                 ),
               );
             },

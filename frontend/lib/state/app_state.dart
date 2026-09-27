@@ -7,6 +7,7 @@ import '../models/category_item.dart';
 import '../models/category_usage.dart';
 import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
+import '../models/daily_reminder_settings.dart';
 import '../models/daily_spending_item.dart';
 import '../models/transaction_item.dart';
 import '../utils/currency_format.dart';
@@ -28,6 +29,7 @@ class AppState extends ChangeNotifier {
   AiInsightItem _aiInsight = AiInsightMockData.getDefaultInsight();
   DailySpendingAnalysis _dailySpendingAnalysis =
       DailySpendingMockData.getDefaultDailyAnalysis();
+  DailyReminderSettings _reminderSettings = const DailyReminderSettings();
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
@@ -35,6 +37,7 @@ class AppState extends ChangeNotifier {
   bool get isAiTyping => _isAiTyping;
   AiInsightItem get aiInsight => _aiInsight;
   DailySpendingAnalysis get dailySpendingAnalysis => _dailySpendingAnalysis;
+  DailyReminderSettings get reminderSettings => _reminderSettings;
 
   List<CategoryItem> get expenseCategories =>
       _categories.where((c) => c.isExpense).toList();
@@ -99,6 +102,7 @@ class AppState extends ChangeNotifier {
     _isAiTyping = false;
     _aiInsight = AiInsightMockData.getDefaultInsight();
     _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
+    _reminderSettings = const DailyReminderSettings();
   }
 
   void resetToDefault() {
@@ -113,6 +117,11 @@ class AppState extends ChangeNotifier {
 
   void setDailySpendingAnalysis(DailySpendingAnalysis analysis) {
     _dailySpendingAnalysis = analysis;
+    notifyListeners();
+  }
+
+  void updateReminderSettings(DailyReminderSettings newSettings) {
+    _reminderSettings = newSettings;
     notifyListeners();
   }
 
