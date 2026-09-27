@@ -8,6 +8,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
 import summaryBudgetRoutes, { rekapRouter, budgetRouter } from './routes/summaryBudgetRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import analysisRoutes from './routes/analysisRoutes.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
@@ -42,6 +43,12 @@ app.use('/api', summaryBudgetRoutes);
 // Mount Category & Classification endpoints
 app.use('/categories', categoryRoutes);
 app.use('/api/categories', categoryRoutes);
+
+// Mount Analisa Keuangan AI endpoints
+app.use('/analisa', analysisRoutes);
+app.use('/api/analisa', analysisRoutes);
+app.use('/analysis', analysisRoutes);
+app.use('/api/analysis', analysisRoutes);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
