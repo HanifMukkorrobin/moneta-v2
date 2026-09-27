@@ -10,12 +10,14 @@ enum BudgetWarningLevel {
 
 class BudgetWarningBanner extends StatelessWidget {
   final MonthlyBudgetSummary summary;
+  final double threshold;
   final VoidCallback? onAdjustBudget;
   final VoidCallback? onDismiss;
 
   const BudgetWarningBanner({
     super.key,
     required this.summary,
+    this.threshold = 80.0,
     this.onAdjustBudget,
     this.onDismiss,
   });
@@ -23,7 +25,7 @@ class BudgetWarningBanner extends StatelessWidget {
   BudgetWarningLevel get warningLevel {
     if (summary.totalBudget <= 0) return BudgetWarningLevel.none;
     if (summary.isOverBudget) return BudgetWarningLevel.overLimit;
-    if (summary.percentageUsed >= 80.0) return BudgetWarningLevel.nearLimit;
+    if (summary.percentageUsed >= threshold) return BudgetWarningLevel.nearLimit;
     return BudgetWarningLevel.none;
   }
 

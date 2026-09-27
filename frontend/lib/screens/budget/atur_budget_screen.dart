@@ -3,6 +3,7 @@ import '../../mock/budget_mock_data.dart';
 import '../../models/budget_item.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/adjust_allocation_percentages_sheet.dart';
+import 'widgets/budget_alert_settings_card.dart';
 import 'widgets/budget_allocation_buckets_section.dart';
 import 'widgets/budget_header_summary_card.dart';
 import 'widgets/budget_warning_banner.dart';
@@ -25,6 +26,10 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
   late String _selectedMonth;
   late MonthlyBudgetSummary _budgetSummary;
   bool _isWarningBannerDismissed = false;
+  bool _isBudgetAlertEnabled = true;
+  double _alertThreshold = 80.0;
+  bool _isPushNotificationEnabled = true;
+  bool _isOverBudgetAlertEnabled = true;
 
   final List<String> _availableMonths = const [
     '2026-09',
@@ -348,9 +353,10 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                 )
               else ...[
                 // Budget Warning Banner (Near Limit / Over Limit)
-                if (!_isWarningBannerDismissed)
+                if (_isBudgetAlertEnabled && !_isWarningBannerDismissed)
                   BudgetWarningBanner(
                     summary: summary,
+                    threshold: _alertThreshold,
                     onAdjustBudget: _openEditBudgetSheet,
                     onDismiss: () {
                       setState(() {
@@ -389,6 +395,50 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                         duration: const Duration(seconds: 1),
                       ),
                     );
+                  },
+                ),
+
+                // Budget Alert Notification Settings Card
+                BudgetAlertSettingsCard(
+                  isAlertEnabled: _isBudgetAlertEnabled,
+                  alertThreshold: _alertThreshold,
+                  isPushNotificationEnabled: _isPushNotificationEnabled,
+                  isOverBudgetAlertEnabled: _isOverBudgetAlertEnabled,
+                  onToggleAlert: (val) {
+                    setState(() {
+                      _isBudgetAlertEnabled = val;
+                    });
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          val ? 'Peringatan budget diaktifkan.' : 'Peringatan budget dinonaktifkan.',
+                        ),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  onSelectThreshold: (val) {
+                    setState(() {
+                      _alertThreshold = val;
+                    });
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Ambang batas peringatan diubah ke ${val.toStringAsFixed(0)}%.'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  onTogglePushNotification: (val) {
+                    setState(() {
+                      _isPushNotificationEnabled = val;
+                    });
+                  },
+                  onToggleOverBudgetAlert: (val) {
+                    setState(() {
+                      _isOverBudgetAlertEnabled = val;
+                    });
                   },
                 ),
               ],
