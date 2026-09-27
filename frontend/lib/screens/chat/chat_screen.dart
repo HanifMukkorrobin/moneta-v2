@@ -4,9 +4,11 @@ import '../../mock/mock_data.dart';
 import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../theme/app_theme.dart';
+import 'widgets/ai_fallback_card.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/edit_transaction_sheet.dart';
+import 'widgets/manual_input_sheet.dart';
 import 'widgets/quick_suggestion_chips.dart';
 import 'widgets/transaction_card.dart';
 
@@ -69,16 +71,29 @@ class _ChatScreenState extends State<ChatScreen> {
     // Simulate AI parsing delay (9Router mock)
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return;
-      final parsed = MockData.parseText(trimmed);
+      final parsed = MockData.parseTextOrNull(trimmed);
 
-      final aiMessage = ChatMessage(
-        id: 'msg_ai_${DateTime.now().millisecondsSinceEpoch}',
-        text: 'AI berhasil mengenali transaksi. Konfirmasi untuk mencatat:',
-        isUser: false,
-        timestamp: DateTime.now(),
-        isAi: true,
-        transaction: parsed,
-      );
+      final ChatMessage aiMessage;
+      if (parsed != null) {
+        aiMessage = ChatMessage(
+          id: 'msg_ai_${DateTime.now().millisecondsSinceEpoch}',
+          text: 'AI berhasil mengenali transaksi. Konfirmasi untuk mencatat:',
+          isUser: false,
+          timestamp: DateTime.now(),
+          isAi: true,
+          transaction: parsed,
+        );
+      } else {
+        aiMessage = ChatMessage(
+          id: 'msg_ai_fail_${DateTime.now().millisecondsSinceEpoch}',
+          text: 'AI belum dapat membaca format transaksi dari pesanmu.',
+          isUser: false,
+          timestamp: DateTime.now(),
+          isAi: true,
+          isAiFailed: true,
+          failedRawText: trimmed,
+        );
+      }
 
       setState(() {
         _isAiTyping = false;
@@ -86,6 +101,43 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       _scrollToBottom();
     });
+  }
+
+  void _openManualInput({String? initialNote, ChatMessage? failedMessage}) {
+    ManualInputSheet.show(
+      context,
+      initialNote: initialNote,
+      onSave: (tx) {
+        setState(() {
+          if (failedMessage != null) {
+            _messages.remove(failedMessage);
+          }
+          final newMsg = ChatMessage(
+            id: 'msg_manual_${DateTime.now().millisecondsSinceEpoch}',
+            text: 'Transaksi berhasil dicatat secara manual:',
+            isUser: false,
+            timestamp: DateTime.now(),
+            isAi: true,
+            transaction: tx,
+          );
+          _messages.add(newMsg);
+        });
+        _scrollToBottom();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text('Transaksi ${tx.formattedAmount} berhasil disimpan!'),
+              ],
+            ),
+            backgroundColor: AppTheme.primaryColor,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
   }
 
   void _handleConfirmTransaction(TransactionItem tx) {
@@ -247,6 +299,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit_note_rounded, size: 24),
+            tooltip: 'Input Transaksi Manual',
+            onPressed: () => _openManualInput(),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Reset Percakapan',
             onPressed: () {
@@ -353,6 +410,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ChatBubble(message: message),
+                    if (message.isAiFailed && message.failedRawText != null)
+                      AiFallbackCard(
+                        rawText: message.failedRawText!,
+                        onManualInput: () => _openManualInput(
+                          initialNote: message.failedRawText,
+                          failedMessage: message,
+                        ),
+                        onRetry: () {
+                          setState(() {
+                            _messages.remove(message);
+                          });
+                          _handleSendMessage(message.failedRawText!);
+                        },
+                      ),
                     if (message.transaction != null)
                       TransactionCard(
                         transaction: message.transaction!,

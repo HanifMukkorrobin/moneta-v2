@@ -102,6 +102,29 @@ class MockData {
     ];
   }
 
+  /// Returns parsed TransactionItem, or null if AI parser fails
+  static TransactionItem? parseTextOrNull(String input) {
+    final lower = input.toLowerCase().trim();
+
+    // Trigger AI failure for keywords or when no amount is detectable
+    if (lower.contains('gagal') ||
+        lower.contains('error') ||
+        lower.contains('rusak') ||
+        lower == 'halo' ||
+        lower == 'test' ||
+        lower == 'bingung') {
+      return null;
+    }
+
+    // Must have at least some digit or recognizable pattern
+    final hasNumber = RegExp(r'\d').hasMatch(lower);
+    if (!hasNumber) {
+      return null;
+    }
+
+    return parseText(input);
+  }
+
   /// Interactive mock parser for natural language inputs
   static TransactionItem parseText(String input) {
     final lower = input.toLowerCase();

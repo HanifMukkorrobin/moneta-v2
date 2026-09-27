@@ -5,8 +5,10 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
-  final TransactionItem? transaction;
+  TransactionItem? transaction;
   final bool isAi;
+  final bool isAiFailed;
+  final String? failedRawText;
 
   ChatMessage({
     required this.id,
@@ -15,5 +17,7 @@ class ChatMessage {
     required this.timestamp,
     this.transaction,
     this.isAi = false,
+    this.isAiFailed = false,
+    this.failedRawText,
   });
 }

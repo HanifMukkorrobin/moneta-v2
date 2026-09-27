@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "d981e120d0e0321dcf835cab6a739c9ee6abed40",
+  "generatedForCommit": "3d5ec5440ab931a089f1ec013b24c30b89c17cab",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -120,13 +120,13 @@
       "path": "frontend/lib/models/transaction_item.dart",
       "reason": "changed",
       "language": null,
-      "size": 1346
+      "size": 1328
     },
     {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "changed",
       "language": null,
-      "size": 14016
+      "size": 12212
     },
     {
       "path": "frontend/lib/screens/chat/widgets/chat_bubble.dart",
@@ -141,6 +141,12 @@
       "size": 5932
     },
     {
+      "path": "frontend/lib/screens/chat/widgets/edit_transaction_sheet.dart",
+      "reason": "new",
+      "language": null,
+      "size": 13451
+    },
+    {
       "path": "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart",
       "reason": "needs_summary",
       "language": null,
@@ -148,7 +154,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 13347
     },
@@ -189,8 +195,14 @@
       "size": 1847
     },
     {
-      "path": "frontend/test/transaction_card_test.dart",
+      "path": "frontend/test/edit_transaction_sheet_test.dart",
       "reason": "new",
+      "language": null,
+      "size": 4447
+    },
+    {
+      "path": "frontend/test/transaction_card_test.dart",
+      "reason": "needs_summary",
       "language": null,
       "size": 2992
     },
