@@ -6,6 +6,7 @@ import '../../models/daily_spending_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../chat/widgets/financial_analysis_card.dart';
+import 'widgets/analisa_empty_state_card.dart';
 import 'widgets/avg_daily_spend_card.dart';
 import 'widgets/early_warning_indicator_card.dart';
 import 'widgets/money_depletion_projection_card.dart';
@@ -13,11 +14,13 @@ import 'widgets/money_depletion_projection_card.dart';
 class AnalisaKeuanganScreen extends StatefulWidget {
   final DailySpendingAnalysis? initialAnalysis;
   final AiInsightItem? initialInsight;
+  final bool? initialEmpty;
 
   const AnalisaKeuanganScreen({
     super.key,
     this.initialAnalysis,
     this.initialInsight,
+    this.initialEmpty,
   });
 
   @override
@@ -26,12 +29,14 @@ class AnalisaKeuanganScreen extends StatefulWidget {
 
 class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
   late DailySpendingAnalysis _spendingAnalysis;
+  late bool _showEmptyState;
 
   @override
   void initState() {
     super.initState();
     _spendingAnalysis =
         widget.initialAnalysis ?? DailySpendingMockData.getDefaultDailyAnalysis();
+    _showEmptyState = widget.initialEmpty ?? false;
     AppState.instance.addListener(_onStateChange);
   }
 
@@ -75,6 +80,21 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
         title: const Text('Analisa & Saran AI'),
         actions: [
           IconButton(
+            icon: Icon(
+              _showEmptyState
+                  ? Icons.insights_rounded
+                  : Icons.hourglass_empty_rounded,
+            ),
+            tooltip: _showEmptyState
+                ? 'Tampilkan Data Analisa'
+                : 'Simulasi Mode Kosong (Empty State)',
+            onPressed: () {
+              setState(() {
+                _showEmptyState = !_showEmptyState;
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.tune_rounded),
             tooltip: 'Ganti Data Simulasi',
             onPressed: _toggleAnalysisPreset,
@@ -84,6 +104,7 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
             tooltip: 'Reset Analisa',
             onPressed: () {
               setState(() {
+                _showEmptyState = false;
                 _spendingAnalysis =
                     DailySpendingMockData.getDefaultDailyAnalysis();
               });
@@ -98,16 +119,24 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // AI Analysis Overview Card
-            FinancialAnalysisCard(
-              insight: insight,
-              initialExpanded: true,
-            ),
+            if (_showEmptyState) ...[
+              AnalisaEmptyStateCard(
+                onStartChat: () {
+                  // If running in MainNavigationScreen or navigator, navigate to chat
+                  Navigator.maybePop(context);
+                },
+              ),
+            ] else ...[
+              // AI Analysis Overview Card
+              FinancialAnalysisCard(
+                insight: insight,
+                initialExpanded: true,
+              ),
 
-            // Perkiraan Uang Bertahan dan Tanggal Habis Card
-            MoneyDepletionProjectionCard(
-              insight: insight,
-            ),
+              // Perkiraan Uang Bertahan dan Tanggal Habis Card
+              MoneyDepletionProjectionCard(
+                insight: insight,
+              ),
 
             // Indikator Peringatan Dini Tiga Tingkat Card
             EarlyWarningIndicatorCard(
@@ -172,10 +201,11 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
               ),
             ),
           ],
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _TipItem extends StatelessWidget {
