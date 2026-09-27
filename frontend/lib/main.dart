@@ -7,6 +7,7 @@ import 'screens/beranda/riwayat_tips_hemat_screen.dart';
 import 'screens/category_management/manage_categories_screen.dart';
 import 'screens/hutang/hutang_screen.dart';
 import 'screens/main_navigation_screen.dart';
+import 'screens/security/pin_lock_screen.dart';
 import 'services/mock_notification_service.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
@@ -43,6 +44,9 @@ class MonetaApp extends StatelessWidget {
         '/auth': (_) => const AuthScreen(),
         '/login': (_) => const AuthScreen(initialMode: AuthMode.login),
         '/daftar': (_) => const AuthScreen(initialMode: AuthMode.register),
+        '/pin-lock': (_) => const PinLockScreen(),
+        '/pin-setup': (_) => const PinLockScreen(mode: PinLockMode.setup),
+        '/pin-change': (_) => const PinLockScreen(mode: PinLockMode.change),
       },
     );
   }

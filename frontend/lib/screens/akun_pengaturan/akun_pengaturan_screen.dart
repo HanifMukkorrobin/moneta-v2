@@ -8,6 +8,7 @@ import '../budget/atur_budget_screen.dart';
 import '../category_management/manage_categories_screen.dart';
 import '../history/transaction_history_screen.dart';
 import '../hutang/hutang_screen.dart';
+import '../security/pin_lock_screen.dart';
 
 class AkunPengaturanScreen extends StatefulWidget {
   final UserProfile? initialProfile;
@@ -690,6 +691,25 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
                     );
                   },
                 ),
+                if (profile.pinEnabled) ...[
+                  const Divider(height: 1),
+                  _buildSettingsTile(
+                    key: const Key('setting_change_pin_tile'),
+                    icon: Icons.password_rounded,
+                    iconColor: Colors.blue,
+                    title: 'Ubah PIN Keamanan',
+                    subtitle: 'Ganti 4 digit PIN pengaman aplikasi',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PinLockScreen(mode: PinLockMode.change),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                ],
                 SwitchListTile(
                   key: const Key('setting_biometric_switch'),
                   secondary: Container(

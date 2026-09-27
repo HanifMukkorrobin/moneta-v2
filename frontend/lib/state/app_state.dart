@@ -199,6 +199,23 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool verifyPin(String enteredPin) {
+    final expectedPin = _userProfile.pinCode ?? '1234';
+    return enteredPin == expectedPin;
+  }
+
+  void setPin(String newPin) {
+    _userProfile = _userProfile.copyWith(
+      pinEnabled: true,
+      pinCode: newPin,
+    );
+    notifyListeners();
+  }
+
+  bool verifyBiometric() {
+    return _userProfile.biometricEnabled;
+  }
+
   void toggleBiometric(bool enabled) {
     _userProfile = _userProfile.copyWith(biometricEnabled: enabled);
     notifyListeners();
