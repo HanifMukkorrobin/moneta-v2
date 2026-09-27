@@ -97,6 +97,10 @@ app.use('/users', authRoutes);
 app.use('/api/users', authRoutes);
 app.use('/akun', authRoutes);
 app.use('/api/akun', authRoutes);
+app.use('/security', authRoutes);
+app.use('/api/security', authRoutes);
+app.use('/keamanan', authRoutes);
+app.use('/api/keamanan', authRoutes);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);

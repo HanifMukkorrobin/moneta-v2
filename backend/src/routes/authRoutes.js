@@ -1,5 +1,5 @@
 /**
- * Auth & User Account Routes (Rute Endpoint Autentikasi, Akun & Pengaturan)
+ * Auth & User Account Routes (Rute Endpoint Autentikasi, Akun, PIN, Biometrik & Pengaturan)
  *
  * Menyediakan endpoint:
  * - POST /register, /daftar, /signup (registrasi akun pengguna baru)
@@ -10,6 +10,13 @@
  * - DELETE /sessions/:id, /tokens/:id, /sesi/:id (hapus satu sesi perangkat)
  * - DELETE /sessions, /sesi & POST /sessions/clear (hapus seluruh sesi / bersihkan kedaluwarsa)
  * - GET /sessions, /tokens, /sesi (daftar sesi aktif pengguna)
+ * - GET /security, /security/status (status keamanan PIN & biometrik)
+ * - POST & PUT /pin/setup, /pin (buat / atur PIN baru)
+ * - POST /pin/verify, /pin/unlock (verifikasi PIN untuk membuka kunci)
+ * - PUT, POST & PATCH /pin/change, /pin/ubah (ubah PIN lama ke PIN baru)
+ * - POST, PUT & PATCH /pin/toggle (aktifkan/nonaktifkan kunci PIN)
+ * - POST, PUT & PATCH /biometric/toggle, /biometric (aktifkan/nonaktifkan biometrik)
+ * - POST /biometric/verify, /biometric/unlock (verifikasi autentikasi biometrik)
  */
 
 import { Router } from 'express';
@@ -22,6 +29,13 @@ import {
   deleteSessionByIdHandler,
   clearUserSessionsHandler,
   listSessionsHandler,
+  getSecurityStatusHandler,
+  setupPinHandler,
+  verifyPinHandler,
+  changePinHandler,
+  togglePinHandler,
+  toggleBiometricHandler,
+  verifyBiometricHandler,
 } from '../controllers/authController.js';
 
 const router = Router();
@@ -70,5 +84,42 @@ router.post('/sesi/hapus-semua', clearUserSessionsHandler);
 router.get('/sessions', listSessionsHandler);
 router.get('/tokens', listSessionsHandler);
 router.get('/sesi', listSessionsHandler);
+
+// Keamanan PIN & Biometrik
+router.get('/security', getSecurityStatusHandler);
+router.get('/security/status', getSecurityStatusHandler);
+router.get('/status', getSecurityStatusHandler);
+router.get('/keamanan', getSecurityStatusHandler);
+
+router.post('/pin/setup', setupPinHandler);
+router.put('/pin/setup', setupPinHandler);
+router.post('/pin', setupPinHandler);
+router.put('/pin', setupPinHandler);
+
+router.post('/pin/verify', verifyPinHandler);
+router.post('/pin/unlock', verifyPinHandler);
+router.post('/pin/verifikasi', verifyPinHandler);
+
+router.put('/pin/change', changePinHandler);
+router.post('/pin/change', changePinHandler);
+router.patch('/pin/change', changePinHandler);
+router.put('/pin/ubah', changePinHandler);
+router.post('/pin/ubah', changePinHandler);
+
+router.post('/pin/toggle', togglePinHandler);
+router.put('/pin/toggle', togglePinHandler);
+router.patch('/pin/toggle', togglePinHandler);
+
+router.post('/biometric/toggle', toggleBiometricHandler);
+router.put('/biometric/toggle', toggleBiometricHandler);
+router.patch('/biometric/toggle', toggleBiometricHandler);
+router.post('/biometric', toggleBiometricHandler);
+router.put('/biometric', toggleBiometricHandler);
+router.patch('/biometric', toggleBiometricHandler);
+router.post('/biometrik/toggle', toggleBiometricHandler);
+
+router.post('/biometric/verify', verifyBiometricHandler);
+router.post('/biometric/unlock', verifyBiometricHandler);
+router.post('/biometrik/verifikasi', verifyBiometricHandler);
 
 export default router;

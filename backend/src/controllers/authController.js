@@ -10,9 +10,11 @@
  * - DELETE /api/auth/sessions/:id (hapus satu sesi berdasarkan ID)
  * - DELETE /api/auth/sessions & POST /api/auth/sessions/clear (hapus seluruh sesi pengguna)
  * - GET /api/auth/sessions (daftar sesi aktif pengguna)
+ * - PIN & Biometric Security endpoints (/pin/setup, /pin/verify, /pin/change, /pin/toggle, /biometric/toggle, /biometric/verify)
  */
 
 import { getDatabase } from '../config/database.js';
+import { getOrCreateDefaultUser } from './chatController.js';
 import {
   registerUser,
   loginUser,
@@ -25,6 +27,15 @@ import {
   cleanupExpiredSessions,
   getUserActiveSessions,
 } from '../services/userService.js';
+import {
+  getSecurityStatus,
+  setupPin,
+  verifyPin,
+  changePin,
+  togglePinLock,
+  toggleBiometric,
+  verifyBiometric,
+} from '../services/pinBiometricService.js';
 
 /**
  * Helper untuk mengekstrak token dari Authorization header, custom header, body, atau query
@@ -52,6 +63,31 @@ export function extractTokenFromRequest(req) {
   }
 
   return '';
+}
+
+/**
+ * Helper untuk mendapatkan userId dari token sesi, parameter userId, atau user default
+ */
+export function resolveUserIdFromAuthOrRequest(db, req) {
+  const rawId = req.params?.userId || req.query?.userId || req.headers?.['x-user-id'] || req.body?.userId;
+  if (rawId !== undefined && rawId !== null && rawId !== '') {
+    const num = Number(rawId);
+    if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
+      const err = new Error('Parameter userId harus berupa bilangan bulat positif.');
+      err.statusCode = 400;
+      err.code = 'INVALID_USER_ID';
+      throw err;
+    }
+    return num;
+  }
+
+  const token = extractTokenFromRequest(req);
+  if (token) {
+    const verified = verifySessionToken(db, token);
+    return verified.user.id;
+  }
+
+  return getOrCreateDefaultUser(db);
 }
 
 /**
@@ -390,6 +426,195 @@ export async function listSessionsHandler(req, res) {
       success: false,
       code: err.code || 'SESSIONS_FETCH_FAILED',
       error: err.message || 'Gagal mengambil daftar sesi aktif.',
+    });
+  }
+}
+
+/**
+ * GET /api/auth/security & GET /api/security/status
+ * Mengambil status keamanan PIN & biometrik pengguna
+ */
+export async function getSecurityStatusHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const status = getSecurityStatus(db, userId);
+
+    return res.status(200).json({
+      success: true,
+      data: status,
+      ...status,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'SECURITY_STATUS_FAILED',
+      error: err.message || 'Gagal mengambil status keamanan.',
+    });
+  }
+}
+
+/**
+ * POST & PUT /api/auth/pin/setup, /api/auth/pin
+ * Mengatur PIN baru untuk akun pengguna
+ */
+export async function setupPinHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = setupPin(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'PIN keamanan berhasil dibuat!',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PIN_SETUP_FAILED',
+      error: err.message || 'Gagal mengatur PIN keamanan.',
+    });
+  }
+}
+
+/**
+ * POST /api/auth/pin/verify
+ * Memverifikasi PIN untuk membuka kunci aplikasi
+ */
+export async function verifyPinHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = verifyPin(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'Kunci PIN berhasil dibuka!',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 401;
+    return res.status(status).json({
+      success: false,
+      valid: false,
+      unlocked: false,
+      code: err.code || 'PIN_VERIFY_FAILED',
+      error: err.message || 'Verifikasi PIN gagal.',
+    });
+  }
+}
+
+/**
+ * PUT & POST /api/auth/pin/change
+ * Mengubah PIN lama menjadi PIN baru
+ */
+export async function changePinHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = changePin(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'PIN keamanan berhasil diubah!',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PIN_CHANGE_FAILED',
+      error: err.message || 'Gagal mengubah PIN keamanan.',
+    });
+  }
+}
+
+/**
+ * POST, PUT & PATCH /api/auth/pin/toggle
+ * Mengaktifkan atau menonaktifkan kunci PIN aplikasi
+ */
+export async function togglePinHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = togglePinLock(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: result.pinEnabled
+        ? 'Kunci PIN aplikasi diaktifkan.'
+        : 'Kunci PIN aplikasi dinonaktifkan.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'PIN_TOGGLE_FAILED',
+      error: err.message || 'Gagal mengubah status kunci PIN.',
+    });
+  }
+}
+
+/**
+ * POST, PUT & PATCH /api/auth/biometric/toggle, /api/auth/biometric
+ * Mengaktifkan atau menonaktifkan autentikasi biometrik perangkat
+ */
+export async function toggleBiometricHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = toggleBiometric(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: result.biometricEnabled
+        ? 'Biometrik diaktifkan.'
+        : 'Biometrik dinonaktifkan.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'BIOMETRIC_TOGGLE_FAILED',
+      error: err.message || 'Gagal mengubah status biometrik.',
+    });
+  }
+}
+
+/**
+ * POST /api/auth/biometric/verify
+ * Memverifikasi autentikasi biometrik perangkat untuk membuka kunci
+ */
+export async function verifyBiometricHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = verifyBiometric(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'Autentikasi biometrik berhasil!',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 401;
+    return res.status(status).json({
+      success: false,
+      valid: false,
+      unlocked: false,
+      code: err.code || 'BIOMETRIC_VERIFY_FAILED',
+      error: err.message || 'Verifikasi biometrik gagal.',
     });
   }
 }
