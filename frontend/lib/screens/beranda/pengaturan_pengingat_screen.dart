@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/daily_reminder_settings.dart';
+import '../../services/mock_notification_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 
@@ -107,6 +108,11 @@ class _PengaturanPengingatScreenState extends State<PengaturanPengingatScreen> {
   }
 
   void _triggerTestNotification() {
+    MockNotificationService.instance.showReminderNotification(
+      title: 'Moneta AI • Saran Belanja Pagi',
+      body:
+          'Batas belanja aman Anda hari ini Rp 65.000. Ketuk untuk membuka Beranda dan melihat saran lengkap.',
+    );
     setState(() {
       _showMockNotificationPreview = true;
     });
@@ -351,6 +357,36 @@ class _PengaturanPengingatScreenState extends State<PengaturanPengingatScreen> {
               color: Color(0xFFCBD5E1),
               height: 1.3,
             ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton.icon(
+                key: const Key('btn_open_beranda_from_notification'),
+                onPressed: () {
+                  MockNotificationService.instance
+                      .handleNotificationClick(context: context);
+                },
+                icon: const Icon(Icons.arrow_forward_rounded, size: 14),
+                label: const Text(
+                  'Buka Beranda',
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  minimumSize: const Size(0, 32),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

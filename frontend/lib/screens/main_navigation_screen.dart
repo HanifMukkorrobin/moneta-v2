@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/mock_notification_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/in_app_notification_banner.dart';
 import 'analisa/analisa_keuangan_screen.dart';
 import 'budget/atur_budget_screen.dart';
 import 'chat/chat_screen.dart';
@@ -32,9 +34,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+          ListenableBuilder(
+            listenable: MockNotificationService.instance,
+            builder: (context, _) {
+              final notif =
+                  MockNotificationService.instance.currentNotification;
+              if (notif == null) return const SizedBox.shrink();
+              return SafeArea(
+                child: InAppNotificationBanner(
+                  payload: notif,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
