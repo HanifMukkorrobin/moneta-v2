@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "86edc911b43d7e8085dac7a4bb3a286cb7301738",
+  "generatedForCommit": "ca80bfd72febe1de609a4cc1c23c17c662c85beb",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -100,9 +100,9 @@
     },
     {
       "path": "frontend/lib/main.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 512
+      "size": 622
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
@@ -130,15 +130,15 @@
     },
     {
       "path": "frontend/lib/screens/chat/chat_history_screen.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 14620
+      "size": 14936
     },
     {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "changed",
       "language": null,
-      "size": 16619
+      "size": 14216
     },
     {
       "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
@@ -178,7 +178,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 14812
     },
@@ -187,6 +187,12 @@
       "reason": "needs_summary",
       "language": null,
       "size": 5521
+    },
+    {
+      "path": "frontend/lib/state/app_state.dart",
+      "reason": "new",
+      "language": null,
+      "size": 8146
     },
     {
       "path": "frontend/lib/theme/app_theme.dart",
@@ -211,6 +217,12 @@
       "reason": "needs_summary",
       "language": "yaml",
       "size": 3849
+    },
+    {
+      "path": "frontend/test/app_state_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 3580
     },
     {
       "path": "frontend/test/chat_history_screen_test.dart",
@@ -244,7 +256,7 @@
     },
     {
       "path": "frontend/test/transaction_edit_delete_actions_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3332
     },

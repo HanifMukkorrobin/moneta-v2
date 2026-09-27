@@ -4,6 +4,7 @@ import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../category_confirmation/category_confirmation_screen.dart';
 import 'chat_history_screen.dart';
 import 'widgets/ai_fallback_card.dart';
 import 'widgets/chat_bubble.dart';
@@ -257,6 +258,18 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.fact_check_outlined, size: 22),
+            tooltip: 'Konfirmasi Kategori AI',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CategoryConfirmationScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.history_rounded, size: 22),
             tooltip: 'Riwayat Obrolan',
             onPressed: () {
@@ -328,6 +341,50 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
               ],
+            ),
+          ),
+
+          // AI Confirmation Quick Strip
+          Material(
+            color: AppTheme.primaryLight.withValues(alpha: 0.08),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CategoryConfirmationScreen(),
+                  ),
+                );
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.auto_awesome,
+                      size: 14,
+                      color: AppTheme.primaryColor,
+                    ),
+                    const SizedBox(width: 6),
+                    const Expanded(
+                      child: Text(
+                        'Review kartu konfirmasi & kategori otomatis AI',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
 
