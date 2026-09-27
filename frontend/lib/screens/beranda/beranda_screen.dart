@@ -9,6 +9,7 @@ import '../budget/atur_budget_screen.dart';
 import '../chat/widgets/manual_input_sheet.dart';
 import '../rekap/rekap_bulanan_screen.dart';
 import 'widgets/daily_advice_card.dart';
+import 'widgets/safe_spending_limit_card.dart';
 
 class BerandaScreen extends StatefulWidget {
   final AiInsightItem? initialInsight;
@@ -254,6 +255,12 @@ class _BerandaScreenState extends State<BerandaScreen> {
                     ),
                   );
                 },
+              ),
+
+              // Kartu Batas Aman Belanja + Penanda Rendah
+              SafeSpendingLimitCard(
+                insight: insight,
+                todaySpent: appState.todayTotalExpense,
               ),
 
               // Overview Finansial Bulan Berjalan
