@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../models/transaction_item.dart';
 import '../../../theme/app_theme.dart';
 import '../../../mock/rekap_mock_data.dart';
+import 'transaction_detail_sheet.dart';
 
 class MonthlyTransactionListSection extends StatefulWidget {
   final List<TransactionItem> transactions;
@@ -379,163 +380,12 @@ class _MonthlyTransactionListSectionState
   }
 
   void _showTransactionDetailSheet(TransactionItem tx) {
-    final icon = RekapMockData.getCategoryIcon(tx.category);
-    final color = RekapMockData.getCategoryColor(tx.category);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, size: 22, color: color),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tx.note,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            tx.isIncome ? 'Pemasukan' : 'Pengeluaran',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: tx.isIncome ? AppTheme.incomeColor : AppTheme.expenseColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      tx.formattedAmount,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: tx.isIncome ? AppTheme.incomeColor : AppTheme.expenseColor,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-                _buildSheetRow(
-                  label: 'Kategori',
-                  value: tx.category,
-                  badge: tx.isCustomCategory ? 'Kustom' : null,
-                ),
-                const SizedBox(height: 12),
-                _buildSheetRow(
-                  label: 'Tanggal & Waktu',
-                  value: '${tx.occurredAt.day} ${_getMonthName(tx.occurredAt.month)} ${tx.occurredAt.year}, ${tx.timeFormatted}',
-                ),
-                const SizedBox(height: 12),
-                _buildSheetRow(
-                  label: 'Status Verifikasi',
-                  value: tx.isConfirmed ? 'Terkonfirmasi' : 'Menunggu Konfirmasi',
-                  valueColor: tx.isConfirmed ? AppTheme.incomeColor : Colors.amber.shade900,
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Tutup', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+    TransactionDetailSheet.show(
+      context,
+      tx,
+      onUpdated: () {
+        if (mounted) setState(() {});
       },
-    );
-  }
-
-  Widget _buildSheetRow({
-    required String label,
-    required String value,
-    String? badge,
-    Color? valueColor,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: valueColor ?? AppTheme.textPrimary,
-              ),
-            ),
-            if (badge != null) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(fontSize: 10, color: Colors.purple, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
     );
   }
 
