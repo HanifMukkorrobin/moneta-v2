@@ -221,18 +221,89 @@ export function ensureMonthlyBudgetSchema(db) {
   `);
 }
 
+export function ensureAiInsightsSchema(db) {
+  // 1. Ensure ai_insights table exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ai_insights (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        date TEXT NOT NULL,
+        avg_daily_spend REAL NOT NULL DEFAULT 0 CHECK(avg_daily_spend >= 0),
+        estimated_days_left INTEGER NOT NULL DEFAULT 0 CHECK(estimated_days_left >= 0),
+        daily_advice TEXT,
+        warn_level TEXT NOT NULL DEFAULT 'normal' CHECK(warn_level IN ('normal', 'warning', 'critical')),
+        recommended_daily_budget REAL NOT NULL DEFAULT 0,
+        total_monthly_budget REAL NOT NULL DEFAULT 0,
+        total_spent REAL NOT NULL DEFAULT 0,
+        remaining_balance REAL NOT NULL DEFAULT 0,
+        analysis_json TEXT,
+        is_stale INTEGER NOT NULL DEFAULT 0 CHECK(is_stale IN (0, 1)),
+        expires_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_user_insight_date UNIQUE (user_id, date)
+    );
+  `);
+
+  // 2. Ensure all columns exist for existing/migrated databases
+  const columns = db.prepare("PRAGMA table_info(ai_insights)").all().map((c) => c.name);
+
+  if (!columns.includes('recommended_daily_budget')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN recommended_daily_budget REAL NOT NULL DEFAULT 0");
+  }
+  if (!columns.includes('total_monthly_budget')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN total_monthly_budget REAL NOT NULL DEFAULT 0");
+  }
+  if (!columns.includes('total_spent')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN total_spent REAL NOT NULL DEFAULT 0");
+  }
+  if (!columns.includes('remaining_balance')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN remaining_balance REAL NOT NULL DEFAULT 0");
+  }
+  if (!columns.includes('analysis_json')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN analysis_json TEXT");
+  }
+  if (!columns.includes('is_stale')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN is_stale INTEGER NOT NULL DEFAULT 0");
+  }
+  if (!columns.includes('expires_at')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN expires_at DATETIME");
+  }
+  if (!columns.includes('created_at')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE ai_insights SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+  if (!columns.includes('updated_at')) {
+    db.exec("ALTER TABLE ai_insights ADD COLUMN updated_at DATETIME");
+    db.exec("UPDATE ai_insights SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+  }
+
+  // 3. Ensure indices exist
+  db.exec("CREATE INDEX IF NOT EXISTS idx_ai_insights_user_date ON ai_insights(user_id, date)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_ai_insights_warn_level ON ai_insights(warn_level)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_ai_insights_user_stale ON ai_insights(user_id, is_stale)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_ai_insights_expires_at ON ai_insights(expires_at)");
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_insights_unique_user_date ON ai_insights(user_id, date)");
+
+  // 4. Ensure view financial_analysis_cache exists
+  db.exec("CREATE VIEW IF NOT EXISTS financial_analysis_cache AS SELECT * FROM ai_insights;");
+}
+
 export function runMigrations(db) {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
   // Execute schema creation
-  db.exec(schemaSql);
+  db.exec(schemaPath.endsWith('.sql') ? schemaSql : schemaSql);
 
   // Ensure transaction columns (category, type, guessed flags) exist on pre-existing tables
   ensureTransactionCategoryAndTypeColumns(db);
 
   // Ensure monthly budget schema, columns, indices, and triggers exist on pre-existing tables
   ensureMonthlyBudgetSchema(db);
+
+  // Ensure ai_insights and financial analysis cache schema exists
+  ensureAiInsightsSchema(db);
 
   // Seed default categories (with user_id = NULL)
   seedDefaultCategories(db);

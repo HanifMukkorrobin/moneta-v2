@@ -29,6 +29,13 @@ describe('Database Schema & Table Tests', () => {
       assert.ok(tables.includes('categories'), 'Table categories should exist');
       assert.ok(tables.includes('transactions'), 'Table transactions should exist');
       assert.ok(tables.includes('chat_logs'), 'Table chat_logs should exist');
+      assert.ok(tables.includes('ai_insights'), 'Table ai_insights should exist');
+
+      const views = db
+        .prepare("SELECT name FROM sqlite_master WHERE type='view'")
+        .all()
+        .map((row) => row.name);
+      assert.ok(views.includes('financial_analysis_cache'), 'View financial_analysis_cache should exist');
     });
 
     it('creates all required performance indices', () => {
@@ -41,6 +48,8 @@ describe('Database Schema & Table Tests', () => {
       assert.ok(indices.includes('idx_transactions_category'), 'idx_transactions_category index should exist');
       assert.ok(indices.includes('idx_chat_logs_user'), 'idx_chat_logs_user index should exist');
       assert.ok(indices.includes('idx_chat_logs_status'), 'idx_chat_logs_status index should exist');
+      assert.ok(indices.includes('idx_ai_insights_user_date'), 'idx_ai_insights_user_date index should exist');
+      assert.ok(indices.includes('idx_ai_insights_warn_level'), 'idx_ai_insights_warn_level index should exist');
     });
 
     it('seeds default expense and income categories with user_id NULL', () => {

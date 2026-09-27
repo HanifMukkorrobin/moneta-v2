@@ -137,4 +137,31 @@ BEGIN
     WHERE id = NEW.id;
 END;
 
+-- 7. AI Insights / Financial Analysis Cache Table
+CREATE TABLE IF NOT EXISTS ai_insights (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date TEXT NOT NULL,
+    avg_daily_spend REAL NOT NULL DEFAULT 0 CHECK(avg_daily_spend >= 0),
+    estimated_days_left INTEGER NOT NULL DEFAULT 0 CHECK(estimated_days_left >= 0),
+    daily_advice TEXT,
+    warn_level TEXT NOT NULL DEFAULT 'normal' CHECK(warn_level IN ('normal', 'warning', 'critical')),
+    recommended_daily_budget REAL NOT NULL DEFAULT 0,
+    total_monthly_budget REAL NOT NULL DEFAULT 0,
+    total_spent REAL NOT NULL DEFAULT 0,
+    remaining_balance REAL NOT NULL DEFAULT 0,
+    analysis_json TEXT,
+    is_stale INTEGER NOT NULL DEFAULT 0 CHECK(is_stale IN (0, 1)),
+    expires_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_insight_date UNIQUE (user_id, date)
+);
 
+CREATE INDEX IF NOT EXISTS idx_ai_insights_user_date ON ai_insights(user_id, date);
+CREATE INDEX IF NOT EXISTS idx_ai_insights_warn_level ON ai_insights(warn_level);
+CREATE INDEX IF NOT EXISTS idx_ai_insights_user_stale ON ai_insights(user_id, is_stale);
+CREATE INDEX IF NOT EXISTS idx_ai_insights_expires_at ON ai_insights(expires_at);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_insights_unique_user_date ON ai_insights(user_id, date);
+
+CREATE VIEW IF NOT EXISTS financial_analysis_cache AS SELECT * FROM ai_insights;
