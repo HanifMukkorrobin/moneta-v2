@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../mock/ai_insight_mock_data.dart';
 import '../mock/mock_data.dart';
+import '../models/ai_insight_item.dart';
 import '../models/category_item.dart';
 import '../models/category_usage.dart';
 import '../models/chat_log_item.dart';
@@ -20,11 +22,13 @@ class AppState extends ChangeNotifier {
   List<ChatLogItem> _chatLogs = [];
   List<CategoryItem> _categories = [];
   bool _isAiTyping = false;
+  AiInsightItem _aiInsight = AiInsightMockData.getDefaultInsight();
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
   List<CategoryItem> get categories => List.unmodifiable(_categories);
   bool get isAiTyping => _isAiTyping;
+  AiInsightItem get aiInsight => _aiInsight;
 
   List<CategoryItem> get expenseCategories =>
       _categories.where((c) => c.isExpense).toList();
@@ -87,10 +91,27 @@ class AppState extends ChangeNotifier {
     _chatLogs = MockData.getMockChatLogs();
     _categories = MockData.getInitialCategories();
     _isAiTyping = false;
+    _aiInsight = AiInsightMockData.getDefaultInsight();
   }
 
   void resetToDefault() {
     _initDefaultState();
+    notifyListeners();
+  }
+
+  void setAiInsight(AiInsightItem insight) {
+    _aiInsight = insight;
+    notifyListeners();
+  }
+
+  void cycleAiInsightPreset() {
+    if (_aiInsight.warnLevel == AiWarnLevel.normal) {
+      _aiInsight = AiInsightMockData.getWarningInsight();
+    } else if (_aiInsight.warnLevel == AiWarnLevel.warning) {
+      _aiInsight = AiInsightMockData.getCriticalInsight();
+    } else {
+      _aiInsight = AiInsightMockData.getDefaultInsight();
+    }
     notifyListeners();
   }
 

@@ -11,6 +11,7 @@ import 'widgets/ai_fallback_card.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/edit_transaction_sheet.dart';
+import 'widgets/financial_analysis_card.dart';
 import 'widgets/manual_input_sheet.dart';
 import 'widgets/quick_suggestion_chips.dart';
 import 'widgets/transaction_card.dart';
@@ -438,10 +439,17 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              itemCount: messages.length + (isAiTyping ? 1 : 0),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: 1 + messages.length + (isAiTyping ? 1 : 0),
               itemBuilder: (context, index) {
-                if (isAiTyping && index == messages.length) {
+                if (index == 0) {
+                  return FinancialAnalysisCard(
+                    insight: appState.aiInsight,
+                  );
+                }
+
+                final messageIndex = index - 1;
+                if (isAiTyping && messageIndex == messages.length) {
                   return Container(
                     margin: const EdgeInsets.only(left: 16, bottom: 8),
                     child: Row(
@@ -476,7 +484,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
 
-                final message = messages[index];
+                final message = messages[messageIndex];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
