@@ -352,3 +352,106 @@ export function getChatLogByIdHandler(req, res) {
   }
 }
 
+/**
+ * Controller to delete/soft-delete a chat log and its linked transaction.
+ */
+export function deleteChatLogHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const logId = Number(req.params.id);
+    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+
+    const log = db.prepare('SELECT * FROM chat_logs WHERE id = ? AND user_id = ?').get(logId, userId);
+    if (!log) {
+      return res.status(404).json({
+        success: false,
+        error: 'Riwayat percakapan tidak ditemukan.',
+      });
+    }
+
+    db.transaction(() => {
+      // If there is an associated transaction, delete it
+      if (log.transaction_id) {
+        db.prepare('DELETE FROM transactions WHERE id = ?').run(log.transaction_id);
+      }
+
+      // Mark chat log status as deleted
+      db.prepare("UPDATE chat_logs SET status = 'deleted', transaction_id = NULL WHERE id = ?").run(logId);
+    })();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Pesan percakapan berhasil dihapus.',
+      id: logId,
+    });
+  } catch (error) {
+    console.error('[ChatController] Error deleting chat log:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat menghapus percakapan.',
+    });
+  }
+}
+
+/**
+ * Controller to restore a previously deleted chat log and its transaction.
+ */
+export function restoreChatLogHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const logId = Number(req.params.id);
+    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+
+    const log = db.prepare('SELECT * FROM chat_logs WHERE id = ? AND user_id = ?').get(logId, userId);
+    if (!log) {
+      return res.status(404).json({
+        success: false,
+        error: 'Riwayat percakapan tidak ditemukan.',
+      });
+    }
+
+    let restoredTxId = null;
+
+    db.transaction(() => {
+      // If parsed_json contains valid transaction info, restore transaction
+      const parsed = safeJsonParse(log.parsed_json);
+      if (parsed && parsed.amount && parsed.type) {
+        let catId = parsed.categoryId;
+        if (!catId && parsed.category) {
+          const cat = findCategoryByName(db, parsed.category, parsed.type);
+          if (cat) catId = cat.id;
+        }
+
+        const txRes = db.prepare(`
+          INSERT INTO transactions (user_id, category_id, type, amount, note, occurred_at, is_confirmed)
+          VALUES (?, ?, ?, ?, ?, ?, 1)
+        `).run(userId, catId || null, parsed.type, parsed.amount, parsed.note || log.message, new Date().toISOString());
+
+        restoredTxId = txRes.lastInsertRowid;
+      }
+
+      // Restore status to confirmed (or pending if no tx)
+      const newStatus = restoredTxId ? 'confirmed' : 'pending';
+      db.prepare(`
+        UPDATE chat_logs
+        SET status = ?, transaction_id = ?
+        WHERE id = ?
+      `).run(newStatus, restoredTxId, logId);
+    })();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Percakapan berhasil dipulihkan.',
+      id: logId,
+      transactionId: restoredTxId,
+    });
+  } catch (error) {
+    console.error('[ChatController] Error restoring chat log:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memulihkan percakapan.',
+    });
+  }
+}
+
+

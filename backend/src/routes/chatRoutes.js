@@ -3,8 +3,14 @@ import {
   parseChatHandler,
   getChatHistoryHandler,
   getChatLogByIdHandler,
+  deleteChatLogHandler,
+  restoreChatLogHandler,
 } from '../controllers/chatController.js';
-import { confirmTransactionHandler } from '../controllers/transactionController.js';
+import {
+  confirmTransactionHandler,
+  updateTransactionHandler,
+  deleteTransactionHandler,
+} from '../controllers/transactionController.js';
 
 const router = Router();
 
@@ -20,9 +26,21 @@ router.get('/history/:id', getChatLogByIdHandler);
 router.get('/logs', getChatHistoryHandler);
 router.get('/logs/:id', getChatLogByIdHandler);
 
+// Ubah & Hapus transaksi / chat log via chat routes
+router.put('/history/:id', updateTransactionHandler);
+router.delete('/history/:id', deleteChatLogHandler);
+router.post('/history/:id/restore', restoreChatLogHandler);
+
+router.put('/logs/:id', updateTransactionHandler);
+router.delete('/logs/:id', deleteChatLogHandler);
+router.post('/logs/:id/restore', restoreChatLogHandler);
+
 // Root endpoints on chat router
 router.get('/', getChatHistoryHandler);
-router.get('/:id', getChatLogByIdHandler);
 router.post('/', parseChatHandler);
+router.get('/:id', getChatLogByIdHandler);
+router.put('/:id', updateTransactionHandler);
+router.delete('/:id', deleteChatLogHandler);
+router.post('/:id/restore', restoreChatLogHandler);
 
 export default router;

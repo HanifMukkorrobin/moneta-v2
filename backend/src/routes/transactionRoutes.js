@@ -3,6 +3,8 @@ import {
   confirmTransactionHandler,
   listTransactionsHandler,
   getTransactionByIdHandler,
+  updateTransactionHandler,
+  deleteTransactionHandler,
 } from '../controllers/transactionController.js';
 
 const router = Router();
@@ -12,9 +14,14 @@ router.post('/confirm', confirmTransactionHandler);
 router.post('/:id/confirm', confirmTransactionHandler);
 router.put('/:id/confirm', confirmTransactionHandler);
 
-// CRUD / List transactions
+// CRUD / List & Detail transactions
 router.get('/', listTransactionsHandler);
 router.get('/:id', getTransactionByIdHandler);
 router.post('/', confirmTransactionHandler);
+
+// Ubah dan Hapus transaksi
+router.put('/:id', updateTransactionHandler);
+router.patch('/:id', updateTransactionHandler);
+router.delete('/:id', deleteTransactionHandler);
 
 export default router;

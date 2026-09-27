@@ -345,3 +345,192 @@ export function getTransactionByIdHandler(req, res) {
     });
   }
 }
+
+/**
+ * Controller to update an existing transaction.
+ * Also keeps associated chat_logs parsed_json in sync.
+ */
+export function updateTransactionHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const txId = Number(req.params.id);
+    const userId = getOrCreateDefaultUser(db, req.body?.userId);
+    const body = req.body || {};
+
+    const existingTx = db
+      .prepare('SELECT * FROM transactions WHERE id = ? AND user_id = ?')
+      .get(txId, userId);
+
+    if (!existingTx) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaksi tidak ditemukan.',
+      });
+    }
+
+    // Validate amount if provided
+    let finalAmount = existingTx.amount;
+    if (body.amount !== undefined && body.amount !== null) {
+      const numAmount = Number(body.amount);
+      if (isNaN(numAmount) || numAmount <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nominal transaksi harus berupa angka lebih besar dari 0.',
+        });
+      }
+      finalAmount = numAmount;
+    }
+
+    // Validate type if provided
+    let finalType = existingTx.type;
+    if (body.type) {
+      if (!['income', 'expense'].includes(body.type)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Jenis transaksi harus berupa income atau expense.',
+        });
+      }
+      finalType = body.type;
+    }
+
+    // Resolve category if provided or type changed
+    let finalCategoryId = existingTx.category_id;
+    if (body.categoryId || body.category || body.categoryName || body.type) {
+      const resolved = resolveCategory(db, {
+        categoryId: body.categoryId,
+        categoryName: body.category || body.categoryName,
+        type: finalType,
+      });
+      if (resolved) {
+        finalCategoryId = resolved.id;
+      }
+    }
+
+    // Validate note
+    let finalNote = existingTx.note;
+    if (body.note !== undefined && body.note !== null) {
+      const trimmedNote = String(body.note).trim();
+      if (!trimmedNote) {
+        return res.status(400).json({
+          success: false,
+          error: 'Catatan transaksi tidak boleh kosong.',
+        });
+      }
+      finalNote = trimmedNote;
+    }
+
+    const finalOccurredAt = body.occurredAt || existingTx.occurred_at;
+    const finalIsConfirmed = body.isConfirmed !== undefined
+      ? (body.isConfirmed === true || body.isConfirmed === 1 ? 1 : 0)
+      : existingTx.is_confirmed;
+
+    db.transaction(() => {
+      db.prepare(`
+        UPDATE transactions
+        SET amount = ?, type = ?, category_id = ?, note = ?, occurred_at = ?, is_confirmed = ?
+        WHERE id = ?
+      `).run(finalAmount, finalType, finalCategoryId, finalNote, finalOccurredAt, finalIsConfirmed, txId);
+
+      // Also update linked chat_log parsed_json if exists
+      const chatLog = db.prepare('SELECT id, parsed_json FROM chat_logs WHERE transaction_id = ?').get(txId);
+      if (chatLog) {
+        let parsed = {};
+        try {
+          parsed = JSON.parse(chatLog.parsed_json || '{}');
+        } catch {
+          parsed = {};
+        }
+        parsed.amount = finalAmount;
+        parsed.type = finalType;
+        parsed.note = finalNote;
+        if (finalCategoryId) {
+          const cat = db.prepare('SELECT name FROM categories WHERE id = ?').get(finalCategoryId);
+          if (cat) parsed.category = cat.name;
+        }
+
+        db.prepare('UPDATE chat_logs SET parsed_json = ? WHERE id = ?')
+          .run(JSON.stringify(parsed), chatLog.id);
+      }
+    })();
+
+    const updatedTx = db.prepare(`
+      SELECT t.*, c.name AS category_name, c.icon AS category_icon, c.color AS category_color
+      FROM transactions t
+      LEFT JOIN categories c ON t.category_id = c.id
+      WHERE t.id = ?
+    `).get(txId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Transaksi berhasil diperbarui.',
+      transaction: {
+        id: updatedTx.id,
+        userId: updatedTx.user_id,
+        categoryId: updatedTx.category_id,
+        category: updatedTx.category_name || 'Lainnya',
+        type: updatedTx.type,
+        amount: updatedTx.amount,
+        note: updatedTx.note,
+        occurredAt: updatedTx.occurred_at,
+        isConfirmed: Boolean(updatedTx.is_confirmed),
+        createdAt: updatedTx.created_at,
+      },
+    });
+  } catch (error) {
+    console.error('[TransactionController] Error updating transaction:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memperbarui transaksi.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to delete a transaction.
+ * Synchronizes associated chat_logs status to 'deleted'.
+ */
+export function deleteTransactionHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const txId = Number(req.params.id);
+    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+
+    const existingTx = db
+      .prepare('SELECT id, note, amount FROM transactions WHERE id = ? AND user_id = ?')
+      .get(txId, userId);
+
+    if (!existingTx) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaksi tidak ditemukan.',
+      });
+    }
+
+    db.transaction(() => {
+      // Mark any chat logs pointing to this transaction as 'deleted'
+      db.prepare(`
+        UPDATE chat_logs
+        SET status = 'deleted'
+        WHERE transaction_id = ?
+      `).run(txId);
+
+      // Delete the transaction
+      db.prepare('DELETE FROM transactions WHERE id = ?').run(txId);
+    })();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Transaksi berhasil dihapus.',
+      id: txId,
+    });
+  } catch (error) {
+    console.error('[TransactionController] Error deleting transaction:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat menghapus transaksi.',
+      details: error.message,
+    });
+  }
+}
+
