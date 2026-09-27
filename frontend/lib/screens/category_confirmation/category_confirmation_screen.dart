@@ -5,6 +5,7 @@ import '../../models/category_confirmation_item.dart';
 import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../category_management/manage_categories_screen.dart';
 import '../history/transaction_history_screen.dart';
 import 'widgets/category_confirmation_card.dart';
 import 'widgets/category_picker_sheet.dart';
@@ -345,6 +346,18 @@ class _CategoryConfirmationScreenState
                 context,
                 MaterialPageRoute(
                   builder: (_) => const TransactionHistoryScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.bookmark_add_outlined, size: 22),
+            tooltip: 'Kelola Kategori Sendiri',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ManageCategoriesScreen(),
                 ),
               );
             },

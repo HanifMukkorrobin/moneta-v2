@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../mock/mock_data.dart';
+import '../../../state/app_state.dart';
 import '../../../theme/app_theme.dart';
+import '../../category_management/manage_categories_screen.dart';
 import '../../chat/widgets/transaction_card.dart';
 
 class CategoryPickerSheet extends StatefulWidget {
@@ -63,9 +65,16 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
   bool get _isExpense => _currentType == 'expense';
 
   List<String> get _availableCategories {
-    final base = _isExpense
-        ? MockData.expenseCategories
-        : MockData.incomeCategories;
+    final state = AppState.instance;
+    final fromState = _isExpense
+        ? state.expenseCategories.map((c) => c.name).toList()
+        : state.incomeCategories.map((c) => c.name).toList();
+
+    final base = fromState.isNotEmpty
+        ? fromState
+        : (_isExpense
+            ? MockData.expenseCategories
+            : MockData.incomeCategories);
 
     if (_searchQuery.trim().isEmpty) return base;
     return base
@@ -81,6 +90,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
     if (_isCustomMode && _customCatController.text.trim().isNotEmpty) {
       finalCat = _customCatController.text.trim();
       isCustom = true;
+      AppState.instance.addCustomCategory(finalCat, type: _currentType);
     }
 
     widget.onSelected(finalCat, _currentType, isCustom);
@@ -326,28 +336,52 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                             ),
                           ),
                         ),
-                        TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _isCustomMode = !_isCustomMode;
-                            });
-                          },
-                          icon: Icon(
-                            _isCustomMode
-                                ? Icons.list_rounded
-                                : Icons.add_circle_outline_rounded,
-                            size: 16,
-                          ),
-                          label: Text(
-                            _isCustomMode
-                                ? 'Lihat Semua Kategori'
-                                : '+ Kategori Sendiri',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.primaryColor,
-                            visualDensity: VisualDensity.compact,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ManageCategoriesScreen(
+                                      initialType: _currentType,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.settings_outlined, size: 14),
+                              label: const Text('Kelola',
+                                  style: TextStyle(fontSize: 12)),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.grey.shade700,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  _isCustomMode = !_isCustomMode;
+                                });
+                              },
+                              icon: Icon(
+                                _isCustomMode
+                                    ? Icons.list_rounded
+                                    : Icons.add_circle_outline_rounded,
+                                size: 16,
+                              ),
+                              label: Text(
+                                _isCustomMode
+                                    ? 'Lihat Semua Kategori'
+                                    : '+ Kategori Sendiri',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppTheme.primaryColor,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

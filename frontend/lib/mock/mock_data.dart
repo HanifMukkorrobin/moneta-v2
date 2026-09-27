@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import '../models/category_item.dart';
 import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
 import '../models/transaction_item.dart';
@@ -23,6 +25,160 @@ class MockData {
     'Transfer Masuk',
     'Lainnya',
   ];
+
+  static List<CategoryItem> getInitialCategories() {
+    return [
+      // Default expense categories
+      CategoryItem(
+        id: 'cat_exp_1',
+        name: 'Makan & Minuman',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.restaurant_rounded,
+        color: Colors.orange,
+      ),
+      CategoryItem(
+        id: 'cat_exp_2',
+        name: 'Transportasi',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.directions_car_rounded,
+        color: Colors.blue,
+      ),
+      CategoryItem(
+        id: 'cat_exp_3',
+        name: 'Belanja',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.shopping_bag_rounded,
+        color: Colors.pink,
+      ),
+      CategoryItem(
+        id: 'cat_exp_4',
+        name: 'Hiburan',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.sports_esports_rounded,
+        color: Colors.purple,
+      ),
+      CategoryItem(
+        id: 'cat_exp_5',
+        name: 'Tagihan & Utilitas',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.receipt_long_rounded,
+        color: Colors.indigo,
+      ),
+      CategoryItem(
+        id: 'cat_exp_6',
+        name: 'Hutang & Paylater',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.credit_card_rounded,
+        color: Colors.red,
+      ),
+      CategoryItem(
+        id: 'cat_exp_7',
+        name: 'Kebutuhan Rumah',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.home_rounded,
+        color: Colors.teal,
+      ),
+      CategoryItem(
+        id: 'cat_exp_8',
+        name: 'Kesehatan',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.local_hospital_rounded,
+        color: Colors.green,
+      ),
+      CategoryItem(
+        id: 'cat_exp_9',
+        name: 'Lainnya',
+        type: 'expense',
+        isDefault: true,
+        icon: Icons.more_horiz_rounded,
+        color: Colors.grey,
+      ),
+
+      // Custom expense categories (created by user!)
+      CategoryItem(
+        id: 'cat_custom_1',
+        name: 'Gym & Fitness',
+        type: 'expense',
+        isDefault: false,
+        icon: Icons.fitness_center_rounded,
+        color: Colors.amber,
+      ),
+      CategoryItem(
+        id: 'cat_custom_2',
+        name: 'Skincare & Perawatan',
+        type: 'expense',
+        isDefault: false,
+        icon: Icons.face_retouching_natural_rounded,
+        color: Colors.deepPurple,
+      ),
+      CategoryItem(
+        id: 'cat_custom_3',
+        name: 'Langganan AI & Software',
+        type: 'expense',
+        isDefault: false,
+        icon: Icons.auto_awesome_rounded,
+        color: Colors.cyan,
+      ),
+
+      // Default income categories
+      CategoryItem(
+        id: 'cat_inc_1',
+        name: 'Gaji',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.account_balance_wallet_rounded,
+        color: Colors.green,
+      ),
+      CategoryItem(
+        id: 'cat_inc_2',
+        name: 'Freelance',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.laptop_mac_rounded,
+        color: Colors.blueAccent,
+      ),
+      CategoryItem(
+        id: 'cat_inc_3',
+        name: 'Bonus',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.card_giftcard_rounded,
+        color: Colors.amber,
+      ),
+      CategoryItem(
+        id: 'cat_inc_4',
+        name: 'Investasi',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.trending_up_rounded,
+        color: Colors.teal,
+      ),
+      CategoryItem(
+        id: 'cat_inc_5',
+        name: 'Transfer Masuk',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.move_to_inbox_rounded,
+        color: Colors.cyan,
+      ),
+      CategoryItem(
+        id: 'cat_inc_6',
+        name: 'Lainnya',
+        type: 'income',
+        isDefault: true,
+        icon: Icons.attach_money_rounded,
+        color: Colors.grey,
+      ),
+    ];
+  }
 
   static List<ChatMessage> getInitialMessages() {
     final now = DateTime.now();

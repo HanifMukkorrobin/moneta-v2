@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../mock/mock_data.dart';
+import '../models/category_item.dart';
 import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
 import '../models/transaction_item.dart';
@@ -16,11 +17,22 @@ class AppState extends ChangeNotifier {
 
   List<ChatMessage> _messages = [];
   List<ChatLogItem> _chatLogs = [];
+  List<CategoryItem> _categories = [];
   bool _isAiTyping = false;
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
+  List<CategoryItem> get categories => List.unmodifiable(_categories);
   bool get isAiTyping => _isAiTyping;
+
+  List<CategoryItem> get expenseCategories =>
+      _categories.where((c) => c.isExpense).toList();
+  List<CategoryItem> get incomeCategories =>
+      _categories.where((c) => c.isIncome).toList();
+  List<CategoryItem> get customExpenseCategories =>
+      _categories.where((c) => c.isExpense && c.isCustom).toList();
+  List<CategoryItem> get defaultExpenseCategories =>
+      _categories.where((c) => c.isExpense && c.isDefault).toList();
 
   List<TransactionItem> get confirmedTransactions {
     final list = <TransactionItem>[];
@@ -72,12 +84,123 @@ class AppState extends ChangeNotifier {
   void _initDefaultState() {
     _messages = MockData.getInitialMessages();
     _chatLogs = MockData.getMockChatLogs();
+    _categories = MockData.getInitialCategories();
     _isAiTyping = false;
   }
 
   void resetToDefault() {
     _initDefaultState();
     notifyListeners();
+  }
+
+  /// Add a custom category
+  bool addCustomCategory(
+    String name, {
+    String type = 'expense',
+    IconData? icon,
+    Color? color,
+  }) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return false;
+
+    // Disallow duplicate names for same type
+    final exists = _categories.any((c) =>
+        c.type == type && c.name.toLowerCase() == trimmed.toLowerCase());
+    if (exists) return false;
+
+    final newCat = CategoryItem(
+      id: 'cat_custom_${DateTime.now().millisecondsSinceEpoch}',
+      name: trimmed,
+      type: type,
+      isDefault: false,
+      icon: icon ?? Icons.bookmark_border_rounded,
+      color: color ?? Colors.purple,
+    );
+    _categories.add(newCat);
+    notifyListeners();
+    return true;
+  }
+
+  /// Update an existing category's name and/or icon
+  bool updateCategory(
+    String id,
+    String newName, {
+    IconData? icon,
+    Color? color,
+  }) {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) return false;
+
+    final index = _categories.indexWhere((c) => c.id == id);
+    if (index == -1) return false;
+
+    final oldCat = _categories[index];
+    final oldName = oldCat.name;
+
+    // Disallow collision with other category of same type
+    final collision = _categories.any((c) =>
+        c.id != id &&
+        c.type == oldCat.type &&
+        c.name.toLowerCase() == trimmed.toLowerCase());
+    if (collision) return false;
+
+    _categories[index] = oldCat.copyWith(
+      name: trimmed,
+      icon: icon ?? oldCat.icon,
+      color: color ?? oldCat.color,
+    );
+
+    // Update occurrences in active messages and chat logs
+    for (var m in _messages) {
+      if (m.transaction != null && m.transaction!.category == oldName) {
+        m.transaction!.category = trimmed;
+      }
+    }
+    for (var log in _chatLogs) {
+      if (log.transaction != null && log.transaction!.category == oldName) {
+        log.transaction!.category = trimmed;
+      }
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  /// Delete a custom category and reassign transactions using it to 'Lainnya'
+  bool deleteCategory(String id) {
+    final index = _categories.indexWhere((c) => c.id == id);
+    if (index == -1) return false;
+
+    final cat = _categories[index];
+    if (cat.isDefault) return false; // Default categories cannot be deleted
+
+    _categories.removeAt(index);
+
+    // Reassign transactions using this category to 'Lainnya'
+    for (var m in _messages) {
+      if (m.transaction != null && m.transaction!.category == cat.name) {
+        m.transaction!.category = 'Lainnya';
+      }
+    }
+    for (var log in _chatLogs) {
+      if (log.transaction != null && log.transaction!.category == cat.name) {
+        log.transaction!.category = 'Lainnya';
+      }
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  /// Count how many transactions use a category name
+  int getTransactionCountForCategory(String categoryName) {
+    int count = 0;
+    for (var tx in allTransactions) {
+      if (tx.category.toLowerCase() == categoryName.toLowerCase()) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /// Send user message and simulate AI parsing to mock state

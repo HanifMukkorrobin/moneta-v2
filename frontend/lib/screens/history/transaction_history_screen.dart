@@ -5,6 +5,7 @@ import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../category_confirmation/category_confirmation_screen.dart';
 import '../category_confirmation/widgets/category_picker_sheet.dart';
+import '../category_management/manage_categories_screen.dart';
 import 'widgets/transaction_history_card.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
@@ -288,6 +289,18 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 child: Text('Nominal Terkecil'),
               ),
             ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.bookmark_add_outlined, size: 22),
+            tooltip: 'Kelola Kategori Sendiri',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ManageCategoriesScreen(),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.restart_alt_rounded, size: 22),
