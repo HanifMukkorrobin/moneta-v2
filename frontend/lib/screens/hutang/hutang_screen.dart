@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../../mock/debt_mock_data.dart';
 import '../../models/debt_item.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/currency_format.dart';
 import 'widgets/debt_card.dart';
 import 'widgets/debt_summary_card.dart';
 import 'widgets/jadwal_jatuh_tempo_section.dart';
+import 'widgets/pelunasan_dialog.dart';
 import 'widgets/tambah_hutang_bottom_sheet.dart';
 
 class HutangScreen extends StatefulWidget {
@@ -59,10 +61,14 @@ class _HutangScreenState extends State<HutangScreen> {
   int get _activeCount => _debts.where((d) => !d.isPaid).length;
   int get _paidCount => _debts.where((d) => d.isPaid).length;
   int get _dueSoonCount => _debts.where((d) => d.isDueSoon).length;
+  double get _totalPaidDebt => _debts
+      .where((d) => d.isPaid)
+      .fold(0.0, (sum, d) => sum + d.totalAmount);
 
   void _markAsPaid(DebtItem debt) {
     final index = _debts.indexWhere((d) => d.id == debt.id);
     if (index != -1) {
+      final previousDebt = _debts[index];
       setState(() {
         _debts[index] = debt.copyWith(
           status: 'paid',
@@ -74,11 +80,102 @@ class _HutangScreenState extends State<HutangScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Tagihan "${debt.name}" berhasil ditandai lunas!'),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            key: const Key('btn_undo_mark_paid'),
+            label: 'Urungkan',
+            textColor: Colors.amberAccent,
+            onPressed: () {
+              setState(() {
+                final curIdx = _debts.indexWhere((d) => d.id == debt.id);
+                if (curIdx != -1) {
+                  _debts[curIdx] = previousDebt;
+                }
+              });
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Pelunasan "${debt.name}" dibatalkan.'),
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  void _reopenDebt(DebtItem debt) {
+    final index = _debts.indexWhere((d) => d.id == debt.id);
+    if (index != -1) {
+      setState(() {
+        _debts[index] = debt.copyWith(
+          status: 'active',
+          remainingAmount: debt.totalAmount > 0 ? debt.totalAmount : 100000,
+        );
+      });
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          key: Key('snackbar_debt_reopened_${debt.id}'),
+          content: Text('Tagihan "${debt.name}" berhasil diaktifkan kembali!'),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );
     }
+  }
+
+  void _openPelunasanDialog(DebtItem debt) {
+    PelunasanDialog.show(
+      context,
+      debt: debt,
+      onConfirm: (amount, isFull, notes) {
+        final index = _debts.indexWhere((d) => d.id == debt.id);
+        if (index != -1) {
+          final previousDebt = _debts[index];
+          final newRemaining = isFull
+              ? 0.0
+              : (debt.remainingAmount - amount).clamp(0.0, debt.totalAmount);
+          final isNowPaid = newRemaining <= 0;
+
+          setState(() {
+            _debts[index] = debt.copyWith(
+              remainingAmount: newRemaining,
+              status: isNowPaid ? 'paid' : 'active',
+              notes: notes ?? debt.notes,
+            );
+          });
+
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isNowPaid
+                  ? 'Tagihan "${debt.name}" berhasil ditandai lunas!'
+                  : 'Pembayaran ${CurrencyFormat.formatRupiah(amount)} untuk "${debt.name}" berhasil dicatat!'),
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Urungkan',
+                textColor: Colors.amberAccent,
+                onPressed: () {
+                  setState(() {
+                    final curIdx = _debts.indexWhere((d) => d.id == debt.id);
+                    if (curIdx != -1) {
+                      _debts[curIdx] = previousDebt;
+                    }
+                  });
+                },
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   void _resetFilters() {
@@ -257,6 +354,9 @@ class _HutangScreenState extends State<HutangScreen> {
               const SizedBox(height: 6),
 
               // 4. Daftar Tagihan
+              if (_selectedFilter == 'paid') ...[
+                _buildDaftarLunasBanner(),
+              ],
               if (filtered.isEmpty)
                 _buildEmptyState()
               else
@@ -265,6 +365,8 @@ class _HutangScreenState extends State<HutangScreen> {
                       .map((debt) => DebtCard(
                             debt: debt,
                             onMarkPaid: () => _markAsPaid(debt),
+                            onReopen: () => _reopenDebt(debt),
+                            onTap: () => _openPelunasanDialog(debt),
                           ))
                       .toList(),
                 ),
@@ -344,7 +446,105 @@ class _HutangScreenState extends State<HutangScreen> {
     );
   }
 
+  Widget _buildDaftarLunasBanner() {
+    return Container(
+      key: const Key('daftar_lunas_summary_banner'),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10B981).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFF10B981).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.verified_rounded,
+              size: 20,
+              color: Color(0xFF047857),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Daftar Lunas: $_paidCount Tagihan Selesai',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF065F46),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Total ${CurrencyFormat.formatRupiah(_totalPaidDebt)} hutang & paylater telah berhasil dilunasi!',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF047857),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
+    if (_selectedFilter == 'paid') {
+      return Container(
+        key: const Key('empty_paid_debts'),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.verified_outlined,
+                size: 36,
+                color: Color(0xFF047857),
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Belum Ada Catatan Hutang Lunas',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Tagihan yang sudah dilunasi akan tercatat rapi di sini sebagai arsip.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       key: const Key('debt_empty_state'),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),

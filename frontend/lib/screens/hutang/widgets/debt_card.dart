@@ -5,12 +5,14 @@ import '../../../theme/app_theme.dart';
 class DebtCard extends StatelessWidget {
   final DebtItem debt;
   final VoidCallback? onMarkPaid;
+  final VoidCallback? onReopen;
   final VoidCallback? onTap;
 
   const DebtCard({
     super.key,
     required this.debt,
     this.onMarkPaid,
+    this.onReopen,
     this.onTap,
   });
 
@@ -338,33 +340,74 @@ class DebtCard extends StatelessWidget {
                         ),
                       )
                     else
-                      Container(
-                        key: Key('paid_indicator_${debt.id}'),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.done_all_rounded,
-                              size: 13,
-                              color: Color(0xFF047857),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            key: Key('paid_indicator_${debt.id}'),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Lunas',
-                              style: TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF047857),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.done_all_rounded,
+                                  size: 13,
+                                  color: Color(0xFF047857),
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Lunas',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF047857),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (onReopen != null) ...[
+                            const SizedBox(width: 6),
+                            InkWell(
+                              key: Key('btn_reopen_debt_${debt.id}'),
+                              onTap: onReopen,
+                              borderRadius: BorderRadius.circular(6),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.surfaceColor,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppTheme.borderSubtle),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.undo_rounded,
+                                      size: 11,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                    SizedBox(width: 2),
+                                    Text(
+                                      'Aktifkan Lagi',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
                   ],
                 ),
