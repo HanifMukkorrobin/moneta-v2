@@ -278,3 +278,46 @@ CREATE INDEX IF NOT EXISTS idx_notification_logs_type ON notification_logs(type)
 CREATE VIEW IF NOT EXISTS log_notifikasi AS SELECT * FROM notification_logs;
 CREATE VIEW IF NOT EXISTS riwayat_notifikasi AS SELECT * FROM notification_logs;
 
+-- 12. Debts Table (Catatan Hutang / Paylater & Cicilan)
+CREATE TABLE IF NOT EXISTS debts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    total_amount REAL NOT NULL CHECK(total_amount >= 0),
+    remaining_amount REAL NOT NULL DEFAULT 0 CHECK(remaining_amount >= 0),
+    paid_amount REAL NOT NULL DEFAULT 0 CHECK(paid_amount >= 0),
+    due_date DATE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'paid', 'lunas', 'aktif')),
+    type TEXT NOT NULL DEFAULT 'paylater' CHECK(type IN ('paylater', 'cicilan', 'kartu_kredit', 'kartuKredit', 'pinjaman_pribadi', 'pinjamanPribadi', 'lainnya')),
+    notes TEXT,
+    paid_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_debts_user_status ON debts(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_debts_due_date ON debts(due_date);
+CREATE INDEX IF NOT EXISTS idx_debts_user_due ON debts(user_id, due_date);
+CREATE INDEX IF NOT EXISTS idx_debts_type ON debts(type);
+
+CREATE TRIGGER IF NOT EXISTS trg_debts_paid_status_insert
+AFTER INSERT ON debts
+WHEN NEW.remaining_amount <= 0 AND NEW.status != 'paid'
+BEGIN
+    UPDATE debts
+    SET status = 'paid', paid_at = COALESCE(NEW.paid_at, CURRENT_TIMESTAMP)
+    WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_debts_paid_status_update
+AFTER UPDATE OF remaining_amount ON debts
+WHEN NEW.remaining_amount <= 0 AND NEW.status != 'paid'
+BEGIN
+    UPDATE debts
+    SET status = 'paid', paid_at = COALESCE(NEW.paid_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP
+    WHERE id = NEW.id;
+END;
+
+CREATE VIEW IF NOT EXISTS catatan_hutang AS SELECT * FROM debts;
+CREATE VIEW IF NOT EXISTS hutang AS SELECT * FROM debts;
+

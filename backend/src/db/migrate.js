@@ -597,6 +597,77 @@ export function seedDefaultSavingTips(db) {
   tx();
 }
 
+export function ensureDebtsSchema(db) {
+  // 1. Ensure debts table exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS debts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        total_amount REAL NOT NULL CHECK(total_amount >= 0),
+        remaining_amount REAL NOT NULL DEFAULT 0 CHECK(remaining_amount >= 0),
+        paid_amount REAL NOT NULL DEFAULT 0 CHECK(paid_amount >= 0),
+        due_date DATE NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'paid', 'lunas', 'aktif')),
+        type TEXT NOT NULL DEFAULT 'paylater' CHECK(type IN ('paylater', 'cicilan', 'kartu_kredit', 'kartuKredit', 'pinjaman_pribadi', 'pinjamanPribadi', 'lainnya')),
+        notes TEXT,
+        paid_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // 2. Check and add any missing columns for pre-existing tables
+  const debtCols = db.prepare("PRAGMA table_info(debts)").all().map((c) => c.name);
+  if (!debtCols.includes('total_amount')) db.exec("ALTER TABLE debts ADD COLUMN total_amount REAL NOT NULL DEFAULT 0");
+  if (!debtCols.includes('remaining_amount')) db.exec("ALTER TABLE debts ADD COLUMN remaining_amount REAL NOT NULL DEFAULT 0");
+  if (!debtCols.includes('paid_amount')) db.exec("ALTER TABLE debts ADD COLUMN paid_amount REAL NOT NULL DEFAULT 0");
+  if (!debtCols.includes('due_date')) db.exec("ALTER TABLE debts ADD COLUMN due_date DATE");
+  if (!debtCols.includes('status')) db.exec("ALTER TABLE debts ADD COLUMN status TEXT NOT NULL DEFAULT 'active'");
+  if (!debtCols.includes('type')) db.exec("ALTER TABLE debts ADD COLUMN type TEXT NOT NULL DEFAULT 'paylater'");
+  if (!debtCols.includes('notes')) db.exec("ALTER TABLE debts ADD COLUMN notes TEXT");
+  if (!debtCols.includes('paid_at')) db.exec("ALTER TABLE debts ADD COLUMN paid_at DATETIME");
+  if (!debtCols.includes('created_at')) {
+    db.exec("ALTER TABLE debts ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE debts SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+  if (!debtCols.includes('updated_at')) {
+    db.exec("ALTER TABLE debts ADD COLUMN updated_at DATETIME");
+    db.exec("UPDATE debts SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+  }
+
+  // 3. Performance indices
+  db.exec("CREATE INDEX IF NOT EXISTS idx_debts_user_status ON debts(user_id, status);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_debts_due_date ON debts(due_date);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_debts_user_due ON debts(user_id, due_date);");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_debts_type ON debts(type);");
+
+  // 4. Triggers to keep status consistent when remaining_amount <= 0
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS trg_debts_paid_status_insert
+    AFTER INSERT ON debts
+    WHEN NEW.remaining_amount <= 0 AND NEW.status != 'paid'
+    BEGIN
+        UPDATE debts
+        SET status = 'paid', paid_at = COALESCE(NEW.paid_at, CURRENT_TIMESTAMP)
+        WHERE id = NEW.id;
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS trg_debts_paid_status_update
+    AFTER UPDATE OF remaining_amount ON debts
+    WHEN NEW.remaining_amount <= 0 AND NEW.status != 'paid'
+    BEGIN
+        UPDATE debts
+        SET status = 'paid', paid_at = COALESCE(NEW.paid_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP
+        WHERE id = NEW.id;
+    END;
+  `);
+
+  // 5. Views for Indonesian aliases
+  db.exec("CREATE VIEW IF NOT EXISTS catatan_hutang AS SELECT * FROM debts;");
+  db.exec("CREATE VIEW IF NOT EXISTS hutang AS SELECT * FROM debts;");
+}
+
 export function runMigrations(db) {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
@@ -615,6 +686,9 @@ export function runMigrations(db) {
 
   // Ensure daily tips, reminder settings, and daily advice cache schema exists
   ensureSaranHarianSchema(db);
+
+  // Ensure debts table schema exists
+  ensureDebtsSchema(db);
 
   // Seed default categories (with user_id = NULL)
   seedDefaultCategories(db);
