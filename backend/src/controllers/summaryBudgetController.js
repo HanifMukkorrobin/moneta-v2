@@ -1,5 +1,15 @@
 import { getDatabase } from '../config/database.js';
 import { getOrCreateDefaultUser } from './chatController.js';
+import {
+  getPreviousMonthString,
+  getDaysInMonth,
+  getMonthLabel,
+  getMonthlyTotalsQuery,
+  getMonthOverMonthComparisonQuery,
+  getCategoryBreakdownQuery,
+  getDailyTotalsQuery,
+  getFullMonthlyRekapAggregation,
+} from '../services/rekapQueryService.js';
 
 /**
  * Formats a Date object to YYYY-MM
@@ -17,59 +27,10 @@ export function calculateMonthlyRekap(db, userId, targetMonth) {
   const month = targetMonth || getCurrentMonthString();
   const monthPrefix = `${month}%`;
 
-  // 1. Confirmed totals
-  const totalsRow = db.prepare(`
-    SELECT
-      COALESCE(SUM(CASE WHEN type = 'income' AND is_confirmed = 1 THEN amount ELSE 0 END), 0) AS total_income,
-      COALESCE(SUM(CASE WHEN type = 'expense' AND is_confirmed = 1 THEN amount ELSE 0 END), 0) AS total_expense,
-      COUNT(CASE WHEN is_confirmed = 1 THEN 1 END) AS confirmed_count,
-      COUNT(CASE WHEN is_confirmed = 0 THEN 1 END) AS pending_count,
-      COALESCE(SUM(CASE WHEN type = 'expense' AND is_confirmed = 0 THEN amount ELSE 0 END), 0) AS pending_expense,
-      COALESCE(SUM(CASE WHEN type = 'income' AND is_confirmed = 0 THEN amount ELSE 0 END), 0) AS pending_income
-    FROM transactions
-    WHERE user_id = ? AND occurred_at LIKE ?
-  `).get(userId, monthPrefix);
+  // 1. Aggregated totals and MoM comparison
+  const aggregated = getFullMonthlyRekapAggregation(db, userId, month);
 
-  const totalIncome = totalsRow ? Number(totalsRow.total_income) : 0;
-  const totalExpense = totalsRow ? Number(totalsRow.total_expense) : 0;
-  const netSavings = totalIncome - totalExpense;
-  const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 1000) / 10 : 0;
-
-  // 2. Category breakdown for confirmed expenses
-  const categoryBreakdownRows = db.prepare(`
-    SELECT
-      t.category_id,
-      COALESCE(c.name, 'Lainnya') AS category_name,
-      c.icon AS category_icon,
-      c.color AS category_color,
-      t.type,
-      SUM(t.amount) AS category_total,
-      COUNT(t.id) AS tx_count
-    FROM transactions t
-    LEFT JOIN categories c ON t.category_id = c.id
-    WHERE t.user_id = ? AND t.occurred_at LIKE ? AND t.is_confirmed = 1
-    GROUP BY t.category_id, t.type
-    ORDER BY category_total DESC
-  `).all(userId, monthPrefix);
-
-  const categoryBreakdown = categoryBreakdownRows.map((r) => {
-    const catTotal = Number(r.category_total);
-    const denominator = r.type === 'expense' ? totalExpense : totalIncome;
-    const percentage = denominator > 0 ? Math.round((catTotal / denominator) * 1000) / 10 : 0;
-
-    return {
-      categoryId: r.category_id,
-      categoryName: r.category_name,
-      type: r.type,
-      icon: r.category_icon || (r.type === 'income' ? 'attach_money_rounded' : 'more_horiz_rounded'),
-      color: r.category_color || 'grey',
-      total: catTotal,
-      percentage,
-      transactionCount: r.tx_count,
-    };
-  });
-
-  // 3. Budgets for this month with spent tracking
+  // 2. Budgets for this month with spent tracking
   const budgetRows = db.prepare(`
     SELECT
       b.id,
@@ -116,17 +77,11 @@ export function calculateMonthlyRekap(db, userId, targetMonth) {
 
   return {
     month,
-    summary: {
-      totalIncome,
-      totalExpense,
-      netSavings,
-      savingsRate,
-      confirmedTransactionsCount: totalsRow?.confirmed_count || 0,
-      pendingTransactionsCount: totalsRow?.pending_count || 0,
-      pendingExpenseTotal: totalsRow?.pending_expense || 0,
-      pendingIncomeTotal: totalsRow?.pending_income || 0,
-    },
-    categoryBreakdown,
+    monthLabel: aggregated.monthLabel,
+    summary: aggregated.summary,
+    comparison: aggregated.comparison,
+    categoryBreakdown: aggregated.categoryBreakdown,
+    dailyBreakdown: aggregated.dailyBreakdown,
     budgetStatus,
   };
 }
@@ -151,6 +106,115 @@ export function getMonthlyRekapHandler(req, res) {
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan saat menghitung rekap bulanan dan budget.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller: GET /api/rekap/summary
+ * Returns focused monthly totals aggregation
+ */
+export function getSummaryAggregationHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const month = req.query?.month || getCurrentMonthString();
+
+    const totals = getMonthlyTotalsQuery(db, userId, month);
+
+    return res.status(200).json({
+      success: true,
+      month,
+      ...totals,
+    });
+  } catch (error) {
+    console.error('[SummaryBudgetController] Error getting summary aggregation:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat mengambil ringkasan bulanan.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller: GET /api/rekap/comparison
+ * Returns Month-over-Month comparison
+ */
+export function getComparisonHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const month = req.query?.month || getCurrentMonthString();
+
+    const comparison = getMonthOverMonthComparisonQuery(db, userId, month);
+
+    return res.status(200).json({
+      success: true,
+      ...comparison,
+    });
+  } catch (error) {
+    console.error('[SummaryBudgetController] Error getting comparison:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat membandingkan rekap bulanan.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller: GET /api/rekap/breakdown
+ * Returns category breakdown
+ */
+export function getCategoryBreakdownHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const month = req.query?.month || getCurrentMonthString();
+    const type = req.query?.type; // 'expense' | 'income' | undefined
+
+    const breakdown = getCategoryBreakdownQuery(db, userId, month, type);
+
+    return res.status(200).json({
+      success: true,
+      month,
+      type: type || 'all',
+      categoryBreakdown: breakdown,
+    });
+  } catch (error) {
+    console.error('[SummaryBudgetController] Error getting category breakdown:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat mengambil proporsi kategori.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller: GET /api/rekap/daily
+ * Returns daily aggregation trend
+ */
+export function getDailyAggregationHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const month = req.query?.month || getCurrentMonthString();
+
+    const daily = getDailyTotalsQuery(db, userId, month);
+
+    return res.status(200).json({
+      success: true,
+      month,
+      dailyBreakdown: daily,
+    });
+  } catch (error) {
+    console.error('[SummaryBudgetController] Error getting daily aggregation:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat mengambil data agregasi harian.',
       details: error.message,
     });
   }
