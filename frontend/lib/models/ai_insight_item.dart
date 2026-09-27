@@ -121,6 +121,46 @@ class AiInsightItem {
         decimalDigits: 0,
       ).format(totalSpent);
 
+  static const _monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  static const _shortMonthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+  ];
+
+  DateTime get projectedDepletionDate =>
+      date.add(Duration(days: estimatedDaysLeft));
+
+  String get formattedDepletionDate {
+    final d = projectedDepletionDate;
+    return '${d.day} ${_monthNames[d.month - 1]} ${d.year}';
+  }
+
+  String get formattedShortDepletionDate {
+    final d = projectedDepletionDate;
+    return '${d.day} ${_shortMonthNames[d.month - 1]} ${d.year}';
+  }
+
+  int get daysUntilEndOfMonth {
+    final nextMonthFirstDay = DateTime(date.year, date.month + 1, 1);
+    final lastDayOfMonth = nextMonthFirstDay.subtract(const Duration(days: 1));
+    final diff = lastDayOfMonth.day - date.day;
+    return diff > 0 ? diff : 1;
+  }
+
+  bool get runsOutBeforeEndOfMonth => estimatedDaysLeft < daysUntilEndOfMonth;
+
+  String get depletionStatusMessage {
+    if (runsOutBeforeEndOfMonth) {
+      final daysDiff = daysUntilEndOfMonth - estimatedDaysLeft;
+      return 'Habis $daysDiff hari sebelum akhir bulan';
+    }
+    final surplusDays = estimatedDaysLeft - daysUntilEndOfMonth;
+    return 'Aman melampaui akhir bulan (+$surplusDays hari)';
+  }
+
   String get formattedTotalMonthlyBudget => NumberFormat.currency(
         locale: 'id_ID',
         symbol: 'Rp ',

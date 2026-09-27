@@ -220,7 +220,8 @@ class _FinancialAnalysisCardState extends State<FinancialAnalysisCard> {
                           key: const Key('metric_estimated_days'),
                           title: 'Uang Bertahan',
                           value: '~${currentInsight.estimatedDaysLeft} Hari',
-                          subtitle: 'Estimasi AI',
+                          subtitle:
+                              'Habis: ${currentInsight.formattedShortDepletionDate}',
                           icon: Icons.hourglass_top_rounded,
                           accentColor: warnLevel.color,
                         ),
@@ -600,6 +601,17 @@ class _FinancialAnalysisDetailModal extends StatelessWidget {
                       value: '~${insight.estimatedDaysLeft} Hari lagi',
                       icon: Icons.hourglass_top_rounded,
                       highlightColor: insight.warnLevel.color,
+                    ),
+                    _DetailRow(
+                      label: 'Tanggal Proyeksi Habis',
+                      value: insight.formattedDepletionDate,
+                      icon: Icons.event_busy_rounded,
+                      highlightColor: insight.warnLevel.color,
+                    ),
+                    _DetailRow(
+                      label: 'Status Akhir Bulan',
+                      value: insight.depletionStatusMessage,
+                      icon: Icons.calendar_month_rounded,
                     ),
                     _DetailRow(
                       label: 'Rata-rata Pengeluaran Harian',
