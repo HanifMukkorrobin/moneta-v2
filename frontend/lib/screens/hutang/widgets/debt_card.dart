@@ -130,16 +130,54 @@ class DebtCard extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Title name
-                Text(
-                  debt.name,
-                  key: Key('debt_name_${debt.id}'),
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                    color: isPaid ? AppTheme.textSecondary : AppTheme.textPrimary,
-                    decoration: isPaid ? TextDecoration.lineThrough : null,
-                  ),
+                // Title name & Penanda Segera badge
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        debt.name,
+                        key: Key('debt_name_${debt.id}'),
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.bold,
+                          color: isPaid ? AppTheme.textSecondary : AppTheme.textPrimary,
+                          decoration: isPaid ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                    ),
+                    if (isDueSoon) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        key: Key('penanda_segera_${debt.id}'),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF59E0B),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.bolt_rounded,
+                              size: 11,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              'SEGERA',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
 
                 if (debt.notes != null && debt.notes!.isNotEmpty) ...[
@@ -330,6 +368,43 @@ class DebtCard extends StatelessWidget {
                       ),
                   ],
                 ),
+                if (isDueSoon) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    key: Key('due_soon_alert_strip_${debt.id}'),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFFFCD34D),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.access_time_filled_rounded,
+                          size: 13,
+                          color: Color(0xFFD97706),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            debt.daysUntilDue == 0
+                                ? 'Tagihan jatuh tempo HARI INI! Segera lunasi.'
+                                : 'Jatuh tempo SEGERA dalam ${debt.daysUntilDue} hari (${debt.formattedDueDate})',
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF92400E),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

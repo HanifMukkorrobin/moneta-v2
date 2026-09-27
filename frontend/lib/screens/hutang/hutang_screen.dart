@@ -4,6 +4,7 @@ import '../../models/debt_item.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/debt_card.dart';
 import 'widgets/debt_summary_card.dart';
+import 'widgets/jadwal_jatuh_tempo_section.dart';
 import 'widgets/tambah_hutang_bottom_sheet.dart';
 
 class HutangScreen extends StatefulWidget {
@@ -178,7 +179,23 @@ class _HutangScreenState extends State<HutangScreen> {
                 },
               ),
 
-              // 2. Search Field
+              // 2. Jadwal Jatuh Tempo (Timeline & Penanda Segera)
+              JadwalJatuhTempoSection(
+                debts: _debts,
+                onSelectDebt: (debt) {
+                  setState(() {
+                    _searchQuery = debt.name;
+                    _searchController.text = debt.name;
+                  });
+                },
+                onFilterDueSoon: () {
+                  setState(() {
+                    _selectedFilter = 'due_soon';
+                  });
+                },
+              ),
+
+              // 3. Search Field
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

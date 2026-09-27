@@ -87,6 +87,11 @@ void main() {
     });
 
     testWidgets('searches debts by name and notes', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         buildTestableWidget(const HutangScreen()),
       );
@@ -96,18 +101,23 @@ void main() {
       await tester.enterText(find.byKey(const Key('debt_search_input')), 'laptop');
       await tester.pumpAndSettle();
 
-      expect(find.text('Cicilan Laptop Kerja (Bulan 3/6)'), findsOneWidget);
-      expect(find.text('Paylater Belanja Online (Spay)'), findsNothing);
+      expect(find.byKey(const Key('debt_card_debt_2')), findsOneWidget);
+      expect(find.byKey(const Key('debt_card_debt_1')), findsNothing);
 
       // Clear search
       await tester.tap(find.byIcon(Icons.clear_rounded));
       await tester.pumpAndSettle();
 
-      expect(find.text('Paylater Belanja Online (Spay)'), findsOneWidget);
+      expect(find.byKey(const Key('debt_card_debt_1')), findsOneWidget);
     });
 
     testWidgets('marking a debt as paid updates its card and summary state',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final now = DateTime.now();
       final customDebts = [
         DebtItem(
@@ -129,8 +139,11 @@ void main() {
       expect(find.byKey(const Key('btn_mark_paid_test_debt_mark_1')), findsOneWidget);
       expect(find.text('Rp 500.000'), findsWidgets);
 
-      // Tap mark paid button
-      await tester.tap(find.byKey(const Key('btn_mark_paid_test_debt_mark_1')));
+      // Ensure visible and tap mark paid button
+      final markPaidBtn = find.byKey(const Key('btn_mark_paid_test_debt_mark_1'));
+      await tester.ensureVisible(markPaidBtn);
+      await tester.pumpAndSettle();
+      await tester.tap(markPaidBtn);
       await tester.pumpAndSettle();
 
       expect(
@@ -144,6 +157,11 @@ void main() {
 
     testWidgets('renders empty state when filter matches nothing and resets cleanly',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         buildTestableWidget(const HutangScreen()),
       );
@@ -165,7 +183,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('debt_empty_state')), findsNothing);
-      expect(find.text('Paylater Belanja Online (Spay)'), findsOneWidget);
+      expect(find.byKey(const Key('debt_card_debt_1')), findsOneWidget);
     });
 
     testWidgets('MainNavigationScreen bottom navigation tab opens HutangScreen',
