@@ -9,6 +9,7 @@ import '../budget/atur_budget_screen.dart';
 import '../chat/widgets/manual_input_sheet.dart';
 import '../rekap/rekap_bulanan_screen.dart';
 import 'widgets/daily_advice_card.dart';
+import 'widgets/daily_saving_tips_card.dart';
 import 'widgets/safe_spending_limit_card.dart';
 
 class BerandaScreen extends StatefulWidget {
@@ -262,6 +263,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 insight: insight,
                 todaySpent: appState.todayTotalExpense,
               ),
+
+              // Tips Hemat Harian (Mock)
+              const DailySavingTipsCard(),
 
               // Overview Finansial Bulan Berjalan
               Container(
