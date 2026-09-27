@@ -315,3 +315,377 @@ export function getCategorySuggestionsHandler(req, res) {
     });
   }
 }
+
+/**
+ * Controller to create a custom expense (or income) category.
+ *
+ * Supported endpoints:
+ * - POST /api/categories/custom
+ * - POST /categories/custom
+ * - POST /api/categories
+ * - POST /categories
+ */
+export function createCustomCategoryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const body = req.body || {};
+    const {
+      name,
+      type = 'expense',
+      icon = 'bookmark_border_rounded',
+      color = 'purple',
+      userId: reqUserId,
+    } = body;
+
+    // Validate name
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Nama kategori wajib diisi.',
+      });
+    }
+
+    const trimmedName = name.trim();
+
+    // Validate type
+    if (type !== 'expense' && type !== 'income') {
+      return res.status(400).json({
+        success: false,
+        error: 'Jenis kategori harus berupa "expense" (pengeluaran) atau "income" (pemasukan).',
+      });
+    }
+
+    const userId = getOrCreateDefaultUser(db, reqUserId);
+
+    // Check duplicate name for this user & type
+    const existing = db.prepare(`
+      SELECT id, name FROM categories
+      WHERE (user_id IS NULL OR user_id = ?)
+        AND LOWER(name) = LOWER(?)
+        AND type = ?
+      LIMIT 1
+    `).get(userId, trimmedName, type);
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        error: 'Kategori dengan nama ini sudah ada.',
+      });
+    }
+
+    // Insert custom category
+    const result = db.prepare(`
+      INSERT INTO categories (user_id, name, type, is_default, icon, color)
+      VALUES (?, ?, ?, 0, ?, ?)
+    `).run(userId, trimmedName, type, icon, color);
+
+    const insertedId = result.lastInsertRowid;
+    const newCategory = db.prepare('SELECT * FROM categories WHERE id = ?').get(insertedId);
+
+    const formattedCategory = {
+      id: newCategory.id,
+      userId: newCategory.user_id,
+      name: newCategory.name,
+      type: newCategory.type,
+      isDefault: false,
+      isCustom: true,
+      icon: newCategory.icon,
+      color: newCategory.color,
+      createdAt: newCategory.created_at,
+    };
+
+    return res.status(201).json({
+      success: true,
+      message: `Kategori ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} kustom "${trimmedName}" berhasil dibuat.`,
+      category: formattedCategory,
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error creating custom category:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan pada server saat membuat kategori kustom.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to list only custom categories for a user.
+ *
+ * Supported endpoints:
+ * - GET /api/categories/custom
+ * - GET /categories/custom
+ */
+export function listCustomCategoriesHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const { type } = req.query;
+
+    let query = `
+      SELECT id, user_id, name, type, is_default, icon, color, created_at
+      FROM categories
+      WHERE user_id = ? AND is_default = 0
+    `;
+    const params = [userId];
+
+    if (type && (type === 'expense' || type === 'income')) {
+      query += ' AND type = ?';
+      params.push(type);
+    }
+
+    query += ' ORDER BY created_at DESC, name ASC';
+
+    const rows = db.prepare(query).all(...params);
+
+    const formatted = rows.map((r) => ({
+      id: r.id,
+      userId: r.user_id,
+      name: r.name,
+      type: r.type,
+      isDefault: false,
+      isCustom: true,
+      icon: r.icon,
+      color: r.color,
+      createdAt: r.created_at,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      total: formatted.length,
+      categories: formatted,
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error listing custom categories:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memuat daftar kategori kustom.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to get single category by ID.
+ *
+ * Supported endpoints:
+ * - GET /api/categories/:id
+ * - GET /categories/:id
+ */
+export function getCategoryByIdHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const catId = Number(req.params.id);
+
+    const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(catId);
+    if (!row) {
+      return res.status(404).json({
+        success: false,
+        error: 'Kategori tidak ditemukan.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      category: {
+        id: row.id,
+        userId: row.user_id,
+        name: row.name,
+        type: row.type,
+        isDefault: Boolean(row.is_default),
+        isCustom: !Boolean(row.is_default),
+        icon: row.icon,
+        color: row.color,
+        createdAt: row.created_at,
+      },
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error getting category by ID:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memuat detail kategori.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to update a custom category.
+ *
+ * Supported endpoints:
+ * - PUT /api/categories/:id
+ * - PATCH /api/categories/:id
+ * - PUT /api/categories/custom/:id
+ */
+export function updateCustomCategoryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const catId = Number(req.params.id);
+    const body = req.body || {};
+    const userId = getOrCreateDefaultUser(db, body.userId || req.query?.userId);
+
+    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(catId);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        error: 'Kategori tidak ditemukan.',
+      });
+    }
+
+    // Default categories cannot be modified
+    if (category.is_default === 1 || category.user_id === null) {
+      return res.status(400).json({
+        success: false,
+        error: 'Kategori bawaan sistem tidak dapat diubah.',
+      });
+    }
+
+    const newName = body.name !== undefined ? String(body.name).trim() : category.name;
+    const newIcon = body.icon !== undefined ? body.icon : category.icon;
+    const newColor = body.color !== undefined ? body.color : category.color;
+    const newType = body.type !== undefined ? body.type : category.type;
+
+    if (!newName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nama kategori tidak boleh kosong.',
+      });
+    }
+
+    if (newType !== 'expense' && newType !== 'income') {
+      return res.status(400).json({
+        success: false,
+        error: 'Jenis kategori harus berupa "expense" atau "income".',
+      });
+    }
+
+    // Check collision with another category
+    const collision = db.prepare(`
+      SELECT id FROM categories
+      WHERE id != ? AND (user_id IS NULL OR user_id = ?)
+        AND LOWER(name) = LOWER(?) AND type = ?
+      LIMIT 1
+    `).get(catId, userId, newName, newType);
+
+    if (collision) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nama kategori sudah digunakan.',
+      });
+    }
+
+    db.transaction(() => {
+      // Update category
+      db.prepare(`
+        UPDATE categories
+        SET name = ?, type = ?, icon = ?, color = ?
+        WHERE id = ?
+      `).run(newName, newType, newIcon, newColor, catId);
+
+      // Keep transaction category_name in sync
+      db.prepare(`
+        UPDATE transactions
+        SET category_name = ?
+        WHERE category_id = ?
+      `).run(newName, catId);
+    })();
+
+    const updated = db.prepare('SELECT * FROM categories WHERE id = ?').get(catId);
+
+    return res.status(200).json({
+      success: true,
+      message: `Kategori berhasil diubah menjadi "${newName}".`,
+      category: {
+        id: updated.id,
+        userId: updated.user_id,
+        name: updated.name,
+        type: updated.type,
+        isDefault: false,
+        isCustom: true,
+        icon: updated.icon,
+        color: updated.color,
+        createdAt: updated.created_at,
+      },
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error updating custom category:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memperbarui kategori.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to delete a custom category.
+ * Reassigns linked transactions to 'Lainnya' so transaction history remains intact.
+ *
+ * Supported endpoints:
+ * - DELETE /api/categories/:id
+ * - DELETE /api/categories/custom/:id
+ */
+export function deleteCustomCategoryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const catId = Number(req.params.id);
+    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+
+    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(catId);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        error: 'Kategori tidak ditemukan.',
+      });
+    }
+
+    // Default categories cannot be deleted
+    if (category.is_default === 1 || category.user_id === null) {
+      return res.status(400).json({
+        success: false,
+        error: 'Kategori bawaan sistem tidak dapat dihapus.',
+      });
+    }
+
+    // Find fallback 'Lainnya' category
+    const fallbackCat = db.prepare(`
+      SELECT id, name FROM categories
+      WHERE name = 'Lainnya' AND type = ? AND is_default = 1
+      LIMIT 1
+    `).get(category.type);
+
+    const fallbackId = fallbackCat ? fallbackCat.id : null;
+
+    let reassignedCount = 0;
+
+    db.transaction(() => {
+      // Reassign transactions
+      const updateRes = db.prepare(`
+        UPDATE transactions
+        SET category_id = ?, category_name = 'Lainnya'
+        WHERE category_id = ?
+      `).run(fallbackId, catId);
+
+      reassignedCount = updateRes.changes;
+
+      // Delete the category
+      db.prepare('DELETE FROM categories WHERE id = ?').run(catId);
+    })();
+
+    return res.status(200).json({
+      success: true,
+      message: `Kategori "${category.name}" berhasil dihapus.`,
+      id: catId,
+      reassignedTransactionsCount: reassignedCount,
+      fallbackCategory: fallbackCat ? fallbackCat.name : 'Lainnya',
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error deleting custom category:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat menghapus kategori.',
+      details: error.message,
+    });
+  }
+}
+
