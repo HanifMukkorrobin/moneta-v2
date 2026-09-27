@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "be164be0cf45f7485caa7a995a5a1c04ab0fc384",
+  "generatedForCommit": "86edc911b43d7e8085dac7a4bb3a286cb7301738",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -106,13 +106,13 @@
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 10305
     },
     {
       "path": "frontend/lib/models/chat_log_item.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 1372
     },
@@ -130,7 +130,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/chat_history_screen.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 14620
     },
@@ -138,7 +138,7 @@
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "changed",
       "language": null,
-      "size": 15152
+      "size": 16619
     },
     {
       "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
@@ -178,9 +178,9 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 13347
+      "size": 14812
     },
     {
       "path": "frontend/lib/screens/main_navigation_screen.dart",
@@ -214,7 +214,7 @@
     },
     {
       "path": "frontend/test/chat_history_screen_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3906
     },
@@ -241,6 +241,12 @@
       "reason": "needs_summary",
       "language": null,
       "size": 2992
+    },
+    {
+      "path": "frontend/test/transaction_edit_delete_actions_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 3332
     },
     {
       "path": "frontend/test/widget_test.dart",

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../mock/mock_data.dart';
 import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
+import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import 'chat_history_screen.dart';
 import 'widgets/ai_fallback_card.dart';
@@ -23,20 +23,23 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late List<ChatMessage> _messages;
-  bool _isAiTyping = false;
 
   @override
   void initState() {
     super.initState();
-    _messages = MockData.getInitialMessages();
+    AppState.instance.addListener(_onStateChange);
   }
 
   @override
   void dispose() {
+    AppState.instance.removeListener(_onStateChange);
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onStateChange() {
+    if (mounted) setState(() {});
   }
 
   void _scrollToBottom() {
@@ -55,53 +58,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    final userMessage = ChatMessage(
-      id: 'msg_${DateTime.now().millisecondsSinceEpoch}',
-      text: trimmed,
-      isUser: true,
-      timestamp: DateTime.now(),
+    AppState.instance.sendMessage(
+      trimmed,
+      onAiComplete: _scrollToBottom,
     );
-
-    setState(() {
-      _messages.add(userMessage);
-      _isAiTyping = true;
-    });
     _textController.clear();
     _scrollToBottom();
-
-    // Simulate AI parsing delay (9Router mock)
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      final parsed = MockData.parseTextOrNull(trimmed);
-
-      final ChatMessage aiMessage;
-      if (parsed != null) {
-        aiMessage = ChatMessage(
-          id: 'msg_ai_${DateTime.now().millisecondsSinceEpoch}',
-          text: 'AI berhasil mengenali transaksi. Konfirmasi untuk mencatat:',
-          isUser: false,
-          timestamp: DateTime.now(),
-          isAi: true,
-          transaction: parsed,
-        );
-      } else {
-        aiMessage = ChatMessage(
-          id: 'msg_ai_fail_${DateTime.now().millisecondsSinceEpoch}',
-          text: 'AI belum dapat membaca format transaksi dari pesanmu.',
-          isUser: false,
-          timestamp: DateTime.now(),
-          isAi: true,
-          isAiFailed: true,
-          failedRawText: trimmed,
-        );
-      }
-
-      setState(() {
-        _isAiTyping = false;
-        _messages.add(aiMessage);
-      });
-      _scrollToBottom();
-    });
   }
 
   void _openManualInput({String? initialNote, ChatMessage? failedMessage}) {
@@ -109,20 +71,10 @@ class _ChatScreenState extends State<ChatScreen> {
       context,
       initialNote: initialNote,
       onSave: (tx) {
-        setState(() {
-          if (failedMessage != null) {
-            _messages.remove(failedMessage);
-          }
-          final newMsg = ChatMessage(
-            id: 'msg_manual_${DateTime.now().millisecondsSinceEpoch}',
-            text: 'Transaksi berhasil dicatat secara manual:',
-            isUser: false,
-            timestamp: DateTime.now(),
-            isAi: true,
-            transaction: tx,
-          );
-          _messages.add(newMsg);
-        });
+        AppState.instance.addManualTransaction(
+          tx,
+          failedMessage: failedMessage,
+        );
         _scrollToBottom();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -142,9 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleConfirmTransaction(TransactionItem tx) {
-    setState(() {
-      tx.isConfirmed = true;
-    });
+    AppState.instance.confirmTransaction(tx.id);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -167,12 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
       context,
       transaction: tx,
       onSave: (updated) {
-        setState(() {
-          tx.amount = updated.amount;
-          tx.note = updated.note;
-          tx.category = updated.category;
-          tx.type = updated.type;
-        });
+        AppState.instance.updateTransaction(updated);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -213,10 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (confirmed == true && mounted) {
-      final index = _messages.indexOf(message);
-      setState(() {
-        _messages.remove(message);
-      });
+      final index = AppState.instance.deleteMessage(message);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Transaksi berhasil dihapus'),
@@ -224,13 +166,7 @@ class _ChatScreenState extends State<ChatScreen> {
             label: 'Urungkan',
             textColor: Colors.amberAccent,
             onPressed: () {
-              setState(() {
-                if (index >= 0 && index <= _messages.length) {
-                  _messages.insert(index, message);
-                } else {
-                  _messages.add(message);
-                }
-              });
+              AppState.instance.restoreMessage(message, index);
             },
           ),
           duration: const Duration(seconds: 3),
@@ -241,48 +177,26 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleToggleType(TransactionItem tx) {
-    setState(() {
-      final newType = tx.isExpense ? 'income' : 'expense';
-      tx.type = newType;
-      tx.category = newType == 'income'
-          ? MockData.incomeCategories.first
-          : MockData.expenseCategories.first;
-    });
+    final newType = tx.isExpense ? 'income' : 'expense';
+    final defaultCat = newType == 'income' ? 'Gaji' : 'Makan & Minuman';
+    final updated = tx.copyWith(type: newType, category: defaultCat);
+    AppState.instance.updateTransaction(updated);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-            'Diubah menjadi ${tx.isExpense ? 'Pengeluaran' : 'Pemasukan'}'),
+            'Diubah menjadi ${updated.isExpense ? 'Pengeluaran' : 'Pemasukan'}'),
         duration: const Duration(seconds: 1),
       ),
     );
   }
 
-  double get _todayTotalExpense {
-    double total = 0;
-    for (var m in _messages) {
-      if (m.transaction != null &&
-          m.transaction!.isConfirmed &&
-          m.transaction!.isExpense) {
-        total += m.transaction!.amount;
-      }
-    }
-    return total;
-  }
-
-  double get _todayTotalIncome {
-    double total = 0;
-    for (var m in _messages) {
-      if (m.transaction != null &&
-          m.transaction!.isConfirmed &&
-          m.transaction!.isIncome) {
-        total += m.transaction!.amount;
-      }
-    }
-    return total;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final appState = AppState.instance;
+    final messages = appState.messages;
+    final isAiTyping = appState.isAiTyping;
+
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -363,9 +277,7 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Reset Percakapan',
             onPressed: () {
-              setState(() {
-                _messages = MockData.getInitialMessages();
-              });
+              appState.resetToDefault();
             },
           ),
         ],
@@ -375,9 +287,9 @@ class _ChatScreenState extends State<ChatScreen> {
           // Daily Mini Summary Banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
-              border: const Border(
+              border: Border(
                 bottom: BorderSide(color: AppTheme.borderSubtle),
               ),
             ),
@@ -390,7 +302,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: AppTheme.expenseColor, size: 16),
                     const SizedBox(width: 4),
                     Text(
-                      'Keluar: ${currencyFormatter.format(_todayTotalExpense)}',
+                      'Keluar: ${currencyFormatter.format(appState.todayTotalExpense)}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -406,7 +318,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: AppTheme.incomeColor, size: 16),
                     const SizedBox(width: 4),
                     Text(
-                      'Masuk: ${currencyFormatter.format(_todayTotalIncome)}',
+                      'Masuk: ${currencyFormatter.format(appState.todayTotalIncome)}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -424,9 +336,9 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              itemCount: _messages.length + (_isAiTyping ? 1 : 0),
+              itemCount: messages.length + (isAiTyping ? 1 : 0),
               itemBuilder: (context, index) {
-                if (_isAiTyping && index == _messages.length) {
+                if (isAiTyping && index == messages.length) {
                   return Container(
                     margin: const EdgeInsets.only(left: 16, bottom: 8),
                     child: Row(
@@ -461,7 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
 
-                final message = _messages[index];
+                final message = messages[index];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -474,9 +386,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           failedMessage: message,
                         ),
                         onRetry: () {
-                          setState(() {
-                            _messages.remove(message);
-                          });
+                          appState.deleteMessage(message);
                           _handleSendMessage(message.failedRawText!);
                         },
                       ),
@@ -508,7 +418,7 @@ class _ChatScreenState extends State<ChatScreen> {
           // Freeform Chat Input Bar Component
           ChatInputBar(
             controller: _textController,
-            isAiTyping: _isAiTyping,
+            isAiTyping: isAiTyping,
             onSendMessage: _handleSendMessage,
           ),
         ],

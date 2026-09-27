@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'screens/main_navigation_screen.dart';
+import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MonetaApp());
+  runApp(
+    AppStateScope(
+      notifier: AppState.instance,
+      child: const MonetaApp(),
+    ),
+  );
 }
 
 class MonetaApp extends StatelessWidget {

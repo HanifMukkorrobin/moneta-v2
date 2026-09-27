@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../mock/mock_data.dart';
 import '../../models/chat_log_item.dart';
+import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/transaction_card.dart';
 
@@ -20,7 +20,6 @@ class ChatHistoryScreen extends StatefulWidget {
 }
 
 class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
-  late List<ChatLogItem> _logs;
   String _selectedFilter = 'all';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -28,14 +27,22 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    _logs = widget.initialLogs ?? MockData.getMockChatLogs();
+    AppState.instance.addListener(_onStateChange);
   }
 
   @override
   void dispose() {
+    AppState.instance.removeListener(_onStateChange);
     _searchController.dispose();
     super.dispose();
   }
+
+  void _onStateChange() {
+    if (mounted) setState(() {});
+  }
+
+  List<ChatLogItem> get _logs =>
+      widget.initialLogs ?? AppState.instance.chatLogs;
 
   List<ChatLogItem> get _filteredLogs {
     return _logs.where((item) {
@@ -120,9 +127,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Segarkan',
             onPressed: () {
-              setState(() {
-                _logs = MockData.getMockChatLogs();
-              });
+              AppState.instance.resetToDefault();
             },
           ),
         ],
@@ -299,10 +304,13 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                                     if (item.isPending) ...[
                                       TextButton(
                                         onPressed: () {
-                                          setState(() {
-                                            item.status = ChatLogStatus.confirmed;
-                                            item.transaction!.isConfirmed = true;
-                                          });
+                                          if (item.transaction != null) {
+                                            AppState.instance.confirmTransaction(item.transaction!.id);
+                                          } else {
+                                            setState(() {
+                                              item.status = ChatLogStatus.confirmed;
+                                            });
+                                          }
                                           widget.onConfirmPending?.call(item);
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             const SnackBar(
