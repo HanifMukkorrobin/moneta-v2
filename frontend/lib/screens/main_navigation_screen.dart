@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'chat/chat_screen.dart';
+import 'rekap/rekap_bulanan_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -14,13 +15,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const ChatScreen(),
-    const _PlaceholderScreen(
-      title: 'Rekap Bulanan',
-      icon: Icons.pie_chart_rounded,
-      description:
-          'Melihat ringkasan transaksi, grafik per kategori, dan perbandingan bulan lalu.',
-      featureTag: 'Fitur Rekap Bulanan',
-    ),
+    const RekapBulananScreen(),
     const _PlaceholderScreen(
       title: 'Budget Bulanan',
       icon: Icons.account_balance_wallet_rounded,

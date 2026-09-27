@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "bc3d61a46e7ad169a685795f006d35cc5f988cd2",
+  "generatedForCommit": "f36be5fa9d7a4b3e31afd1a6087960910e83b696",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -24,7 +24,7 @@
       "path": ".gitignore",
       "reason": "needs_summary",
       "language": null,
-      "size": 336
+      "size": 412
     },
     {
       "path": ".ngodingpakeaiignore",
@@ -43,6 +43,60 @@
       "reason": "needs_summary",
       "language": "markdown",
       "size": 87
+    },
+    {
+      "path": "backend/package-lock.json",
+      "reason": "needs_summary",
+      "language": "json",
+      "size": 33269
+    },
+    {
+      "path": "backend/package.json",
+      "reason": "needs_summary",
+      "language": "json",
+      "size": 437
+    },
+    {
+      "path": "backend/src/config/database.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 1159
+    },
+    {
+      "path": "backend/src/db/migrate.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2404
+    },
+    {
+      "path": "backend/src/db/schema.sql",
+      "reason": "needs_summary",
+      "language": "sql",
+      "size": 2457
+    },
+    {
+      "path": "backend/src/index.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 946
+    },
+    {
+      "path": "backend/src/services/aiParserService.js",
+      "reason": "new",
+      "language": "javascript",
+      "size": 12113
+    },
+    {
+      "path": "backend/test/aiParserService.test.js",
+      "reason": "new",
+      "language": "javascript",
+      "size": 6253
+    },
+    {
+      "path": "backend/test/schema.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 13902
     },
     {
       "path": "frontend/.gitignore",
@@ -108,19 +162,31 @@
       "path": "frontend/lib/mock/category_confirmation_mock_data.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 3588
+      "size": 4191
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 10441
+      "size": 14434
     },
     {
       "path": "frontend/lib/models/category_confirmation_item.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 2414
+    },
+    {
+      "path": "frontend/lib/models/category_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 1025
+    },
+    {
+      "path": "frontend/lib/models/category_usage.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 467
     },
     {
       "path": "frontend/lib/models/chat_log_item.dart",
@@ -138,25 +204,25 @@
       "path": "frontend/lib/models/transaction_item.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 1904
+      "size": 2059
     },
     {
       "path": "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
-      "size": 20597
+      "size": 22564
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/category_confirmation_card.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
-      "size": 12789
+      "size": 16277
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/category_picker_sheet.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
-      "size": 23556
+      "size": 26349
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/edit_category_sheet.dart",
@@ -165,10 +231,16 @@
       "size": 22736
     },
     {
+      "path": "frontend/lib/screens/category_confirmation/widgets/frequent_category_suggestions.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6181
+    },
+    {
       "path": "frontend/lib/screens/category_confirmation/widgets/guessed_category_badge.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 9231
+      "size": 15818
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/transaction_type_indicator.dart",
@@ -177,16 +249,22 @@
       "size": 2764
     },
     {
+      "path": "frontend/lib/screens/category_management/manage_categories_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 46746
+    },
+    {
       "path": "frontend/lib/screens/chat/chat_history_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 14936
+      "size": 21774
     },
     {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 16187
+      "size": 16630
     },
     {
       "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
@@ -231,6 +309,18 @@
       "size": 12198
     },
     {
+      "path": "frontend/lib/screens/history/transaction_history_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 25151
+    },
+    {
+      "path": "frontend/lib/screens/history/widgets/transaction_history_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 14056
+    },
+    {
       "path": "frontend/lib/screens/main_navigation_screen.dart",
       "reason": "needs_summary",
       "language": null,
@@ -240,7 +330,7 @@
       "path": "frontend/lib/state/app_state.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 8146
+      "size": 15464
     },
     {
       "path": "frontend/lib/theme/app_theme.dart",
@@ -274,7 +364,7 @@
     },
     {
       "path": "frontend/test/category_confirmation_screen_test.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 7747
     },
@@ -297,14 +387,32 @@
       "size": 4447
     },
     {
+      "path": "frontend/test/empty_category_fallback_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6145
+    },
+    {
+      "path": "frontend/test/frequent_category_suggestions_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8720
+    },
+    {
       "path": "frontend/test/guessed_category_and_type_indicator_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 5390
     },
     {
+      "path": "frontend/test/manage_categories_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 10498
+    },
+    {
       "path": "frontend/test/manual_category_picker_and_type_changer_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 7100
     },
@@ -325,6 +433,12 @@
       "reason": "needs_summary",
       "language": null,
       "size": 3332
+    },
+    {
+      "path": "frontend/test/transaction_history_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8087
     },
     {
       "path": "frontend/test/widget_test.dart",
