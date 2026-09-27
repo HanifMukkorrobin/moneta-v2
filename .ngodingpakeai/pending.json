@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "ffb261c239ee2e5a3d09e116ad47bff121c1f0c6",
+  "generatedForCommit": "a6129fc69c122613ea88fca6174d6cb6c5dc5c00",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -63,6 +63,18 @@
       "size": 1159
     },
     {
+      "path": "backend/src/controllers/analysisController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9487
+    },
+    {
+      "path": "backend/src/controllers/authController.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 25104
+    },
+    {
       "path": "backend/src/controllers/categoryController.js",
       "reason": "needs_summary",
       "language": "javascript",
@@ -75,8 +87,32 @@
       "size": 13952
     },
     {
+      "path": "backend/src/controllers/dailyAdviceController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9615
+    },
+    {
+      "path": "backend/src/controllers/dailyTipsController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9369
+    },
+    {
+      "path": "backend/src/controllers/debtController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 15243
+    },
+    {
+      "path": "backend/src/controllers/reminderSettingsController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 15276
+    },
+    {
       "path": "backend/src/controllers/summaryBudgetController.js",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": "javascript",
       "size": 45433
     },
@@ -84,25 +120,37 @@
       "path": "backend/src/controllers/transactionController.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 28981
+      "size": 31073
     },
     {
       "path": "backend/src/db/migrate.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 13089
+      "size": 45901
     },
     {
       "path": "backend/src/db/schema.sql",
       "reason": "needs_summary",
       "language": "sql",
-      "size": 6682
+      "size": 18580
     },
     {
       "path": "backend/src/index.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 6078
+    },
+    {
+      "path": "backend/src/routes/analysisRoutes.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 2354
+      "size": 1359
+    },
+    {
+      "path": "backend/src/routes/authRoutes.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 10665
     },
     {
       "path": "backend/src/routes/categoryRoutes.js",
@@ -117,8 +165,32 @@
       "size": 1757
     },
     {
+      "path": "backend/src/routes/dailyAdviceRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 1392
+    },
+    {
+      "path": "backend/src/routes/dailyTipsRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2038
+    },
+    {
+      "path": "backend/src/routes/debtRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2247
+    },
+    {
+      "path": "backend/src/routes/reminderSettingsRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2681
+    },
+    {
       "path": "backend/src/routes/summaryBudgetRoutes.js",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": "javascript",
       "size": 16429
     },
@@ -129,14 +201,32 @@
       "size": 2331
     },
     {
+      "path": "backend/src/services/accountSyncService.js",
+      "reason": "new",
+      "language": "javascript",
+      "size": 17158
+    },
+    {
       "path": "backend/src/services/aiParserService.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 31384
     },
     {
+      "path": "backend/src/services/aiSavingTipsGeneratorService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 12307
+    },
+    {
+      "path": "backend/src/services/analysisCacheService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7993
+    },
+    {
       "path": "backend/src/services/budgetService.js",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": "javascript",
       "size": 66706
     },
@@ -147,16 +237,106 @@
       "size": 23081
     },
     {
+      "path": "backend/src/services/dailyAdviceCacheService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8397
+    },
+    {
+      "path": "backend/src/services/dailyAverageSpendingService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 16369
+    },
+    {
+      "path": "backend/src/services/dailyTipsService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 11914
+    },
+    {
+      "path": "backend/src/services/debtService.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 17123
+    },
+    {
+      "path": "backend/src/services/earlyWarningService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9264
+    },
+    {
+      "path": "backend/src/services/financialAnalysisService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 5200
+    },
+    {
+      "path": "backend/src/services/moneyDepletionProjectionService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 11821
+    },
+    {
+      "path": "backend/src/services/pinBiometricService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9346
+    },
+    {
       "path": "backend/src/services/rekapQueryService.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 39464
     },
     {
+      "path": "backend/src/services/reminderSchedulerService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 16950
+    },
+    {
+      "path": "backend/src/services/reminderSettingsService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8199
+    },
+    {
+      "path": "backend/src/services/safeDailySpendingService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 15472
+    },
+    {
+      "path": "backend/src/services/userService.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 28421
+    },
+    {
+      "path": "backend/test/accountSyncEndpoint.test.js",
+      "reason": "new",
+      "language": "javascript",
+      "size": 11347
+    },
+    {
+      "path": "backend/test/aiInsightsCacheMigration.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 12684
+    },
+    {
       "path": "backend/test/aiParserService.test.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 6253
+    },
+    {
+      "path": "backend/test/autoRecalculateFinancialAnalysis.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9955
     },
     {
       "path": "backend/test/budgetAlertSettingsEndpoint.test.js",
@@ -172,7 +352,7 @@
     },
     {
       "path": "backend/test/budgetRekapDailyAdviceIntegration.test.js",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "javascript",
       "size": 7525
     },
@@ -225,16 +405,94 @@
       "size": 14200
     },
     {
+      "path": "backend/test/dailyAdviceEndpoints.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10620
+    },
+    {
+      "path": "backend/test/dailyAverageSpendingService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 13406
+    },
+    {
+      "path": "backend/test/dailyTipsEndpoints.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10403
+    },
+    {
+      "path": "backend/test/debtCreateEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10565
+    },
+    {
+      "path": "backend/test/debtListEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8094
+    },
+    {
+      "path": "backend/test/debtMarkPaidAndFilter.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9695
+    },
+    {
+      "path": "backend/test/debtSummaryEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10573
+    },
+    {
+      "path": "backend/test/debtsMigrationAndService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 13138
+    },
+    {
+      "path": "backend/test/earlyWarningService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10809
+    },
+    {
       "path": "backend/test/expensesByCategoryEndpoint.test.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 10822
     },
     {
+      "path": "backend/test/financialAnalysisEndpoints.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 11755
+    },
+    {
       "path": "backend/test/incomeExpenseSummaryEndpoint.test.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 10575
+    },
+    {
+      "path": "backend/test/loginAndTokenEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7963
+    },
+    {
+      "path": "backend/test/logoutAndDeleteSessionEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 6050
+    },
+    {
+      "path": "backend/test/moneyDepletionProjectionService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 11062
     },
     {
       "path": "backend/test/monthComparisonEndpoint.test.js",
@@ -261,6 +519,18 @@
       "size": 9869
     },
     {
+      "path": "backend/test/pinBiometricService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8050
+    },
+    {
+      "path": "backend/test/registerEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 6409
+    },
+    {
       "path": "backend/test/rekapEmptyAndRefreshEndpoint.test.js",
       "reason": "needs_summary",
       "language": "javascript",
@@ -273,10 +543,40 @@
       "size": 12719
     },
     {
+      "path": "backend/test/reminderScheduler.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 17330
+    },
+    {
+      "path": "backend/test/reminderSettingsEndpoints.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9385
+    },
+    {
+      "path": "backend/test/riwayatTipsEndpoints.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8546
+    },
+    {
+      "path": "backend/test/safeDailySpendingService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10914
+    },
+    {
+      "path": "backend/test/saranHarianSchema.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 13700
+    },
+    {
       "path": "backend/test/schema.test.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 13902
+      "size": 14459
     },
     {
       "path": "backend/test/summaryBudgetIntegration.test.js",
@@ -313,6 +613,18 @@
       "reason": "needs_summary",
       "language": "javascript",
       "size": 7227
+    },
+    {
+      "path": "backend/test/userPreferencesEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 6474
+    },
+    {
+      "path": "backend/test/usersMigration.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8465
     },
     {
       "path": "frontend/.gitignore",
@@ -372,7 +684,13 @@
       "path": "frontend/lib/main.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 622
+      "size": 2424
+    },
+    {
+      "path": "frontend/lib/mock/ai_insight_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 1771
     },
     {
       "path": "frontend/lib/mock/budget_mock_data.dart",
@@ -387,6 +705,18 @@
       "size": 4191
     },
     {
+      "path": "frontend/lib/mock/daily_spending_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 3333
+    },
+    {
+      "path": "frontend/lib/mock/debt_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 1813
+    },
+    {
       "path": "frontend/lib/mock/mock_data.dart",
       "reason": "needs_summary",
       "language": null,
@@ -397,6 +727,18 @@
       "reason": "needs_summary",
       "language": null,
       "size": 16912
+    },
+    {
+      "path": "frontend/lib/mock/saving_tips_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6438
+    },
+    {
+      "path": "frontend/lib/models/ai_insight_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5286
     },
     {
       "path": "frontend/lib/models/budget_item.dart",
@@ -435,10 +777,34 @@
       "size": 473
     },
     {
+      "path": "frontend/lib/models/daily_reminder_settings.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 3299
+    },
+    {
+      "path": "frontend/lib/models/daily_spending_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 2205
+    },
+    {
+      "path": "frontend/lib/models/debt_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 4080
+    },
+    {
       "path": "frontend/lib/models/monthly_rekap_data.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 4866
+    },
+    {
+      "path": "frontend/lib/models/saving_tip_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 1972
     },
     {
       "path": "frontend/lib/models/transaction_item.dart",
@@ -447,10 +813,106 @@
       "size": 2059
     },
     {
+      "path": "frontend/lib/models/user_profile.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6676
+    },
+    {
+      "path": "frontend/lib/screens/akun_pengaturan/akun_pengaturan_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 40335
+    },
+    {
+      "path": "frontend/lib/screens/akun_pengaturan/preferensi_aplikasi_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 23776
+    },
+    {
+      "path": "frontend/lib/screens/analisa/analisa_keuangan_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8862
+    },
+    {
+      "path": "frontend/lib/screens/analisa/widgets/analisa_empty_state_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7050
+    },
+    {
+      "path": "frontend/lib/screens/analisa/widgets/avg_daily_spend_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 13246
+    },
+    {
+      "path": "frontend/lib/screens/analisa/widgets/early_warning_indicator_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 13221
+    },
+    {
+      "path": "frontend/lib/screens/analisa/widgets/money_depletion_projection_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 15757
+    },
+    {
+      "path": "frontend/lib/screens/auth/auth_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 22621
+    },
+    {
+      "path": "frontend/lib/screens/auth/widgets/login_form.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11374
+    },
+    {
+      "path": "frontend/lib/screens/beranda/beranda_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 25443
+    },
+    {
+      "path": "frontend/lib/screens/beranda/pengaturan_pengingat_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 29787
+    },
+    {
+      "path": "frontend/lib/screens/beranda/riwayat_tips_hemat_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 22741
+    },
+    {
+      "path": "frontend/lib/screens/beranda/widgets/daily_advice_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 14884
+    },
+    {
+      "path": "frontend/lib/screens/beranda/widgets/daily_saving_tips_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 15226
+    },
+    {
+      "path": "frontend/lib/screens/beranda/widgets/safe_spending_limit_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 12271
+    },
+    {
       "path": "frontend/lib/screens/budget/atur_budget_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 17225
+      "size": 17621
     },
     {
       "path": "frontend/lib/screens/budget/widgets/adjust_allocation_percentages_sheet.dart",
@@ -468,13 +930,13 @@
       "path": "frontend/lib/screens/budget/widgets/budget_allocation_buckets_section.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 7711
+      "size": 8069
     },
     {
       "path": "frontend/lib/screens/budget/widgets/budget_header_summary_card.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 8714
+      "size": 9450
     },
     {
       "path": "frontend/lib/screens/budget/widgets/budget_warning_banner.dart",
@@ -486,7 +948,7 @@
       "path": "frontend/lib/screens/budget/widgets/category_budget_list_section.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 9258
+      "size": 9616
     },
     {
       "path": "frontend/lib/screens/budget/widgets/edit_budget_limit_sheet.dart",
@@ -498,7 +960,7 @@
       "path": "frontend/lib/screens/budget/widgets/sisa_batas_bulan_berjalan_card.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 6934
+      "size": 7454
     },
     {
       "path": "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart",
@@ -534,13 +996,13 @@
       "path": "frontend/lib/screens/category_confirmation/widgets/guessed_category_badge.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 15818
+      "size": 16484
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/transaction_type_indicator.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 2764
+      "size": 2896
     },
     {
       "path": "frontend/lib/screens/category_management/manage_categories_screen.dart",
@@ -558,7 +1020,7 @@
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 16630
+      "size": 19446
     },
     {
       "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
@@ -585,6 +1047,12 @@
       "size": 13451
     },
     {
+      "path": "frontend/lib/screens/chat/widgets/financial_analysis_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 32154
+    },
+    {
       "path": "frontend/lib/screens/chat/widgets/manual_input_sheet.dart",
       "reason": "needs_summary",
       "language": null,
@@ -600,7 +1068,7 @@
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 12198
+      "size": 12461
     },
     {
       "path": "frontend/lib/screens/history/transaction_history_screen.dart",
@@ -615,10 +1083,52 @@
       "size": 14056
     },
     {
+      "path": "frontend/lib/screens/hutang/hutang_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 22163
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/debt_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 18972
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/debt_summary_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11369
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/jadwal_jatuh_tempo_section.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 15838
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/pelunasan_dialog.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 15850
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/tambah_hutang_bottom_sheet.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 25707
+    },
+    {
+      "path": "frontend/lib/screens/hutang/widgets/total_sisa_hutang_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11479
+    },
+    {
       "path": "frontend/lib/screens/main_navigation_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 5142
+      "size": 5741
     },
     {
       "path": "frontend/lib/screens/rekap/rekap_bulanan_screen.dart",
@@ -630,7 +1140,7 @@
       "path": "frontend/lib/screens/rekap/widgets/category_breakdown_section.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 4814
+      "size": 5123
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/category_nominal_persentase_list.dart",
@@ -642,7 +1152,7 @@
       "path": "frontend/lib/screens/rekap/widgets/category_proportion_chart.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 11852
+      "size": 11990
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/expense_comparison_card.dart",
@@ -660,13 +1170,13 @@
       "path": "frontend/lib/screens/rekap/widgets/month_navigator_bar.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 12094
+      "size": 12538
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/monthly_transaction_list_section.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 40418
+      "size": 40686
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/monthly_transaction_search_filter.dart",
@@ -678,13 +1188,13 @@
       "path": "frontend/lib/screens/rekap/widgets/rekap_comparison_card.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 12123
+      "size": 12669
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/rekap_summary_card.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 23275
+      "size": 24507
     },
     {
       "path": "frontend/lib/screens/rekap/widgets/selected_month_transaction_list.dart",
@@ -699,16 +1209,46 @@
       "size": 13660
     },
     {
+      "path": "frontend/lib/screens/security/pin_lock_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 16251
+    },
+    {
+      "path": "frontend/lib/services/local_preference_service.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 2623
+    },
+    {
+      "path": "frontend/lib/services/mock_notification_service.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 2603
+    },
+    {
       "path": "frontend/lib/state/app_state.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 15464
+      "size": 29929
     },
     {
       "path": "frontend/lib/theme/app_theme.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 3413
+      "size": 7355
+    },
+    {
+      "path": "frontend/lib/utils/currency_format.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 3312
+    },
+    {
+      "path": "frontend/lib/widgets/in_app_notification_banner.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5426
     },
     {
       "path": "frontend/moneta.iml",
@@ -735,6 +1275,24 @@
       "size": 11462
     },
     {
+      "path": "frontend/test/akun_pengaturan_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 10637
+    },
+    {
+      "path": "frontend/test/analisa_empty_state_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 3821
+    },
+    {
+      "path": "frontend/test/analisa_state_and_rupiah_format_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7968
+    },
+    {
       "path": "frontend/test/app_state_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -745,6 +1303,24 @@
       "reason": "needs_summary",
       "language": null,
       "size": 5186
+    },
+    {
+      "path": "frontend/test/auth_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8945
+    },
+    {
+      "path": "frontend/test/avg_daily_spend_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5317
+    },
+    {
+      "path": "frontend/test/beranda_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6783
     },
     {
       "path": "frontend/test/budget_alert_settings_card_test.dart",
@@ -789,6 +1365,18 @@
       "size": 1847
     },
     {
+      "path": "frontend/test/daily_saving_tips_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 4756
+    },
+    {
+      "path": "frontend/test/early_warning_indicator_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5346
+    },
+    {
       "path": "frontend/test/edit_budget_limit_sheet_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -813,6 +1401,12 @@
       "size": 3606
     },
     {
+      "path": "frontend/test/financial_analysis_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8406
+    },
+    {
       "path": "frontend/test/frequent_category_suggestions_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -822,13 +1416,43 @@
       "path": "frontend/test/guessed_category_and_type_indicator_test.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 5390
+      "size": 6568
+    },
+    {
+      "path": "frontend/test/handle_reminder_notification_routing_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6793
+    },
+    {
+      "path": "frontend/test/hutang_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8143
+    },
+    {
+      "path": "frontend/test/hutang_state_integration_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 10810
     },
     {
       "path": "frontend/test/income_expense_summary_card_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 6783
+    },
+    {
+      "path": "frontend/test/jadwal_jatuh_tempo_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 9313
+    },
+    {
+      "path": "frontend/test/login_form_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8145
     },
     {
       "path": "frontend/test/manage_categories_screen_test.dart",
@@ -849,6 +1473,12 @@
       "size": 3725
     },
     {
+      "path": "frontend/test/money_depletion_projection_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6306
+    },
+    {
       "path": "frontend/test/month_navigator_bar_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -867,6 +1497,30 @@
       "size": 6447
     },
     {
+      "path": "frontend/test/pengaturan_pengingat_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8108
+    },
+    {
+      "path": "frontend/test/pin_lock_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8147
+    },
+    {
+      "path": "frontend/test/preferensi_aplikasi_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7799
+    },
+    {
+      "path": "frontend/test/refresh_saran_setelah_catat_pengeluaran_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7123
+    },
+    {
       "path": "frontend/test/rekap_bulanan_screen_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -879,10 +1533,46 @@
       "size": 8384
     },
     {
+      "path": "frontend/test/riwayat_tips_hemat_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8783
+    },
+    {
+      "path": "frontend/test/safe_spending_limit_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5921
+    },
+    {
       "path": "frontend/test/sisa_batas_bulan_berjalan_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 7952
+    },
+    {
+      "path": "frontend/test/tambah_hutang_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11159
+    },
+    {
+      "path": "frontend/test/tandai_lunas_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 9106
+    },
+    {
+      "path": "frontend/test/theme_mode_local_storage_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6764
+    },
+    {
+      "path": "frontend/test/total_sisa_hutang_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7906
     },
     {
       "path": "frontend/test/transaction_card_test.dart",
@@ -912,7 +1602,7 @@
       "path": "frontend/test/widget_test.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 2713
+      "size": 3777
     }
   ]
 }
