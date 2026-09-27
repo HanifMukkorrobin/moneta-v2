@@ -170,6 +170,7 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                     // Transactions List for the month
                     MonthlyTransactionListSection(
                       transactions: rekapData.transactions,
+                      monthLabel: rekapData.monthLabel,
                       activeCategoryFilter: _selectedCategoryFilter,
                       onCategoryFilterChanged: (cat) {
                         setState(() {
