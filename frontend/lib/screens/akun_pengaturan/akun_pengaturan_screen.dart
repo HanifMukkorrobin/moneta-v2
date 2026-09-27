@@ -9,6 +9,7 @@ import '../category_management/manage_categories_screen.dart';
 import '../history/transaction_history_screen.dart';
 import '../hutang/hutang_screen.dart';
 import '../security/pin_lock_screen.dart';
+import 'preferensi_aplikasi_screen.dart';
 
 class AkunPengaturanScreen extends StatefulWidget {
   final UserProfile? initialProfile;
@@ -587,6 +588,21 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const HutangScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildSettingsTile(
+                  key: const Key('setting_app_preferences_tile'),
+                  icon: Icons.tune_rounded,
+                  iconColor: Colors.teal,
+                  title: 'Preferensi Aplikasi',
+                  subtitle: 'Format tanggal, tema, sensor saldo, & gaya AI',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PreferensiAplikasiScreen(),
                       ),
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/akun_pengaturan/akun_pengaturan_screen.dart';
+import 'screens/akun_pengaturan/preferensi_aplikasi_screen.dart';
 import 'screens/auth/auth_screen.dart';
 import 'screens/beranda/beranda_screen.dart';
 import 'screens/beranda/pengaturan_pengingat_screen.dart';
@@ -40,6 +41,7 @@ class MonetaApp extends StatelessWidget {
         '/hutang': (_) => const HutangScreen(),
         '/akun': (_) => const AkunPengaturanScreen(),
         '/pengaturan': (_) => const AkunPengaturanScreen(),
+        '/preferensi': (_) => const PreferensiAplikasiScreen(),
         '/manage-categories': (_) => const ManageCategoriesScreen(),
         '/auth': (_) => const AuthScreen(),
         '/login': (_) => const AuthScreen(initialMode: AuthMode.login),

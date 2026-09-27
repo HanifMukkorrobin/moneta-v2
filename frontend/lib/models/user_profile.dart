@@ -14,6 +14,13 @@ class UserProfile {
   final String aiAdviceTone; // 'Santai', 'Standar', 'Tegas'
   final double monthlyBudgetLimit;
   final String accountTier;
+  final String dateFormat;
+  final String firstDayOfWeek;
+  final String themeMode;
+  final bool hideBalance;
+  final bool autoConfirmChat;
+  final bool hapticFeedback;
+  final int budgetAlertThreshold;
   final DateTime createdAt;
 
   const UserProfile({
@@ -29,6 +36,13 @@ class UserProfile {
     this.aiAdviceTone = 'Standar',
     this.monthlyBudgetLimit = 6000000,
     this.accountTier = 'Personal AI',
+    this.dateFormat = 'DD/MM/YYYY',
+    this.firstDayOfWeek = 'Senin',
+    this.themeMode = 'Terang',
+    this.hideBalance = false,
+    this.autoConfirmChat = false,
+    this.hapticFeedback = true,
+    this.budgetAlertThreshold = 80,
     required this.createdAt,
   });
 
@@ -45,6 +59,13 @@ class UserProfile {
     String? aiAdviceTone,
     double? monthlyBudgetLimit,
     String? accountTier,
+    String? dateFormat,
+    String? firstDayOfWeek,
+    String? themeMode,
+    bool? hideBalance,
+    bool? autoConfirmChat,
+    bool? hapticFeedback,
+    int? budgetAlertThreshold,
     DateTime? createdAt,
   }) {
     return UserProfile(
@@ -60,6 +81,13 @@ class UserProfile {
       aiAdviceTone: aiAdviceTone ?? this.aiAdviceTone,
       monthlyBudgetLimit: monthlyBudgetLimit ?? this.monthlyBudgetLimit,
       accountTier: accountTier ?? this.accountTier,
+      dateFormat: dateFormat ?? this.dateFormat,
+      firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
+      themeMode: themeMode ?? this.themeMode,
+      hideBalance: hideBalance ?? this.hideBalance,
+      autoConfirmChat: autoConfirmChat ?? this.autoConfirmChat,
+      hapticFeedback: hapticFeedback ?? this.hapticFeedback,
+      budgetAlertThreshold: budgetAlertThreshold ?? this.budgetAlertThreshold,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -78,6 +106,13 @@ class UserProfile {
       'aiAdviceTone': aiAdviceTone,
       'monthlyBudgetLimit': monthlyBudgetLimit,
       'accountTier': accountTier,
+      'dateFormat': dateFormat,
+      'firstDayOfWeek': firstDayOfWeek,
+      'themeMode': themeMode,
+      'hideBalance': hideBalance,
+      'autoConfirmChat': autoConfirmChat,
+      'hapticFeedback': hapticFeedback,
+      'budgetAlertThreshold': budgetAlertThreshold,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -96,6 +131,13 @@ class UserProfile {
       aiAdviceTone: json['aiAdviceTone'] as String? ?? 'Standar',
       monthlyBudgetLimit: (json['monthlyBudgetLimit'] as num?)?.toDouble() ?? 6000000,
       accountTier: json['accountTier'] as String? ?? 'Personal AI',
+      dateFormat: json['dateFormat'] as String? ?? 'DD/MM/YYYY',
+      firstDayOfWeek: json['firstDayOfWeek'] as String? ?? 'Senin',
+      themeMode: json['themeMode'] as String? ?? 'Terang',
+      hideBalance: json['hideBalance'] as bool? ?? false,
+      autoConfirmChat: json['autoConfirmChat'] as bool? ?? false,
+      hapticFeedback: json['hapticFeedback'] as bool? ?? true,
+      budgetAlertThreshold: json['budgetAlertThreshold'] as int? ?? 80,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime(2026, 1, 1)
           : DateTime(2026, 1, 1),
@@ -115,6 +157,13 @@ class UserProfile {
       aiAdviceTone: 'Standar',
       monthlyBudgetLimit: 6000000,
       accountTier: 'Personal AI',
+      dateFormat: 'DD/MM/YYYY',
+      firstDayOfWeek: 'Senin',
+      themeMode: 'Terang',
+      hideBalance: false,
+      autoConfirmChat: false,
+      hapticFeedback: true,
+      budgetAlertThreshold: 80,
       createdAt: DateTime(2026, 1, 1),
     );
   }
