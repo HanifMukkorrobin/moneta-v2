@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../mock/budget_mock_data.dart';
 import '../../models/budget_item.dart';
 import '../../theme/app_theme.dart';
+import 'widgets/adjust_allocation_percentages_sheet.dart';
 import 'widgets/budget_allocation_buckets_section.dart';
 import 'widgets/budget_header_summary_card.dart';
 import 'widgets/category_budget_list_section.dart';
@@ -98,6 +99,79 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
           const SnackBar(
             content: Text('Batas budget bulanan berhasil dihapus.'),
             duration: Duration(seconds: 2),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openAdjustAllocationSheet() {
+    AdjustAllocationPercentagesSheet.show(
+      context,
+      totalBudget: _budgetSummary.totalBudget,
+      initialNeedsPct: _budgetSummary.needsPercentage,
+      initialSavingsPct: _budgetSummary.savingsPercentage,
+      initialFunPct: _budgetSummary.funPercentage,
+      onSave: (newNeedsPct, newSavingsPct, newFunPct) {
+        setState(() {
+          final updatedBuckets = [
+            BudgetBucketItem(
+              type: BudgetBucketType.needs,
+              title: 'Kebutuhan Pokok',
+              percentage: newNeedsPct,
+              amountLimit: _budgetSummary.totalBudget * (newNeedsPct / 100),
+              amountSpent: _budgetSummary.buckets.isNotEmpty
+                  ? _budgetSummary.buckets[0].amountSpent
+                  : 0,
+              color: const Color(0xFF2563EB),
+              icon: Icons.home_work_rounded,
+            ),
+            BudgetBucketItem(
+              type: BudgetBucketType.savings,
+              title: 'Tabungan & Investasi',
+              percentage: newSavingsPct,
+              amountLimit: _budgetSummary.totalBudget * (newSavingsPct / 100),
+              amountSpent: _budgetSummary.buckets.length > 1
+                  ? _budgetSummary.buckets[1].amountSpent
+                  : 0,
+              color: const Color(0xFF10B981),
+              icon: Icons.savings_rounded,
+            ),
+            BudgetBucketItem(
+              type: BudgetBucketType.fun,
+              title: 'Hiburan & Keinginan',
+              percentage: newFunPct,
+              amountLimit: _budgetSummary.totalBudget * (newFunPct / 100),
+              amountSpent: _budgetSummary.buckets.length > 2
+                  ? _budgetSummary.buckets[2].amountSpent
+                  : 0,
+              color: const Color(0xFF8B5CF6),
+              icon: Icons.celebration_rounded,
+            ),
+          ];
+
+          _budgetSummary = MonthlyBudgetSummary(
+            month: _selectedMonth,
+            monthLabel: _getMonthLabel(_selectedMonth),
+            totalBudget: _budgetSummary.totalBudget,
+            totalSpent: _budgetSummary.totalSpent,
+            needsPercentage: newNeedsPct,
+            savingsPercentage: newSavingsPct,
+            funPercentage: newFunPct,
+            buckets: updatedBuckets,
+            categoryBudgets: _budgetSummary.categoryBudgets,
+          );
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Persentase alokasi berhasil diperbarui: '
+              '${newNeedsPct.toStringAsFixed(0)}% / '
+              '${newSavingsPct.toStringAsFixed(0)}% / '
+              '${newFunPct.toStringAsFixed(0)}%',
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
       },
@@ -279,14 +353,7 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                 // 3-Bucket Allocation Section
                 BudgetAllocationBucketsSection(
                   buckets: summary.buckets,
-                  onAdjustPercentages: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Fitur kustomisasi persentase 50/30/20 akan segera dibuka.'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                  },
+                  onAdjustPercentages: _openAdjustAllocationSheet,
                 ),
 
                 // Category-level Budgets List
