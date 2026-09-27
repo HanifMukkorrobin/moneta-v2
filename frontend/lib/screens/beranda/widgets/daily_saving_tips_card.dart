@@ -3,6 +3,7 @@ import '../../../mock/saving_tips_mock_data.dart';
 import '../../../models/saving_tip_item.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/currency_format.dart';
+import '../riwayat_tips_hemat_screen.dart';
 
 class DailySavingTipsCard extends StatefulWidget {
   final List<SavingTipItem>? initialTips;
@@ -98,7 +99,7 @@ class _DailySavingTipsCardState extends State<DailySavingTipsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Title & Counter
+          // Header: Title, Counter & Riwayat Link
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -128,27 +129,72 @@ class _DailySavingTipsCardState extends State<DailySavingTipsCard> {
                   ),
                 ],
               ),
-              Container(
-                key: const Key('tips_applied_counter_badge'),
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.25),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    key: const Key('tips_applied_counter_badge'),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Text(
+                      '$_appliedCount/${_tips.length} Diterapkan',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
                   ),
-                ),
-                child: Text(
-                  '$_appliedCount/${_tips.length} Diterapkan',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
+                  const SizedBox(width: 6),
+                  InkWell(
+                    key: const Key('btn_lihat_riwayat_tips'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const RiwayatTipsHematScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.borderSubtle),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.history_rounded,
+                            size: 14,
+                            color: AppTheme.textSecondary,
+                          ),
+                          SizedBox(width: 3),
+                          Text(
+                            'Riwayat',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: AppTheme.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
+
 
           const SizedBox(height: 12),
 

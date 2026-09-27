@@ -12,6 +12,9 @@ class SavingTipItem {
   final bool isApplied;
   final String actionText;
 
+  final String? date;
+  final DateTime? appliedAt;
+
   const SavingTipItem({
     required this.id,
     required this.title,
@@ -22,6 +25,8 @@ class SavingTipItem {
     this.icon = Icons.lightbulb_outline_rounded,
     this.isApplied = false,
     this.actionText = 'Terapkan Hari Ini',
+    this.date,
+    this.appliedAt,
   });
 
   String get formattedPotentialSaving =>
@@ -49,6 +54,8 @@ class SavingTipItem {
     IconData? icon,
     bool? isApplied,
     String? actionText,
+    String? date,
+    DateTime? appliedAt,
   }) {
     return SavingTipItem(
       id: id ?? this.id,
@@ -60,6 +67,9 @@ class SavingTipItem {
       icon: icon ?? this.icon,
       isApplied: isApplied ?? this.isApplied,
       actionText: actionText ?? this.actionText,
+      date: date ?? this.date,
+      appliedAt: appliedAt ?? this.appliedAt,
     );
   }
 }
+

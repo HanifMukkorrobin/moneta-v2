@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/beranda/beranda_screen.dart';
+import 'screens/beranda/riwayat_tips_hemat_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
@@ -26,7 +27,9 @@ class MonetaApp extends StatelessWidget {
       home: const MainNavigationScreen(),
       routes: {
         '/beranda': (_) => const BerandaScreen(),
+        '/riwayat-tips': (_) => const RiwayatTipsHematScreen(),
       },
     );
   }
 }
+

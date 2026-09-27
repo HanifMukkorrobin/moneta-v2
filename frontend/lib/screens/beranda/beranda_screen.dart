@@ -8,6 +8,7 @@ import '../analisa/analisa_keuangan_screen.dart';
 import '../budget/atur_budget_screen.dart';
 import '../chat/widgets/manual_input_sheet.dart';
 import '../rekap/rekap_bulanan_screen.dart';
+import 'riwayat_tips_hemat_screen.dart';
 import 'widgets/daily_advice_card.dart';
 import 'widgets/daily_saving_tips_card.dart';
 import 'widgets/safe_spending_limit_card.dart';
@@ -107,6 +108,19 @@ class _BerandaScreenState extends State<BerandaScreen> {
             icon: const Icon(Icons.tune_rounded),
             tooltip: 'Ganti Simulasi Saran AI',
             onPressed: _cycleMockPreset,
+          ),
+          IconButton(
+            key: const Key('beranda_riwayat_tips_button'),
+            icon: const Icon(Icons.history_edu_rounded),
+            tooltip: 'Riwayat Tips Hemat',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const RiwayatTipsHematScreen(),
+                ),
+              );
+            },
           ),
           IconButton(
             key: const Key('beranda_refresh_button'),
