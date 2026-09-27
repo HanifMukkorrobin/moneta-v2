@@ -276,6 +276,55 @@ class SafeSpendingLimitCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onAddExpense != null || onAdjustBudget != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (onAddExpense != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      key: const Key('btn_safe_limit_add_expense'),
+                      onPressed: onAddExpense,
+                      icon: const Icon(Icons.add_rounded, size: 16),
+                      label: const Text(
+                        'Catat Pengeluaran',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primaryColor,
+                        side: const BorderSide(color: AppTheme.primaryColor),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (onAddExpense != null && onAdjustBudget != null)
+                  const SizedBox(width: 8),
+                if (onAdjustBudget != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      key: const Key('btn_safe_limit_adjust_budget'),
+                      onPressed: onAdjustBudget,
+                      icon: const Icon(Icons.tune_rounded, size: 16),
+                      label: const Text(
+                        'Atur Budget',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.textSecondary,
+                        side: const BorderSide(color: AppTheme.borderSubtle),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );

@@ -36,11 +36,13 @@ class BerandaScreen extends StatefulWidget {
 
 class _BerandaScreenState extends State<BerandaScreen> {
   AiInsightItem? _simulatedInsight;
+  int _lastConfirmedTxCount = 0;
 
   @override
   void initState() {
     super.initState();
     _simulatedInsight = widget.initialInsight;
+    _lastConfirmedTxCount = AppState.instance.confirmedTransactions.length;
     AppState.instance.addListener(_onStateChange);
   }
 
@@ -51,7 +53,14 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   void _onStateChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final currentTxCount = AppState.instance.confirmedTransactions.length;
+    if (currentTxCount != _lastConfirmedTxCount) {
+      _lastConfirmedTxCount = currentTxCount;
+      // Otomatis refresh saran jika ada transaksi baru
+      _simulatedInsight = null;
+    }
+    setState(() {});
   }
 
   void _cycleMockPreset() {
@@ -290,6 +299,36 @@ class _BerandaScreenState extends State<BerandaScreen> {
               SafeSpendingLimitCard(
                 insight: insight,
                 todaySpent: appState.todayTotalExpense,
+                onAddExpense: () {
+                  ManualInputSheet.show(
+                    context,
+                    onSave: (tx) {
+                      AppState.instance.addManualTransaction(tx);
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Pengeluaran ${tx.formattedAmount} dicatat. Saran harian diperbarui!',
+                          ),
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  );
+                },
+                onAdjustBudget: () {
+                  if (widget.onNavigateToBudget != null) {
+                    widget.onNavigateToBudget!();
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AturBudgetScreen(),
+                      ),
+                    );
+                  }
+                },
               ),
 
               // Tips Hemat Harian (Mock)
@@ -403,6 +442,16 @@ class _BerandaScreenState extends State<BerandaScreen> {
                               context,
                               onSave: (tx) {
                                 AppState.instance.addManualTransaction(tx);
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Pengeluaran ${tx.formattedAmount} dicatat. Saran harian diperbarui!',
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
                               },
                             );
                           },
