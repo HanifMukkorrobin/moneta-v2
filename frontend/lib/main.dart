@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'screens/akun_pengaturan/akun_pengaturan_screen.dart';
 import 'screens/beranda/beranda_screen.dart';
 import 'screens/beranda/pengaturan_pengingat_screen.dart';
 import 'screens/beranda/riwayat_tips_hemat_screen.dart';
+import 'screens/category_management/manage_categories_screen.dart';
 import 'screens/hutang/hutang_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/mock_notification_service.dart';
@@ -34,6 +36,9 @@ class MonetaApp extends StatelessWidget {
         '/riwayat-tips': (_) => const RiwayatTipsHematScreen(),
         '/pengaturan-pengingat': (_) => const PengaturanPengingatScreen(),
         '/hutang': (_) => const HutangScreen(),
+        '/akun': (_) => const AkunPengaturanScreen(),
+        '/pengaturan': (_) => const AkunPengaturanScreen(),
+        '/manage-categories': (_) => const ManageCategoriesScreen(),
       },
     );
   }

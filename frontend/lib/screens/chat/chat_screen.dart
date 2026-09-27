@@ -4,6 +4,7 @@ import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../akun_pengaturan/akun_pengaturan_screen.dart';
 import '../beranda/beranda_screen.dart';
 import '../category_confirmation/category_confirmation_screen.dart';
 import '../history/transaction_history_screen.dart';
@@ -325,6 +326,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const BerandaScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('chat_appbar_account_button'),
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.person_outline_rounded, size: 22),
+            tooltip: 'Akun & Pengaturan',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AkunPengaturanScreen(),
                 ),
               );
             },

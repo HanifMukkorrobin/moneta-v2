@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/mock_notification_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/in_app_notification_banner.dart';
+import 'akun_pengaturan/akun_pengaturan_screen.dart';
 import 'analisa/analisa_keuangan_screen.dart';
 import 'budget/atur_budget_screen.dart';
 import 'chat/chat_screen.dart';
@@ -24,6 +25,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const AturBudgetScreen(),
     const HutangScreen(),
     const AnalisaKeuanganScreen(),
+    const AkunPengaturanScreen(),
   ];
 
   @override
@@ -90,6 +92,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             selectedIcon: Icon(Icons.insights_rounded,
                 color: AppTheme.primaryColor),
             label: 'Analisa',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded,
+                color: AppTheme.primaryColor),
+            label: 'Akun',
           ),
         ],
       ),

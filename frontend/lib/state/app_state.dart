@@ -12,6 +12,7 @@ import '../models/daily_reminder_settings.dart';
 import '../models/daily_spending_item.dart';
 import '../models/debt_item.dart';
 import '../models/transaction_item.dart';
+import '../models/user_profile.dart';
 import '../utils/currency_format.dart';
 
 class AppState extends ChangeNotifier {
@@ -33,6 +34,7 @@ class AppState extends ChangeNotifier {
   DailySpendingAnalysis _dailySpendingAnalysis =
       DailySpendingMockData.getDefaultDailyAnalysis();
   DailyReminderSettings _reminderSettings = const DailyReminderSettings();
+  UserProfile _userProfile = UserProfile.defaultProfile();
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
@@ -42,6 +44,7 @@ class AppState extends ChangeNotifier {
   AiInsightItem get aiInsight => _aiInsight;
   DailySpendingAnalysis get dailySpendingAnalysis => _dailySpendingAnalysis;
   DailyReminderSettings get reminderSettings => _reminderSettings;
+  UserProfile get userProfile => _userProfile;
 
   int get activeDebtsCount => _debts.where((d) => !d.isPaid).length;
   int get paidDebtsCount => _debts.where((d) => d.isPaid).length;
@@ -116,6 +119,7 @@ class AppState extends ChangeNotifier {
     _aiInsight = AiInsightMockData.getDefaultInsight();
     _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
     _reminderSettings = const DailyReminderSettings();
+    _userProfile = UserProfile.defaultProfile();
   }
 
   void resetToDefault() {
@@ -135,6 +139,37 @@ class AppState extends ChangeNotifier {
 
   void updateReminderSettings(DailyReminderSettings newSettings) {
     _reminderSettings = newSettings;
+    notifyListeners();
+  }
+
+  void updateUserProfile(UserProfile newProfile) {
+    _userProfile = newProfile;
+    notifyListeners();
+  }
+
+  void updateCurrency(String currency, [String? symbol]) {
+    _userProfile = _userProfile.copyWith(
+      currency: currency,
+      currencySymbol: symbol ?? (currency == 'IDR' ? 'Rp' : currency == 'USD' ? '\$' : currency == 'EUR' ? '€' : currency),
+    );
+    notifyListeners();
+  }
+
+  void togglePin(bool enabled, [String? pin]) {
+    _userProfile = _userProfile.copyWith(
+      pinEnabled: enabled,
+      pinCode: enabled ? (pin ?? _userProfile.pinCode ?? '1234') : null,
+    );
+    notifyListeners();
+  }
+
+  void toggleBiometric(bool enabled) {
+    _userProfile = _userProfile.copyWith(biometricEnabled: enabled);
+    notifyListeners();
+  }
+
+  void updateAiTone(String tone) {
+    _userProfile = _userProfile.copyWith(aiAdviceTone: tone);
     notifyListeners();
   }
 
