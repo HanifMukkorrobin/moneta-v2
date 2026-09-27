@@ -5,6 +5,7 @@ import { getDatabase, closeDatabase } from './config/database.js';
 import { runMigrations } from './db/migrate.js';
 
 import chatRoutes from './routes/chatRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +22,10 @@ runMigrations(db);
 // Mount Chat parsing endpoints
 app.use('/chat', chatRoutes);
 app.use('/api/chat', chatRoutes);
+
+// Mount Transaction endpoints
+app.use('/transactions', transactionRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
