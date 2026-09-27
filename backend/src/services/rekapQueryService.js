@@ -63,11 +63,52 @@ export function getMonthLabel(monthStr) {
 }
 
 /**
- * Query 1: Monthly Summary Totals Aggregation
+ * Query 1: Income and Expense Summary Aggregation
+ * Supports monthly filtering or custom date ranges (startDate & endDate).
  */
-export function getMonthlyTotalsQuery(db, userId, month) {
-  const monthPrefix = `${month}%`;
-  const row = db.prepare(`
+export function getIncomeExpenseSummaryQuery(db, userId, options = {}) {
+  const {
+    month: inputMonth,
+    startDate: inputStartDate,
+    endDate: inputEndDate,
+    includePending = false,
+  } = options;
+
+  let timeClause = '';
+  let timeParams = [];
+  let month = inputMonth;
+  let startDate = inputStartDate;
+  let endDate = inputEndDate;
+  let monthLabel = '';
+  let daysInPeriod = 30;
+
+  if (startDate && endDate) {
+    timeClause = 'occurred_at >= ? AND occurred_at <= ?';
+    const endParam = endDate.length === 10 ? `${endDate} 23:59:59` : endDate;
+    timeParams = [startDate, endParam];
+    if (!month) {
+      month = startDate.slice(0, 7);
+    }
+    monthLabel = `${startDate} s/d ${endDate}`;
+    try {
+      const d1 = new Date(startDate);
+      const d2 = new Date(endDate);
+      const diffTime = Math.abs(d2 - d1);
+      daysInPeriod = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+    } catch {
+      daysInPeriod = 30;
+    }
+  } else {
+    month = month || getCurrentMonthString();
+    timeClause = 'occurred_at LIKE ?';
+    timeParams = [`${month}%`];
+    monthLabel = getMonthLabel(month);
+    daysInPeriod = getDaysInMonth(month);
+    startDate = `${month}-01`;
+    endDate = `${month}-${String(daysInPeriod).padStart(2, '0')}`;
+  }
+
+  const querySql = `
     SELECT
       COALESCE(SUM(CASE WHEN type = 'income' AND is_confirmed = 1 THEN amount ELSE 0 END), 0) AS total_income,
       COALESCE(SUM(CASE WHEN type = 'expense' AND is_confirmed = 1 THEN amount ELSE 0 END), 0) AS total_expense,
@@ -78,37 +119,145 @@ export function getMonthlyTotalsQuery(db, userId, month) {
       COALESCE(SUM(CASE WHEN type = 'expense' AND is_confirmed = 0 THEN amount ELSE 0 END), 0) AS pending_expense,
       COALESCE(SUM(CASE WHEN type = 'income' AND is_confirmed = 0 THEN amount ELSE 0 END), 0) AS pending_income
     FROM transactions
-    WHERE user_id = ? AND occurred_at LIKE ?
-  `).get(userId, monthPrefix);
+    WHERE user_id = ? AND ${timeClause}
+  `;
+
+  const row = db.prepare(querySql).get(userId, ...timeParams);
 
   const totalIncome = row ? Number(row.total_income) : 0;
   const totalExpense = row ? Number(row.total_expense) : 0;
   const netSavings = totalIncome - totalExpense;
+  const isSurplus = netSavings >= 0;
+  const status = isSurplus ? 'surplus' : 'deficit';
+  const statusLabel = isSurplus ? 'Surplus' : 'Defisit';
+
   const savingsRate = totalIncome > 0
     ? Math.round(((totalIncome - totalExpense) / totalIncome) * 1000) / 10
     : 0;
 
-  const daysInMonth = getDaysInMonth(month);
-  const averageDailyExpense = daysInMonth > 0
-    ? Math.round((totalExpense / daysInMonth) * 100) / 100
+  const expenseRatio = totalIncome > 0
+    ? Math.round((totalExpense / totalIncome) * 1000) / 10
     : 0;
+
+  const averageDailyExpense = daysInPeriod > 0
+    ? Math.round((totalExpense / daysInPeriod) * 100) / 100
+    : 0;
+
+  const averageDailyIncome = daysInPeriod > 0
+    ? Math.round((totalIncome / daysInPeriod) * 100) / 100
+    : 0;
+
+  const confirmedTransactionsCount = row ? Number(row.confirmed_count) : 0;
+  const pendingTransactionsCount = row ? Number(row.pending_count) : 0;
+  const incomeTransactionsCount = row ? Number(row.income_count) : 0;
+  const expenseTransactionsCount = row ? Number(row.expense_count) : 0;
+  const pendingExpenseTotal = row ? Number(row.pending_expense) : 0;
+  const pendingIncomeTotal = row ? Number(row.pending_income) : 0;
+
+  const totalCashflow = totalIncome + totalExpense;
+  const incomePercentage = totalCashflow > 0
+    ? Math.round((totalIncome / totalCashflow) * 1000) / 10
+    : 0;
+  const expensePercentage = totalCashflow > 0
+    ? Math.round((totalExpense / totalCashflow) * 1000) / 10
+    : 0;
+
+  // Query largest confirmed expense
+  const largestExpenseSql = `
+    SELECT t.id, t.amount, t.note, COALESCE(c.name, t.category_name, 'Lainnya') AS category_name, t.occurred_at
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
+    WHERE t.user_id = ? AND ${timeClause.replace(/occurred_at/g, 't.occurred_at')} AND t.type = 'expense' AND t.is_confirmed = 1
+    ORDER BY t.amount DESC, t.id DESC
+    LIMIT 1
+  `;
+  const largestExpenseRow = db.prepare(largestExpenseSql).get(userId, ...timeParams);
+
+  // Query largest confirmed income
+  const largestIncomeSql = `
+    SELECT t.id, t.amount, t.note, COALESCE(c.name, t.category_name, 'Lainnya') AS category_name, t.occurred_at
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
+    WHERE t.user_id = ? AND ${timeClause.replace(/occurred_at/g, 't.occurred_at')} AND t.type = 'income' AND t.is_confirmed = 1
+    ORDER BY t.amount DESC, t.id DESC
+    LIMIT 1
+  `;
+  const largestIncomeRow = db.prepare(largestIncomeSql).get(userId, ...timeParams);
 
   return {
     month,
-    monthLabel: getMonthLabel(month),
+    monthLabel,
+    period: {
+      month,
+      startDate,
+      endDate,
+      daysInPeriod,
+    },
+    summary: {
+      totalIncome,
+      totalExpense,
+      netSavings,
+      isSurplus,
+      status,
+      statusLabel,
+      savingsRate,
+      expenseRatio,
+      averageDailyExpense,
+      averageDailyIncome,
+    },
+    counts: {
+      total: confirmedTransactionsCount,
+      confirmed: confirmedTransactionsCount,
+      pending: pendingTransactionsCount,
+      income: incomeTransactionsCount,
+      expense: expenseTransactionsCount,
+    },
+    pending: {
+      totalIncome: pendingIncomeTotal,
+      totalExpense: pendingExpenseTotal,
+      count: pendingTransactionsCount,
+    },
+    proportions: {
+      incomePercentage,
+      expensePercentage,
+    },
+    largestTransactions: {
+      largestExpense: largestExpenseRow ? {
+        id: largestExpenseRow.id,
+        amount: Number(largestExpenseRow.amount),
+        note: largestExpenseRow.note,
+        categoryName: largestExpenseRow.category_name,
+        occurredAt: largestExpenseRow.occurred_at,
+      } : null,
+      largestIncome: largestIncomeRow ? {
+        id: largestIncomeRow.id,
+        amount: Number(largestIncomeRow.amount),
+        note: largestIncomeRow.note,
+        categoryName: largestIncomeRow.category_name,
+        occurredAt: largestIncomeRow.occurred_at,
+      } : null,
+    },
+    // Top-level fields for flat access and backwards compatibility:
     totalIncome,
     totalExpense,
     netSavings,
     savingsRate,
-    daysInMonth,
+    daysInMonth: daysInPeriod,
     averageDailyExpense,
-    confirmedTransactionsCount: row ? Number(row.confirmed_count) : 0,
-    pendingTransactionsCount: row ? Number(row.pending_count) : 0,
-    incomeTransactionsCount: row ? Number(row.income_count) : 0,
-    expenseTransactionsCount: row ? Number(row.expense_count) : 0,
-    pendingExpenseTotal: row ? Number(row.pending_expense) : 0,
-    pendingIncomeTotal: row ? Number(row.pending_income) : 0,
+    confirmedTransactionsCount,
+    pendingTransactionsCount,
+    incomeTransactionsCount,
+    expenseTransactionsCount,
+    pendingExpenseTotal,
+    pendingIncomeTotal,
   };
+}
+
+/**
+ * Query 1 (Legacy/Standard Alias): Monthly Summary Totals Aggregation
+ */
+export function getMonthlyTotalsQuery(db, userId, month) {
+  return getIncomeExpenseSummaryQuery(db, userId, { month });
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   getDaysInMonth,
   getMonthLabel,
   getMonthlyTotalsQuery,
+  getIncomeExpenseSummaryQuery,
   getMonthOverMonthComparisonQuery,
   getCategoryBreakdownQuery,
   getDailyTotalsQuery,
@@ -112,30 +113,42 @@ export function getMonthlyRekapHandler(req, res) {
 }
 
 /**
+ * Controller: GET /api/rekap/income-expense, GET /api/rekap/summary, GET /api/transactions/summary
+ * Returns comprehensive income and expense summary for a month or date range.
+ */
+export function getIncomeExpenseSummaryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const { month, startDate, endDate, from, to, includePending } = req.query || {};
+
+    const summary = getIncomeExpenseSummaryQuery(db, userId, {
+      month: month || undefined,
+      startDate: startDate || from || undefined,
+      endDate: endDate || to || undefined,
+      includePending: includePending === 'true' || includePending === true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      ...summary,
+    });
+  } catch (error) {
+    console.error('[SummaryBudgetController] Error getting income-expense summary:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat mengambil ringkasan pemasukan dan pengeluaran.',
+      details: error.message,
+    });
+  }
+}
+
+/**
  * Controller: GET /api/rekap/summary
  * Returns focused monthly totals aggregation
  */
 export function getSummaryAggregationHandler(req, res) {
-  try {
-    const db = getDatabase();
-    const userId = getOrCreateDefaultUser(db, req.query?.userId);
-    const month = req.query?.month || getCurrentMonthString();
-
-    const totals = getMonthlyTotalsQuery(db, userId, month);
-
-    return res.status(200).json({
-      success: true,
-      month,
-      ...totals,
-    });
-  } catch (error) {
-    console.error('[SummaryBudgetController] Error getting summary aggregation:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Terjadi kesalahan saat mengambil ringkasan bulanan.',
-      details: error.message,
-    });
-  }
+  return getIncomeExpenseSummaryHandler(req, res);
 }
 
 /**

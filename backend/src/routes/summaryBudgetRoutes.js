@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getMonthlyRekapHandler,
   getSummaryAggregationHandler,
+  getIncomeExpenseSummaryHandler,
   getComparisonHandler,
   getCategoryBreakdownHandler,
   getDailyAggregationHandler,
@@ -13,6 +14,7 @@ import {
 export const rekapRouter = Router();
 rekapRouter.get('/', getMonthlyRekapHandler);
 rekapRouter.get('/summary', getSummaryAggregationHandler);
+rekapRouter.get('/income-expense', getIncomeExpenseSummaryHandler);
 rekapRouter.get('/comparison', getComparisonHandler);
 rekapRouter.get('/breakdown', getCategoryBreakdownHandler);
 rekapRouter.get('/categories', getCategoryBreakdownHandler);
@@ -27,11 +29,14 @@ const combinedRouter = Router();
 // Subpaths on /api
 combinedRouter.get('/rekap', getMonthlyRekapHandler);
 combinedRouter.get('/rekap/summary', getSummaryAggregationHandler);
+combinedRouter.get('/rekap/income-expense', getIncomeExpenseSummaryHandler);
 combinedRouter.get('/rekap/comparison', getComparisonHandler);
 combinedRouter.get('/rekap/breakdown', getCategoryBreakdownHandler);
 combinedRouter.get('/rekap/categories', getCategoryBreakdownHandler);
 combinedRouter.get('/rekap/daily', getDailyAggregationHandler);
 combinedRouter.get('/summary', getSummaryAggregationHandler);
+combinedRouter.get('/summary/income-expense', getIncomeExpenseSummaryHandler);
+combinedRouter.get('/income-expense', getIncomeExpenseSummaryHandler);
 combinedRouter.get('/budgets', listBudgetsHandler);
 combinedRouter.post('/budgets', createOrUpdateBudgetHandler);
 combinedRouter.delete('/budgets/:id', deleteBudgetHandler);

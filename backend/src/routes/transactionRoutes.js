@@ -8,6 +8,7 @@ import {
   deleteTransactionHandler,
 } from '../controllers/transactionController.js';
 import { classifyCategoryAndTypeHandler } from '../controllers/categoryController.js';
+import { getIncomeExpenseSummaryHandler } from '../controllers/summaryBudgetController.js';
 
 const router = Router();
 
@@ -19,6 +20,10 @@ router.get('/classify', classifyCategoryAndTypeHandler);
 router.post('/confirm', confirmTransactionHandler);
 router.post('/:id/confirm', confirmTransactionHandler);
 router.put('/:id/confirm', confirmTransactionHandler);
+
+// Ringkasan Pemasukan & Pengeluaran transaksi
+router.get('/summary', getIncomeExpenseSummaryHandler);
+router.get('/income-expense', getIncomeExpenseSummaryHandler);
 
 // CRUD / List & Detail transactions
 router.get('/', listTransactionsHandler);
