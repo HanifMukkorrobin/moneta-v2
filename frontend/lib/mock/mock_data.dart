@@ -236,6 +236,8 @@ class MockData {
       category: category,
       occurredAt: DateTime.now(),
       isConfirmed: false,
+      confidenceScore: category != 'Lainnya' ? 0.96 : 0.72,
+      aiReasoning: 'Kata kunci terdeteksi cocok dengan kategori $category',
     );
   }
 

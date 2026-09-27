@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../models/transaction_item.dart';
 import '../../../theme/app_theme.dart';
+import '../../category_confirmation/widgets/guessed_category_badge.dart';
+import '../../category_confirmation/widgets/transaction_type_indicator.dart';
 
 class TransactionCard extends StatelessWidget {
   final TransactionItem transaction;
@@ -54,9 +56,7 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isExpense = transaction.isExpense;
-    final badgeColor = isExpense ? AppTheme.expenseColor : AppTheme.incomeColor;
     final isConfirmed = transaction.isConfirmed;
-    final categoryIcon = getCategoryIcon(transaction.category, isExpense);
 
     return Container(
       margin: const EdgeInsets.only(left: 48, right: 12, top: 4, bottom: 8),
@@ -145,36 +145,9 @@ class TransactionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Type Badge (clickable to toggle if allowed)
-              InkWell(
-                onTap: onToggleType,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: badgeColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isExpense ? Icons.arrow_outward : Icons.arrow_downward,
-                        size: 14,
-                        color: badgeColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        isExpense ? 'Pengeluaran' : 'Pemasukan',
-                        style: TextStyle(
-                          color: badgeColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              TransactionTypeIndicator(
+                type: transaction.type,
+                onToggle: onToggleType,
               ),
 
               // Large Formatted Amount
@@ -236,45 +209,13 @@ class TransactionCard extends StatelessWidget {
                       ),
                     ),
                     Flexible(
-                      child: InkWell(
+                      child: GuessedCategoryBadge(
+                        category: transaction.category,
+                        isExpense: transaction.isExpense,
+                        confidenceScore: transaction.confidenceScore,
+                        isCustom: false,
                         onTap: onChangeCategory,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                categoryIcon,
-                                size: 13,
-                                color: AppTheme.primaryColor,
-                              ),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                child: Text(
-                                  transaction.category,
-                                  style: const TextStyle(
-                                    color: AppTheme.primaryColor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.edit_outlined,
-                                size: 12,
-                                color: AppTheme.primaryColor,
-                              ),
-                            ],
-                          ),
-                        ),
+                        isCompact: true,
                       ),
                     ),
                   ],

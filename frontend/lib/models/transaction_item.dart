@@ -8,6 +8,9 @@ class TransactionItem {
   String category;
   DateTime occurredAt;
   bool isConfirmed;
+  final double? confidenceScore;
+  final String? aiReasoning;
+  final bool isGuessedCategory;
 
   TransactionItem({
     required this.id,
@@ -17,6 +20,9 @@ class TransactionItem {
     required this.category,
     required this.occurredAt,
     this.isConfirmed = false,
+    this.confidenceScore,
+    this.aiReasoning,
+    this.isGuessedCategory = true,
   });
 
   bool get isIncome => type == 'income';
@@ -36,6 +42,11 @@ class TransactionItem {
     return DateFormat('HH:mm').format(occurredAt);
   }
 
+  String get formattedConfidence {
+    final score = confidenceScore ?? 0.95;
+    return '${(score * 100).round()}% Akurat';
+  }
+
   TransactionItem copyWith({
     String? id,
     String? note,
@@ -44,6 +55,9 @@ class TransactionItem {
     String? category,
     DateTime? occurredAt,
     bool? isConfirmed,
+    double? confidenceScore,
+    String? aiReasoning,
+    bool? isGuessedCategory,
   }) {
     return TransactionItem(
       id: id ?? this.id,
@@ -53,6 +67,9 @@ class TransactionItem {
       category: category ?? this.category,
       occurredAt: occurredAt ?? this.occurredAt,
       isConfirmed: isConfirmed ?? this.isConfirmed,
+      confidenceScore: confidenceScore ?? this.confidenceScore,
+      aiReasoning: aiReasoning ?? this.aiReasoning,
+      isGuessedCategory: isGuessedCategory ?? this.isGuessedCategory,
     );
   }
 }

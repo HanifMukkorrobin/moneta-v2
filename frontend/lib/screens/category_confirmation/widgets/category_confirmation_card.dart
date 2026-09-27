@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../models/category_confirmation_item.dart';
 import '../../../theme/app_theme.dart';
-import '../../chat/widgets/transaction_card.dart';
+import 'guessed_category_badge.dart';
+import 'transaction_type_indicator.dart';
 
 class CategoryConfirmationCard extends StatelessWidget {
   final CategoryConfirmationItem item;
@@ -32,8 +33,6 @@ class CategoryConfirmationCard extends StatelessWidget {
     final isExpense = item.isExpense;
     final typeColor = isExpense ? AppTheme.expenseColor : AppTheme.incomeColor;
     final isConfirmed = item.isConfirmed;
-    final categoryIcon =
-        TransactionCard.getCategoryIcon(item.detectedCategory, isExpense);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -111,54 +110,11 @@ class CategoryConfirmationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 // Type Pill (Pilah Masuk / Keluar)
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: typeColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: typeColor.withValues(alpha: 0.3),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isExpense
-                                ? Icons.arrow_outward_rounded
-                                : Icons.arrow_downward_rounded,
-                            size: 12,
-                            color: typeColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isExpense ? 'PENGELUARAN' : 'PEMASUKAN',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: typeColor,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        item.typeReasoning,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                TransactionTypeIndicator(
+                  type: item.type,
+                  showReasoning: true,
+                  reasoning: item.typeReasoning,
+                  isCompact: true,
                 ),
               ],
             ),
@@ -197,147 +153,13 @@ class CategoryConfirmationCard extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 // AI Categorization Highlight Box
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.backgroundColor,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.grey.shade300,
-                      width: 0.8,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: typeColor.withValues(alpha: 0.12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              categoryIcon,
-                              color: typeColor,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      'Tebakan Kategori:',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    if (item.isCustomCategory) ...[
-                                      const SizedBox(width: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4, vertical: 1),
-                                        decoration: BoxDecoration(
-                                          color: Colors.purple.shade50,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          'Custom',
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.purple.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                Text(
-                                  item.detectedCategory,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // AI Confidence Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: item.confidenceLevel == 'high'
-                                  ? Colors.green.shade50
-                                  : Colors.amber.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: item.confidenceLevel == 'high'
-                                    ? Colors.green.shade300
-                                    : Colors.amber.shade300,
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.auto_awesome,
-                                  size: 12,
-                                  color: item.confidenceLevel == 'high'
-                                      ? Colors.green.shade700
-                                      : Colors.amber.shade800,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  item.formattedConfidence,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: item.confidenceLevel == 'high'
-                                        ? Colors.green.shade800
-                                        : Colors.amber.shade900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // AI Reasoning text
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.psychology_outlined,
-                            size: 14,
-                            color: AppTheme.primaryColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              item.aiReasoning,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: Colors.grey.shade700,
-                                height: 1.3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                GuessedCategoryBadge(
+                  category: item.detectedCategory,
+                  isExpense: item.isExpense,
+                  confidenceScore: item.confidenceScore,
+                  reasoning: item.aiReasoning,
+                  isCustom: item.isCustomCategory,
+                  onTap: onEditCategory,
                 ),
 
                 // Alternative Category Suggestions
