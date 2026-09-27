@@ -25,8 +25,9 @@ export const VALID_DEBT_STATUSES = ['active', 'paid', 'lunas', 'aktif'];
 export function normalizeDebtType(type) {
   if (!type) return 'paylater';
   const clean = String(type).trim();
-  if (clean === 'kartuKredit') return 'kartu_kredit';
-  if (clean === 'pinjamanPribadi') return 'pinjaman_pribadi';
+  const lower = clean.toLowerCase();
+  if (lower === 'kartukredit' || lower === 'kartu_kredit' || lower === 'kartu') return 'kartu_kredit';
+  if (lower === 'pinjamanpribadi' || lower === 'pinjaman_pribadi' || lower === 'pinjaman') return 'pinjaman_pribadi';
   return clean.toLowerCase();
 }
 
@@ -463,7 +464,7 @@ export function deleteDebt(db, id, userId) {
 }
 
 /**
- * Mengambil ringkasan hutang (total sisa, jatuh tempo terdekat, persentase terbayar)
+ * Mengambil ringkasan hutang (total sisa, jatuh tempo terdekat, persentase terbayar, breakdown tipe)
  */
 export function getDebtSummary(db, userId, referenceDate = new Date()) {
   if (!userId) {
@@ -481,15 +482,33 @@ export function getDebtSummary(db, userId, referenceDate = new Date()) {
   let overdueCount = 0;
   const dueSoonList = [];
 
+  const breakdownByType = {
+    paylater: { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: 'Paylater' },
+    cicilan: { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: 'Cicilan' },
+    pinjaman_pribadi: { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: 'Pinjaman Pribadi' },
+    kartu_kredit: { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: 'Kartu Kredit' },
+    lainnya: { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: 'Lainnya' },
+  };
+
   for (const debt of allDebts) {
     totalDebtAmount += debt.totalAmount;
-    totalRemainingAmount += debt.remainingAmount;
     totalPaidAmount += debt.paidAmount;
+
+    const t = debt.type || 'lainnya';
+    if (!breakdownByType[t]) {
+      breakdownByType[t] = { count: 0, totalAmount: 0, remainingAmount: 0, paidAmount: 0, label: t };
+    }
 
     if (debt.isPaid) {
       paidDebtsCount += 1;
     } else {
       activeDebtsCount += 1;
+      totalRemainingAmount += debt.remainingAmount;
+      breakdownByType[t].count += 1;
+      breakdownByType[t].remainingAmount += debt.remainingAmount;
+      breakdownByType[t].totalAmount += debt.totalAmount;
+      breakdownByType[t].paidAmount += debt.paidAmount;
+
       if (debt.isDueSoon) {
         dueSoonCount += 1;
         dueSoonList.push(debt);
@@ -499,6 +518,17 @@ export function getDebtSummary(db, userId, referenceDate = new Date()) {
       }
     }
   }
+
+  const breakdown = Object.entries(breakdownByType).map(([typeKey, data]) => ({
+    type: typeKey,
+    label: data.label,
+    count: data.count,
+    totalAmount: data.totalAmount,
+    remainingAmount: data.remainingAmount,
+    paidAmount: data.paidAmount,
+    formattedRemainingAmount: formatRupiah(data.remainingAmount),
+    formattedTotalAmount: formatRupiah(data.totalAmount),
+  }));
 
   const clearanceRatio = totalDebtAmount > 0
     ? Math.min(1.0, Math.max(0.0, totalPaidAmount / totalDebtAmount))
@@ -523,5 +553,22 @@ export function getDebtSummary(db, userId, referenceDate = new Date()) {
     dueSoonList,
     hasDueSoon: dueSoonCount > 0,
     hasOverdue: overdueCount > 0,
+    breakdown,
+    breakdownByType,
+    // snake_case aliases for API and UI compatibility
+    total_debts_count: allDebts.length,
+    active_debts_count: activeDebtsCount,
+    paid_debts_count: paidDebtsCount,
+    total_debt_amount: totalDebtAmount,
+    total_remaining_amount: totalRemainingAmount,
+    total_paid_amount: totalPaidAmount,
+    formatted_total_debt_amount: formatRupiah(totalDebtAmount),
+    formatted_total_remaining_amount: formatRupiah(totalRemainingAmount),
+    formatted_total_paid_amount: formatRupiah(totalPaidAmount),
+    clearance_ratio: clearanceRatio,
+    clearance_percent: clearancePercent,
+    due_soon_count: dueSoonCount,
+    overdue_count: overdueCount,
   };
 }
+

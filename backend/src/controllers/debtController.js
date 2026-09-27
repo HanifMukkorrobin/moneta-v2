@@ -256,8 +256,8 @@ export function listDebtsHandler(req, res) {
 }
 
 /**
- * GET /api/debts/summary & GET /api/hutang/summary
- * Mengambil ringkasan hutang (total sisa, jatuh tempo terdekat, persentase terbayar)
+ * GET /api/debts/summary & GET /api/hutang/summary & /api/debts/total-sisa
+ * Mengambil ringkasan hutang (total sisa hutang aktif, persentase terbayar, jatuh tempo terdekat, breakdown per jenis)
  */
 export function getDebtSummaryHandler(req, res) {
   try {
@@ -268,6 +268,7 @@ export function getDebtSummaryHandler(req, res) {
     return res.status(200).json({
       success: true,
       userId,
+      ...summary,
       summary,
       data: summary,
     });

@@ -31,9 +31,14 @@ router.post('/add', createDebtHandler);
 router.post('/create', createDebtHandler);
 router.post('/new', createDebtHandler);
 
-// Ringkasan hutang & jatuh tempo terdekat
+// Ringkasan hutang & total sisa hutang aktif
 router.get('/summary', getDebtSummaryHandler);
 router.get('/ringkasan', getDebtSummaryHandler);
+router.get('/total-sisa', getDebtSummaryHandler);
+router.get('/total-sisa-aktif', getDebtSummaryHandler);
+router.get('/ringkasan-total', getDebtSummaryHandler);
+router.get('/stats', getDebtSummaryHandler);
+router.get('/statistik', getDebtSummaryHandler);
 
 // Daftar catatan hutang
 router.get('/', listDebtsHandler);
