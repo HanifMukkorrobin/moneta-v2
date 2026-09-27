@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../mock/mock_data.dart';
 import '../models/category_item.dart';
+import '../models/category_usage.dart';
 import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
 import '../models/transaction_item.dart';
@@ -201,6 +202,74 @@ class AppState extends ChangeNotifier {
       }
     }
     return count;
+  }
+
+  /// Get frequently used categories based on transaction history.
+  /// Top frequently used categories appear first. If history has fewer than [limit]
+  /// used categories, it fills the remainder with default categories.
+  List<CategoryUsage> getFrequentlyUsedCategories({
+    required String type,
+    int limit = 5,
+  }) {
+    final Map<String, int> counts = {};
+    for (var tx in allTransactions) {
+      if (tx.type == type &&
+          tx.category.isNotEmpty &&
+          tx.category != 'Belum Dikategorikan' &&
+          tx.category != 'Kategori Kosong') {
+        counts[tx.category] = (counts[tx.category] ?? 0) + 1;
+      }
+    }
+
+    final sortedUsedNames = counts.keys.toList()
+      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+
+    final result = <CategoryUsage>[];
+
+    for (var name in sortedUsedNames) {
+      if (result.length >= limit) break;
+      final catItem = _categories.cast<CategoryItem?>().firstWhere(
+            (c) => c?.name.toLowerCase() == name.toLowerCase() && c?.type == type,
+            orElse: () => null,
+          );
+      result.add(CategoryUsage(
+        name: name,
+        type: type,
+        count: counts[name] ?? 0,
+        icon: catItem?.icon,
+        color: catItem?.color,
+        isCustom: catItem?.isCustom ?? false,
+      ));
+    }
+
+    if (result.length < limit) {
+      final available = (type == 'expense' ? expenseCategories : incomeCategories);
+      for (var cat in available) {
+        if (result.length >= limit) break;
+        if (!result.any((r) => r.name.toLowerCase() == cat.name.toLowerCase())) {
+          result.add(CategoryUsage(
+            name: cat.name,
+            type: type,
+            count: counts[cat.name] ?? 0,
+            icon: cat.icon,
+            color: cat.color,
+            isCustom: cat.isCustom,
+          ));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// Get frequently used category names as a simple list of strings
+  List<String> getFrequentCategoryNames({
+    required String type,
+    int limit = 5,
+  }) {
+    return getFrequentlyUsedCategories(type: type, limit: limit)
+        .map((c) => c.name)
+        .toList();
   }
 
   /// Send user message and simulate AI parsing to mock state

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../models/category_confirmation_item.dart';
+import '../../../state/app_state.dart';
 import '../../../theme/app_theme.dart';
+import 'frequent_category_suggestions.dart';
 import 'guessed_category_badge.dart';
 import 'transaction_type_indicator.dart';
 
@@ -200,21 +202,8 @@ class CategoryConfirmationCard extends StatelessWidget {
                         Wrap(
                           spacing: 6,
                           runSpacing: 4,
-                          children: (isExpense
-                                  ? [
-                                      'Makan & Minuman',
-                                      'Transportasi',
-                                      'Belanja',
-                                      'Tagihan & Utilitas',
-                                      'Lainnya'
-                                    ]
-                                  : [
-                                      'Gaji',
-                                      'Freelance',
-                                      'Bonus',
-                                      'Transfer Masuk',
-                                      'Lainnya'
-                                    ])
+                          children: AppState.instance
+                              .getFrequentCategoryNames(type: item.type, limit: 5)
                               .map((quickCat) => ActionChip(
                                     label: Text(quickCat),
                                     labelStyle: TextStyle(
@@ -276,6 +265,20 @@ class CategoryConfirmationCard extends StatelessWidget {
                         onPressed: () => onSelectAlternative(alt),
                       );
                     }).toList(),
+                  ),
+                ],
+                if (item.alternativeCategories.isEmpty &&
+                    !isConfirmed &&
+                    item.detectedCategory.isNotEmpty &&
+                    item.detectedCategory != 'Belum Dikategorikan' &&
+                    item.detectedCategory != 'Kategori Kosong') ...[
+                  const SizedBox(height: 10),
+                  FrequentCategorySuggestions(
+                    type: item.type,
+                    selectedCategory: item.detectedCategory,
+                    isCompact: true,
+                    customTitle: 'Sering Dipakai',
+                    onCategorySelected: (cat) => onSelectAlternative(cat),
                   ),
                 ],
 

@@ -4,6 +4,7 @@ import '../../../state/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../category_management/manage_categories_screen.dart';
 import '../../chat/widgets/transaction_card.dart';
+import 'frequent_category_suggestions.dart';
 
 class CategoryPickerSheet extends StatefulWidget {
   final String initialCategory;
@@ -320,6 +321,20 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                     ),
 
                     const SizedBox(height: 16),
+
+                    // Frequent Category Suggestions
+                    if (_searchQuery.trim().isEmpty && !_isCustomMode) ...[
+                      FrequentCategorySuggestions(
+                        type: _currentType,
+                        selectedCategory: _currentCategory,
+                        onCategorySelected: (cat) {
+                          setState(() {
+                            _currentCategory = cat;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
                     // Search Bar or Custom Toggle
                     Row(
