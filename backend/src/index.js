@@ -11,6 +11,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
 import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
+import reminderSettingsRoutes from './routes/reminderSettingsRoutes.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
@@ -67,6 +68,12 @@ app.use('/tips-harian', dailyTipsRoutes);
 app.use('/api/tips-harian', dailyTipsRoutes);
 app.use('/riwayat-tips', riwayatTipsRouter);
 app.use('/api/riwayat-tips', riwayatTipsRouter);
+
+// Mount Pengaturan Pengingat Harian endpoints
+app.use('/pengaturan-pengingat', reminderSettingsRoutes);
+app.use('/api/pengaturan-pengingat', reminderSettingsRoutes);
+app.use('/reminders', reminderSettingsRoutes);
+app.use('/api/reminders', reminderSettingsRoutes);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
