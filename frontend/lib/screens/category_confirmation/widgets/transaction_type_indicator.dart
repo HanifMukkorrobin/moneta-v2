@@ -48,13 +48,17 @@ class TransactionTypeIndicator extends StatelessWidget {
             color: typeColor,
           ),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: typeColor,
-              fontSize: isCompact ? 11 : 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: isCompact ? 0.3 : 0,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: typeColor,
+                fontSize: isCompact ? 11 : 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: isCompact ? 0.3 : 0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (onToggle != null) ...[

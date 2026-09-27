@@ -71,4 +71,38 @@ void main() {
     expect(find.textContaining('Makan siang soto 15rb'), findsWidgets);
     expect(find.text('Makan & Minuman'), findsWidgets);
   });
+
+  testWidgets('All main tabs render without overflow on mobile phone viewport',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MonetaApp());
+    await tester.pumpAndSettle();
+
+    // 1. Chat tab
+    await tester.drag(find.byType(ListView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+
+    // 2. Rekap tab
+    await tester.tap(find.text('Rekap'));
+    await tester.pumpAndSettle();
+    await tester.drag(
+        find.byKey(const Key('rekap_body_scroll_view')), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    // 3. Budget tab
+    await tester.tap(find.text('Budget'));
+    await tester.pumpAndSettle();
+
+    // 4. Hutang tab
+    await tester.tap(find.text('Hutang'));
+    await tester.pumpAndSettle();
+
+    // 5. Analisa tab
+    await tester.tap(find.text('Analisa'));
+    await tester.pumpAndSettle();
+  });
 }

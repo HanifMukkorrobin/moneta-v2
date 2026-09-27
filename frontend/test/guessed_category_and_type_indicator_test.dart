@@ -173,5 +173,45 @@ void main() {
       await tester.tap(find.text('Makan & Minuman'));
       expect(categoryChanged, isTrue);
     });
+
+    testWidgets('does not overflow on narrow mobile screen when confirmed',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(375, 812);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final tx = TransactionItem(
+        id: 'tx_int_narrow',
+        note: 'Makan siang nasi padang dan es teh manis',
+        amount: 45000,
+        type: 'expense',
+        category: 'Makan & Minuman',
+        occurredAt: DateTime.now(),
+        confidenceScore: 0.95,
+        isConfirmed: true,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: Scaffold(
+            body: TransactionCard(
+              transaction: tx,
+              onConfirm: () {},
+              onChangeCategory: () {},
+              onDelete: () {},
+              onToggleType: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Makan & Minuman'), findsOneWidget);
+      expect(find.text('Tersimpan'), findsOneWidget);
+    });
   });
 }

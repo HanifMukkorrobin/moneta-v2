@@ -130,31 +130,39 @@ class RekapComparisonCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: statusBgColor,
-                      shape: BoxShape.circle,
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: statusBgColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isExpenseLower ? Icons.trending_down_rounded : Icons.trending_up_rounded,
+                        size: 18,
+                        color: statusColor,
+                      ),
                     ),
-                    child: Icon(
-                      isExpenseLower ? Icons.trending_down_rounded : Icons.trending_up_rounded,
-                      size: 18,
-                      color: statusColor,
+                    const SizedBox(width: 8),
+                    const Flexible(
+                      child: Text(
+                        'Perbandingan Bulan Lalu',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Perbandingan Bulan Lalu',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 key: const Key('comparison_badge'),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -220,6 +228,8 @@ class RekapComparisonCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       ClipRRect(
@@ -265,6 +275,8 @@ class RekapComparisonCard extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           color: isExpenseLower ? AppTheme.primaryColor : Colors.amber.shade900,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       ClipRRect(

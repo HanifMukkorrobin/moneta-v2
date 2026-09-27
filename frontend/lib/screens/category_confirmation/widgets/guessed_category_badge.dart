@@ -63,28 +63,36 @@ class GuessedCategoryBadge extends StatelessWidget {
               color: Colors.amber.shade900,
             ),
             const SizedBox(width: 5),
-            Text(
-              category.isEmpty ? 'Kategori Kosong' : category,
-              style: TextStyle(
-                color: Colors.amber.shade900,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              flex: 2,
+              child: Text(
+                category.isEmpty ? 'Kategori Kosong' : category,
+                style: TextStyle(
+                  color: Colors.amber.shade900,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(width: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade100,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'Tebakan Gagal',
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber.shade900,
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade100,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Tebakan Gagal',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amber.shade900,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -130,46 +138,56 @@ class GuessedCategoryBadge extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
             const SizedBox(width: 5),
-            Text(
-              category,
-              style: const TextStyle(
-                color: AppTheme.primaryColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              flex: 2,
+              child: Text(
+                category,
+                style: const TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(width: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              decoration: BoxDecoration(
-                color: isHighConfidence
-                    ? Colors.green.shade50
-                    : Colors.amber.shade50,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.auto_awesome,
-                    size: 9,
-                    color: isHighConfidence
-                        ? Colors.green.shade700
-                        : Colors.amber.shade800,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    formattedConfidence,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: isHighConfidence
+                      ? Colors.green.shade50
+                      : Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 9,
                       color: isHighConfidence
-                          ? Colors.green.shade800
-                          : Colors.amber.shade900,
+                          ? Colors.green.shade700
+                          : Colors.amber.shade800,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 2),
+                    Flexible(
+                      child: Text(
+                        formattedConfidence,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: isHighConfidence
+                              ? Colors.green.shade800
+                              : Colors.amber.shade900,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (onTap != null) ...[

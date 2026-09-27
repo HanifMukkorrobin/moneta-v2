@@ -50,44 +50,54 @@ class BudgetHeaderSummaryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.account_balance_wallet_rounded,
-                      size: 18,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Total Anggaran Bulanan',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.textSecondary,
-                        ),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      Text(
-                        summary.monthLabel,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        size: 18,
+                        color: AppTheme.primaryColor,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Total Anggaran Bulanan',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            summary.monthLabel,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 key: const Key('edit_budget_button'),
                 onTap: onEditBudget,
@@ -126,25 +136,30 @@ class BudgetHeaderSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Plafon Budget',
-                    style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    summary.formattedTotalBudget,
-                    key: const Key('total_budget_limit_text'),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.textPrimary,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Plafon Budget',
+                      style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      summary.formattedTotalBudget,
+                      key: const Key('total_budget_limit_text'),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 key: const Key('budget_status_badge'),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -50,42 +50,52 @@ class SisaBatasBulanBerjalanCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: statusBg,
-                      shape: BoxShape.circle,
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: statusBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(statusIcon, size: 16, color: statusColor),
                     ),
-                    child: Icon(statusIcon, size: 16, color: statusColor),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Sisa Batas Bulan Berjalan',
-                        key: Key('sisa_batas_bulan_berjalan_label'),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
-                        ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Sisa Batas Bulan Berjalan',
+                            key: Key('sisa_batas_bulan_berjalan_label'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            summary.monthLabel,
+                            key: const Key('sisa_batas_month_label'),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                      Text(
-                        summary.monthLabel,
-                        key: const Key('sisa_batas_month_label'),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 key: const Key('sisa_batas_status_badge'),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -207,6 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 12,
         title: Row(
           children: [
             Container(
@@ -222,43 +223,53 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Moneta AI',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Moneta AI',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      '9Router AI Siap',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 4),
+                      const Flexible(
+                        child: Text(
+                          '9Router AI Siap',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.fact_check_outlined, size: 22),
             tooltip: 'Konfirmasi Kategori AI',
             onPressed: () {
@@ -271,6 +282,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
           IconButton(
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.receipt_long_rounded, size: 22),
             tooltip: 'Riwayat Catatan Transaksi',
             onPressed: () {
@@ -283,6 +295,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
           IconButton(
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.history_rounded, size: 22),
             tooltip: 'Riwayat Obrolan',
             onPressed: () {
@@ -295,11 +308,13 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
           IconButton(
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.edit_note_rounded, size: 24),
             tooltip: 'Input Transaksi Manual',
             onPressed: () => _openManualInput(),
           ),
           IconButton(
+            visualDensity: VisualDensity.compact,
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Reset Percakapan',
             onPressed: () {
@@ -322,36 +337,54 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.trending_down,
-                        color: AppTheme.expenseColor, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Keluar: ${currencyFormatter.format(appState.todayTotalExpense)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.trending_down,
+                          color: AppTheme.expenseColor, size: 16),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          'Keluar: ${currencyFormatter.format(appState.todayTotalExpense)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                Container(height: 12, width: 1, color: AppTheme.borderSubtle),
-                Row(
-                  children: [
-                    const Icon(Icons.trending_up,
-                        color: AppTheme.incomeColor, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Masuk: ${currencyFormatter.format(appState.todayTotalIncome)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Container(
+                      height: 12, width: 1, color: AppTheme.borderSubtle),
+                ),
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.trending_up,
+                          color: AppTheme.incomeColor, size: 16),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          'Masuk: ${currencyFormatter.format(appState.todayTotalIncome)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

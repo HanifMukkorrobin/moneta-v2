@@ -291,12 +291,16 @@ class _CategoryProportionChartState extends State<CategoryProportionChart> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Terbesar: ${widget.items.first.category} (${widget.items.first.formattedPercentage})',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
+            Flexible(
+              child: Text(
+                'Terbesar: ${widget.items.first.category} (${widget.items.first.formattedPercentage})',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textSecondary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (widget.selectedCategory != null)

@@ -50,6 +50,177 @@ export function ensureTransactionCategoryAndTypeColumns(db) {
   db.exec("CREATE INDEX IF NOT EXISTS idx_transactions_cat_type ON transactions(category_id, type)");
 }
 
+export function ensureMonthlyBudgetSchema(db) {
+  const tableInfo = db.prepare("PRAGMA table_info(budgets)").all();
+  const columns = tableInfo.map((c) => c.name);
+  const nameCol = tableInfo.find((c) => c.name === 'name');
+
+  // If budgets table existed from an older schema without total_amount or without default on name,
+  // upgrade the table structure while preserving all existing rows.
+  const needsTableUpgrade =
+    tableInfo.length > 0 &&
+    (!columns.includes('total_amount') || !nameCol || nameCol.dflt_value === null);
+
+  if (needsTableUpgrade) {
+    const hasTotalAmount = columns.includes('total_amount');
+    const hasNeedsPct = columns.includes('needs_pct');
+    const hasSavingsPct = columns.includes('savings_pct');
+    const hasFunPct = columns.includes('fun_pct');
+    const hasBucketType = columns.includes('bucket_type');
+    const hasAlertEnabled = columns.includes('alert_enabled');
+    const hasAlertThreshold = columns.includes('alert_threshold');
+    const hasOverBudgetAlert = columns.includes('over_budget_alert_enabled');
+    const hasPushNotification = columns.includes('push_notification_enabled');
+    const hasUpdatedAt = columns.includes('updated_at');
+
+    const upgradeTx = db.transaction(() => {
+      db.exec(`
+        DROP TRIGGER IF EXISTS trg_budgets_sync_amounts_insert;
+        DROP TRIGGER IF EXISTS trg_budgets_sync_amounts_update;
+
+        CREATE TABLE budgets_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE,
+            name TEXT NOT NULL DEFAULT 'Budget Bulanan',
+            amount_limit REAL NOT NULL DEFAULT 0 CHECK(amount_limit >= 0),
+            total_amount REAL NOT NULL DEFAULT 0 CHECK(total_amount >= 0),
+            needs_pct REAL NOT NULL DEFAULT 50 CHECK(needs_pct >= 0 AND needs_pct <= 100),
+            savings_pct REAL NOT NULL DEFAULT 30 CHECK(savings_pct >= 0 AND savings_pct <= 100),
+            fun_pct REAL NOT NULL DEFAULT 20 CHECK(fun_pct >= 0 AND fun_pct <= 100),
+            bucket_type TEXT NOT NULL DEFAULT 'needs' CHECK(bucket_type IN ('needs', 'savings', 'fun')),
+            period TEXT NOT NULL DEFAULT 'monthly' CHECK(period IN ('monthly', 'weekly', 'custom')),
+            month TEXT NOT NULL DEFAULT (strftime('%Y-%m', 'now')),
+            alert_enabled INTEGER NOT NULL DEFAULT 1,
+            alert_threshold REAL NOT NULL DEFAULT 80 CHECK(alert_threshold > 0 AND alert_threshold <= 100),
+            over_budget_alert_enabled INTEGER NOT NULL DEFAULT 1,
+            push_notification_enabled INTEGER NOT NULL DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT unique_user_category_month UNIQUE (user_id, category_id, month)
+        );
+
+        INSERT INTO budgets_new (
+            id, user_id, category_id, name, amount_limit, total_amount,
+            needs_pct, savings_pct, fun_pct, bucket_type, period, month,
+            alert_enabled, alert_threshold, over_budget_alert_enabled, push_notification_enabled,
+            created_at, updated_at
+        )
+        SELECT
+            id,
+            user_id,
+            category_id,
+            COALESCE(name, 'Budget Bulanan'),
+            COALESCE(amount_limit, 0),
+            ${hasTotalAmount ? 'COALESCE(total_amount, amount_limit, 0)' : 'COALESCE(amount_limit, 0)'},
+            ${hasNeedsPct ? 'COALESCE(needs_pct, 50)' : '50'},
+            ${hasSavingsPct ? 'COALESCE(savings_pct, 30)' : '30'},
+            ${hasFunPct ? 'COALESCE(fun_pct, 20)' : '20'},
+            ${hasBucketType ? "COALESCE(bucket_type, 'needs')" : "'needs'"},
+            COALESCE(period, 'monthly'),
+            COALESCE(month, strftime('%Y-%m', 'now')),
+            ${hasAlertEnabled ? 'COALESCE(alert_enabled, 1)' : '1'},
+            ${hasAlertThreshold ? 'COALESCE(alert_threshold, 80)' : '80'},
+            ${hasOverBudgetAlert ? 'COALESCE(over_budget_alert_enabled, 1)' : '1'},
+            ${hasPushNotification ? 'COALESCE(push_notification_enabled, 1)' : '1'},
+            COALESCE(created_at, CURRENT_TIMESTAMP),
+            ${hasUpdatedAt ? 'COALESCE(updated_at, created_at, CURRENT_TIMESTAMP)' : 'COALESCE(created_at, CURRENT_TIMESTAMP)'}
+        FROM budgets;
+
+        DROP TABLE budgets;
+        ALTER TABLE budgets_new RENAME TO budgets;
+      `);
+    });
+
+    upgradeTx();
+  } else if (tableInfo.length > 0) {
+    // Ensure any individual columns exist if added incrementally
+    if (!columns.includes('total_amount')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN total_amount REAL NOT NULL DEFAULT 0");
+      db.exec("UPDATE budgets SET total_amount = amount_limit WHERE total_amount = 0 AND amount_limit > 0");
+    }
+    if (!columns.includes('needs_pct')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN needs_pct REAL NOT NULL DEFAULT 50");
+    }
+    if (!columns.includes('savings_pct')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN savings_pct REAL NOT NULL DEFAULT 30");
+    }
+    if (!columns.includes('fun_pct')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN fun_pct REAL NOT NULL DEFAULT 20");
+    }
+    if (!columns.includes('bucket_type')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN bucket_type TEXT NOT NULL DEFAULT 'needs'");
+    }
+    if (!columns.includes('alert_enabled')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN alert_enabled INTEGER NOT NULL DEFAULT 1");
+    }
+    if (!columns.includes('alert_threshold')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN alert_threshold REAL NOT NULL DEFAULT 80");
+    }
+    if (!columns.includes('over_budget_alert_enabled')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN over_budget_alert_enabled INTEGER NOT NULL DEFAULT 1");
+    }
+    if (!columns.includes('push_notification_enabled')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN push_notification_enabled INTEGER NOT NULL DEFAULT 1");
+    }
+    if (!columns.includes('updated_at')) {
+      db.exec("ALTER TABLE budgets ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+    }
+  }
+
+  // Ensure monthly_budgets table exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS monthly_budgets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        month TEXT NOT NULL,
+        total_amount REAL NOT NULL DEFAULT 0 CHECK(total_amount >= 0),
+        needs_pct REAL NOT NULL DEFAULT 50 CHECK(needs_pct >= 0 AND needs_pct <= 100),
+        savings_pct REAL NOT NULL DEFAULT 30 CHECK(savings_pct >= 0 AND savings_pct <= 100),
+        fun_pct REAL NOT NULL DEFAULT 20 CHECK(fun_pct >= 0 AND fun_pct <= 100),
+        alert_enabled INTEGER NOT NULL DEFAULT 1,
+        alert_threshold REAL NOT NULL DEFAULT 80 CHECK(alert_threshold > 0 AND alert_threshold <= 100),
+        over_budget_alert_enabled INTEGER NOT NULL DEFAULT 1,
+        push_notification_enabled INTEGER NOT NULL DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_user_monthly_budget UNIQUE (user_id, month),
+        CONSTRAINT check_monthly_allocation_sum CHECK (ABS((needs_pct + savings_pct + fun_pct) - 100) < 0.01)
+    );
+  `);
+
+  // Ensure indices and sync triggers exist
+  db.exec("CREATE INDEX IF NOT EXISTS idx_budgets_user_month ON budgets(user_id, month)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_budgets_category ON budgets(category_id)");
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_user_monthly_root ON budgets(user_id, month) WHERE category_id IS NULL");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_monthly_budgets_user_month ON monthly_budgets(user_id, month)");
+
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS trg_budgets_sync_amounts_insert
+    AFTER INSERT ON budgets
+    WHEN (NEW.total_amount > 0 AND NEW.amount_limit = 0) OR (NEW.amount_limit > 0 AND NEW.total_amount = 0)
+    BEGIN
+        UPDATE budgets
+        SET
+            amount_limit = CASE WHEN NEW.amount_limit = 0 THEN NEW.total_amount ELSE NEW.amount_limit END,
+            total_amount = CASE WHEN NEW.total_amount = 0 THEN NEW.amount_limit ELSE NEW.total_amount END
+        WHERE id = NEW.id;
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS trg_budgets_sync_amounts_update
+    AFTER UPDATE OF amount_limit, total_amount ON budgets
+    WHEN NEW.amount_limit != NEW.total_amount
+    BEGIN
+        UPDATE budgets
+        SET
+            amount_limit = CASE WHEN NEW.amount_limit != OLD.amount_limit THEN NEW.amount_limit ELSE NEW.total_amount END,
+            total_amount = CASE WHEN NEW.total_amount != OLD.total_amount THEN NEW.total_amount ELSE NEW.amount_limit END,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = NEW.id;
+    END;
+  `);
+}
+
 export function runMigrations(db) {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
@@ -59,6 +230,9 @@ export function runMigrations(db) {
 
   // Ensure transaction columns (category, type, guessed flags) exist on pre-existing tables
   ensureTransactionCategoryAndTypeColumns(db);
+
+  // Ensure monthly budget schema, columns, indices, and triggers exist on pre-existing tables
+  ensureMonthlyBudgetSchema(db);
 
   // Seed default categories (with user_id = NULL)
   seedDefaultCategories(db);

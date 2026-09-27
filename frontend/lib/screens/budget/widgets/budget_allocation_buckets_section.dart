@@ -30,31 +30,39 @@ class BudgetAllocationBucketsSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.pie_chart_outline_rounded,
+                        size: 16,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.pie_chart_outline_rounded,
-                      size: 16,
-                      color: AppTheme.primaryColor,
+                    const SizedBox(width: 8),
+                    const Flexible(
+                      child: Text(
+                        'Alokasi Kantong (50/30/20)',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Alokasi Kantong (50/30/20)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 key: const Key('adjust_percentages_button'),
                 onTap: onAdjustPercentages,

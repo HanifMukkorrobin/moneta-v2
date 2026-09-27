@@ -238,25 +238,33 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_rounded,
-                          size: 16,
-                          color: AppTheme.primaryColor,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _getMonthLabel(_selectedMonth),
-                          key: const Key('current_budget_month_label'),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 16,
+                            color: AppTheme.primaryColor,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              _getMonthLabel(_selectedMonth),
+                              key: const Key('current_budget_month_label'),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         key: const Key('budget_month_dropdown'),

@@ -201,6 +201,7 @@ class MonthNavigatorBar extends StatelessWidget {
               // Previous month button
               IconButton(
                 key: const Key('month_navigator_prev_button'),
+                visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.chevron_left_rounded),
                 color: _canGoPrevious ? AppTheme.primaryColor : Colors.grey.shade300,
                 onPressed: _canGoPrevious ? _previousMonth : null,
@@ -208,54 +209,60 @@ class MonthNavigatorBar extends StatelessWidget {
               ),
 
               // Center clickable Month Label with bottom sheet trigger
-              InkWell(
-                key: const Key('month_navigator_picker_button'),
-                onTap: () => _showMonthPickerModal(context),
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.calendar_month_rounded,
-                        size: 18,
-                        color: AppTheme.primaryColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
+              Flexible(
+                child: InkWell(
+                  key: const Key('month_navigator_picker_button'),
+                  onTap: () => _showMonthPickerModal(context),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          size: 18,
+                          color: AppTheme.primaryColor,
                         ),
-                      ),
-                      if (_isLatestMonth) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: const Text(
-                            'Kini',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                        ),
+                        if (_isLatestMonth) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'Kini',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ),
+                        ],
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_drop_down_rounded,
+                          size: 20,
+                          color: Colors.grey.shade600,
                         ),
                       ],
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_drop_down_rounded,
-                        size: 20,
-                        color: Colors.grey.shade600,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -263,6 +270,7 @@ class MonthNavigatorBar extends StatelessWidget {
               // Next month button
               IconButton(
                 key: const Key('month_navigator_next_button'),
+                visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.chevron_right_rounded),
                 color: _canGoNext ? AppTheme.primaryColor : Colors.grey.shade300,
                 onPressed: _canGoNext ? _nextMonth : null,

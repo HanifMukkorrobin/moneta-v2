@@ -43,10 +43,14 @@ class _CategoryBreakdownSectionState extends State<CategoryBreakdownSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Title & Type Switcher
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(6),
@@ -61,12 +65,16 @@ class _CategoryBreakdownSectionState extends State<CategoryBreakdownSection> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Grafik per Kategori',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                  const Flexible(
+                    child: Text(
+                      'Grafik per Kategori',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -129,7 +137,7 @@ class _CategoryBreakdownSectionState extends State<CategoryBreakdownSection> {
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(8),

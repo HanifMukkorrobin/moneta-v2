@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "f36be5fa9d7a4b3e31afd1a6087960910e83b696",
+  "generatedForCommit": "ffb261c239ee2e5a3d09e116ad47bff121c1f0c6",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -54,7 +54,7 @@
       "path": "backend/package.json",
       "reason": "needs_summary",
       "language": "json",
-      "size": 437
+      "size": 499
     },
     {
       "path": "backend/src/config/database.js",
@@ -63,40 +63,256 @@
       "size": 1159
     },
     {
+      "path": "backend/src/controllers/categoryController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 24200
+    },
+    {
+      "path": "backend/src/controllers/chatController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 13952
+    },
+    {
+      "path": "backend/src/controllers/summaryBudgetController.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 45433
+    },
+    {
+      "path": "backend/src/controllers/transactionController.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 28981
+    },
+    {
       "path": "backend/src/db/migrate.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 2404
+      "size": 13089
     },
     {
       "path": "backend/src/db/schema.sql",
       "reason": "needs_summary",
       "language": "sql",
-      "size": 2457
+      "size": 6682
     },
     {
       "path": "backend/src/index.js",
       "reason": "needs_summary",
       "language": "javascript",
-      "size": 946
+      "size": 2354
+    },
+    {
+      "path": "backend/src/routes/categoryRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2037
+    },
+    {
+      "path": "backend/src/routes/chatRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 1757
+    },
+    {
+      "path": "backend/src/routes/summaryBudgetRoutes.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 16429
+    },
+    {
+      "path": "backend/src/routes/transactionRoutes.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 2331
     },
     {
       "path": "backend/src/services/aiParserService.js",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "javascript",
-      "size": 12113
+      "size": 31384
+    },
+    {
+      "path": "backend/src/services/budgetService.js",
+      "reason": "changed",
+      "language": "javascript",
+      "size": 66706
+    },
+    {
+      "path": "backend/src/services/categorySuggestionService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 23081
+    },
+    {
+      "path": "backend/src/services/rekapQueryService.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 39464
     },
     {
       "path": "backend/test/aiParserService.test.js",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "javascript",
       "size": 6253
+    },
+    {
+      "path": "backend/test/budgetAlertSettingsEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 6388
+    },
+    {
+      "path": "backend/test/budgetAllocationEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 6723
+    },
+    {
+      "path": "backend/test/budgetRekapDailyAdviceIntegration.test.js",
+      "reason": "new",
+      "language": "javascript",
+      "size": 7525
+    },
+    {
+      "path": "backend/test/budgetRemainingAndBucketsService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7513
+    },
+    {
+      "path": "backend/test/budgetWarningService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9730
+    },
+    {
+      "path": "backend/test/categoriesMigration.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 4876
+    },
+    {
+      "path": "backend/test/categorySuggestionService.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 20408
+    },
+    {
+      "path": "backend/test/chatEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 4892
+    },
+    {
+      "path": "backend/test/chatHistoryEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 5726
+    },
+    {
+      "path": "backend/test/classifyCategoryAndTypeEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 19890
+    },
+    {
+      "path": "backend/test/customCategoryEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 14200
+    },
+    {
+      "path": "backend/test/expensesByCategoryEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10822
+    },
+    {
+      "path": "backend/test/incomeExpenseSummaryEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10575
+    },
+    {
+      "path": "backend/test/monthComparisonEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8649
+    },
+    {
+      "path": "backend/test/monthlyBudgetCrudEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7802
+    },
+    {
+      "path": "backend/test/monthlyBudgetMigration.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8321
+    },
+    {
+      "path": "backend/test/monthlyTransactionListEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 9869
+    },
+    {
+      "path": "backend/test/rekapEmptyAndRefreshEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7364
+    },
+    {
+      "path": "backend/test/rekapMonthlyAggregation.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 12719
     },
     {
       "path": "backend/test/schema.test.js",
       "reason": "needs_summary",
       "language": "javascript",
       "size": 13902
+    },
+    {
+      "path": "backend/test/summaryBudgetIntegration.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7702
+    },
+    {
+      "path": "backend/test/transactionCategoryAndTypeColumns.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 3880
+    },
+    {
+      "path": "backend/test/transactionDetailEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7630
+    },
+    {
+      "path": "backend/test/transactionEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 8644
+    },
+    {
+      "path": "backend/test/updateCategoryAndTypeEndpoint.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 10942
+    },
+    {
+      "path": "backend/test/updateDeleteTransaction.test.js",
+      "reason": "needs_summary",
+      "language": "javascript",
+      "size": 7227
     },
     {
       "path": "frontend/.gitignore",
@@ -159,6 +375,12 @@
       "size": 622
     },
     {
+      "path": "frontend/lib/mock/budget_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5532
+    },
+    {
       "path": "frontend/lib/mock/category_confirmation_mock_data.dart",
       "reason": "needs_summary",
       "language": null,
@@ -169,6 +391,18 @@
       "reason": "needs_summary",
       "language": null,
       "size": 14434
+    },
+    {
+      "path": "frontend/lib/mock/rekap_mock_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 16912
+    },
+    {
+      "path": "frontend/lib/models/budget_item.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5371
     },
     {
       "path": "frontend/lib/models/category_confirmation_item.dart",
@@ -201,10 +435,70 @@
       "size": 473
     },
     {
+      "path": "frontend/lib/models/monthly_rekap_data.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 4866
+    },
+    {
       "path": "frontend/lib/models/transaction_item.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 2059
+    },
+    {
+      "path": "frontend/lib/screens/budget/atur_budget_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 17225
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/adjust_allocation_percentages_sheet.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 18842
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/budget_alert_settings_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 9963
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/budget_allocation_buckets_section.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7711
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/budget_header_summary_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8714
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/budget_warning_banner.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7874
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/category_budget_list_section.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 9258
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/edit_budget_limit_sheet.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11672
+    },
+    {
+      "path": "frontend/lib/screens/budget/widgets/sisa_batas_bulan_berjalan_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6934
     },
     {
       "path": "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart",
@@ -324,7 +618,85 @@
       "path": "frontend/lib/screens/main_navigation_screen.dart",
       "reason": "needs_summary",
       "language": null,
-      "size": 5521
+      "size": 5142
+    },
+    {
+      "path": "frontend/lib/screens/rekap/rekap_bulanan_screen.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 9803
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/category_breakdown_section.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 4814
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/category_nominal_persentase_list.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 17557
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/category_proportion_chart.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11852
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/expense_comparison_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 90
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/income_expense_summary_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 91
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/month_navigator_bar.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 12094
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/monthly_transaction_list_section.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 40418
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/monthly_transaction_search_filter.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 115
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/rekap_comparison_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 12123
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/rekap_summary_card.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 23275
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/selected_month_transaction_list.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 94
+    },
+    {
+      "path": "frontend/lib/screens/rekap/widgets/transaction_detail_sheet.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 13660
     },
     {
       "path": "frontend/lib/state/app_state.dart",
@@ -357,16 +729,52 @@
       "size": 3849
     },
     {
+      "path": "frontend/test/adjust_allocation_percentages_sheet_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 11462
+    },
+    {
       "path": "frontend/test/app_state_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 3580
     },
     {
+      "path": "frontend/test/atur_budget_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5186
+    },
+    {
+      "path": "frontend/test/budget_alert_settings_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6210
+    },
+    {
+      "path": "frontend/test/budget_warning_banner_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6435
+    },
+    {
       "path": "frontend/test/category_confirmation_screen_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 7747
+    },
+    {
+      "path": "frontend/test/category_nominal_persentase_list_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5847
+    },
+    {
+      "path": "frontend/test/category_proportion_chart_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5033
     },
     {
       "path": "frontend/test/chat_history_screen_test.dart",
@@ -381,6 +789,12 @@
       "size": 1847
     },
     {
+      "path": "frontend/test/edit_budget_limit_sheet_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7708
+    },
+    {
       "path": "frontend/test/edit_transaction_sheet_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -393,6 +807,12 @@
       "size": 6145
     },
     {
+      "path": "frontend/test/expense_comparison_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 3606
+    },
+    {
       "path": "frontend/test/frequent_category_suggestions_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -403,6 +823,12 @@
       "reason": "needs_summary",
       "language": null,
       "size": 5390
+    },
+    {
+      "path": "frontend/test/income_expense_summary_card_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6783
     },
     {
       "path": "frontend/test/manage_categories_screen_test.dart",
@@ -423,10 +849,52 @@
       "size": 3725
     },
     {
+      "path": "frontend/test/month_navigator_bar_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 5631
+    },
+    {
+      "path": "frontend/test/monthly_transaction_list_section_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8464
+    },
+    {
+      "path": "frontend/test/monthly_transaction_search_filter_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 6447
+    },
+    {
+      "path": "frontend/test/rekap_bulanan_screen_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8383
+    },
+    {
+      "path": "frontend/test/rekap_empty_states_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 8384
+    },
+    {
+      "path": "frontend/test/sisa_batas_bulan_berjalan_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7952
+    },
+    {
       "path": "frontend/test/transaction_card_test.dart",
       "reason": "needs_summary",
       "language": null,
       "size": 2992
+    },
+    {
+      "path": "frontend/test/transaction_detail_sheet_test.dart",
+      "reason": "needs_summary",
+      "language": null,
+      "size": 7110
     },
     {
       "path": "frontend/test/transaction_edit_delete_actions_test.dart",

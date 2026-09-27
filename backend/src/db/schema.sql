@@ -66,18 +66,75 @@ CREATE INDEX IF NOT EXISTS idx_chat_logs_user ON chat_logs(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_chat_logs_status ON chat_logs(status);
 CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id, type);
 
--- 5. Budgets Table
+-- 5. Budgets Table (Supports both Monthly Root Budget & Category-level Budgets)
 CREATE TABLE IF NOT EXISTS budgets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    amount_limit REAL NOT NULL CHECK(amount_limit > 0),
+    name TEXT NOT NULL DEFAULT 'Budget Bulanan',
+    amount_limit REAL NOT NULL DEFAULT 0 CHECK(amount_limit >= 0),
+    total_amount REAL NOT NULL DEFAULT 0 CHECK(total_amount >= 0),
+    needs_pct REAL NOT NULL DEFAULT 50 CHECK(needs_pct >= 0 AND needs_pct <= 100),
+    savings_pct REAL NOT NULL DEFAULT 30 CHECK(savings_pct >= 0 AND savings_pct <= 100),
+    fun_pct REAL NOT NULL DEFAULT 20 CHECK(fun_pct >= 0 AND fun_pct <= 100),
+    bucket_type TEXT NOT NULL DEFAULT 'needs' CHECK(bucket_type IN ('needs', 'savings', 'fun')),
     period TEXT NOT NULL DEFAULT 'monthly' CHECK(period IN ('monthly', 'weekly', 'custom')),
-    month TEXT,
+    month TEXT NOT NULL DEFAULT (strftime('%Y-%m', 'now')),
+    alert_enabled INTEGER NOT NULL DEFAULT 1,
+    alert_threshold REAL NOT NULL DEFAULT 80 CHECK(alert_threshold > 0 AND alert_threshold <= 100),
+    over_budget_alert_enabled INTEGER NOT NULL DEFAULT 1,
+    push_notification_enabled INTEGER NOT NULL DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT unique_user_category_month UNIQUE (user_id, category_id, month)
 );
 
+-- 6. Monthly Budgets Table (Dedicated Monthly Budget Config & 50/30/20 Allocation)
+CREATE TABLE IF NOT EXISTS monthly_budgets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    month TEXT NOT NULL,
+    total_amount REAL NOT NULL DEFAULT 0 CHECK(total_amount >= 0),
+    needs_pct REAL NOT NULL DEFAULT 50 CHECK(needs_pct >= 0 AND needs_pct <= 100),
+    savings_pct REAL NOT NULL DEFAULT 30 CHECK(savings_pct >= 0 AND savings_pct <= 100),
+    fun_pct REAL NOT NULL DEFAULT 20 CHECK(fun_pct >= 0 AND fun_pct <= 100),
+    alert_enabled INTEGER NOT NULL DEFAULT 1,
+    alert_threshold REAL NOT NULL DEFAULT 80 CHECK(alert_threshold > 0 AND alert_threshold <= 100),
+    over_budget_alert_enabled INTEGER NOT NULL DEFAULT 1,
+    push_notification_enabled INTEGER NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_monthly_budget UNIQUE (user_id, month),
+    CONSTRAINT check_monthly_allocation_sum CHECK (ABS((needs_pct + savings_pct + fun_pct) - 100) < 0.01)
+);
+
 CREATE INDEX IF NOT EXISTS idx_budgets_user_month ON budgets(user_id, month);
+CREATE INDEX IF NOT EXISTS idx_budgets_category ON budgets(category_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_user_monthly_root ON budgets(user_id, month) WHERE category_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_monthly_budgets_user_month ON monthly_budgets(user_id, month);
+
+-- Triggers to keep amount_limit and total_amount synchronized in budgets table
+CREATE TRIGGER IF NOT EXISTS trg_budgets_sync_amounts_insert
+AFTER INSERT ON budgets
+WHEN (NEW.total_amount > 0 AND NEW.amount_limit = 0) OR (NEW.amount_limit > 0 AND NEW.total_amount = 0)
+BEGIN
+    UPDATE budgets
+    SET
+        amount_limit = CASE WHEN NEW.amount_limit = 0 THEN NEW.total_amount ELSE NEW.amount_limit END,
+        total_amount = CASE WHEN NEW.total_amount = 0 THEN NEW.amount_limit ELSE NEW.total_amount END
+    WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_budgets_sync_amounts_update
+AFTER UPDATE OF amount_limit, total_amount ON budgets
+WHEN NEW.amount_limit != NEW.total_amount
+BEGIN
+    UPDATE budgets
+    SET
+        amount_limit = CASE WHEN NEW.amount_limit != OLD.amount_limit THEN NEW.amount_limit ELSE NEW.total_amount END,
+        total_amount = CASE WHEN NEW.total_amount != OLD.total_amount THEN NEW.total_amount ELSE NEW.amount_limit END,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = NEW.id;
+END;
+
 

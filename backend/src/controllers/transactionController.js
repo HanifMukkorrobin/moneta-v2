@@ -1,5 +1,6 @@
 import { getDatabase } from '../config/database.js';
 import { getOrCreateDefaultUser, findCategoryByName } from './chatController.js';
+import { getMonthlyTransactionsListQuery } from '../services/rekapQueryService.js';
 
 /**
  * Resolves a category by ID or name and type.
@@ -253,81 +254,210 @@ export async function confirmTransactionHandler(req, res) {
 }
 
 /**
- * Controller to list transactions with optional filters.
+ * Controller to list transactions with optional month, date range, category, type, status, amount, search, and sort filters.
  */
 export function listTransactionsHandler(req, res) {
   try {
     const db = getDatabase();
     const userId = getOrCreateDefaultUser(db, req.query?.userId);
-    const type = req.query?.type;
-    const isConfirmed = req.query?.isConfirmed;
+    const {
+      month,
+      year,
+      startDate,
+      endDate,
+      from,
+      to,
+      type,
+      status,
+      isConfirmed,
+      category,
+      categoryName,
+      categoryId,
+      amountFilter,
+      amountRange,
+      minAmount,
+      maxAmount,
+      search,
+      q,
+      sortBy,
+      sort,
+      limit,
+      offset,
+    } = req.query || {};
 
-    let query = `
-      SELECT t.*, c.name AS category_name, c.icon AS category_icon, c.color AS category_color
-      FROM transactions t
-      LEFT JOIN categories c ON t.category_id = c.id
-      WHERE t.user_id = ?
-    `;
-    const params = [userId];
-
-    if (type && ['income', 'expense'].includes(type)) {
-      query += ' AND t.type = ?';
-      params.push(type);
-    }
-
-    if (isConfirmed !== undefined) {
-      query += ' AND t.is_confirmed = ?';
-      params.push(isConfirmed === 'true' || isConfirmed === '1' ? 1 : 0);
-    }
-
-    query += ' ORDER BY t.occurred_at DESC, t.id DESC';
-
-    const rows = db.prepare(query).all(...params);
-
-    const formatted = rows.map((r) => ({
-      id: r.id,
-      userId: r.user_id,
-      categoryId: r.category_id,
-      category: r.category_name || 'Lainnya',
-      type: r.type,
-      amount: r.amount,
-      note: r.note,
-      occurredAt: r.occurred_at,
-      isConfirmed: Boolean(r.is_confirmed),
-      createdAt: r.created_at,
-    }));
+    const result = getMonthlyTransactionsListQuery(db, userId, {
+      month,
+      year,
+      startDate: startDate || from || undefined,
+      endDate: endDate || to || undefined,
+      type: type || 'all',
+      status: status || 'all',
+      isConfirmed,
+      category: category || categoryName || undefined,
+      categoryId,
+      amountFilter: amountFilter || amountRange || 'all',
+      minAmount,
+      maxAmount,
+      search: search || q || undefined,
+      sortBy: sortBy || sort || 'newest',
+      limit,
+      offset,
+      defaultToCurrentMonth: false,
+    });
 
     return res.status(200).json({
       success: true,
-      transactions: formatted,
-      total: formatted.length,
+      ...result,
     });
   } catch (error) {
     console.error('[TransactionController] Error listing transactions:', error);
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan saat memuat daftar transaksi.',
+      details: error.message,
     });
   }
 }
 
 /**
+ * Service helper to fetch full detail of a single transaction by ID.
+ */
+export function getTransactionDetailById(db, userId, txId) {
+  const tx = db.prepare(`
+    SELECT
+      t.*,
+      COALESCE(c.name, t.category_name, 'Lainnya') AS resolved_category_name,
+      c.icon AS category_icon,
+      c.color AS category_color,
+      COALESCE(c.is_default, 1) AS category_is_default
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
+    WHERE t.id = ? AND t.user_id = ?
+  `).get(txId, userId);
+
+  if (!tx) return null;
+
+  const categoryName = tx.resolved_category_name || 'Lainnya';
+  const amount = Number(tx.amount);
+  const isIncome = tx.type === 'income';
+  const isConfirmed = Boolean(tx.is_confirmed);
+  const confidenceScore = tx.confidence_score !== null && tx.confidence_score !== undefined
+    ? Number(tx.confidence_score)
+    : 1.0;
+  const confidencePercentage = Math.round(confidenceScore * 100);
+
+  const formattedNum = Math.round(Math.abs(amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const formattedAmount = `${isIncome ? '+ ' : '- '}Rp ${formattedNum}`;
+
+  const occurredStr = tx.occurred_at ? String(tx.occurred_at) : '';
+  const datePart = occurredStr.slice(0, 10) || null;
+  const monthPart = occurredStr.slice(0, 7) || null;
+
+  // Linked chat log if created from chat
+  const chatLogRow = db.prepare(`
+    SELECT id, message, parsed_json, status, created_at
+    FROM chat_logs
+    WHERE transaction_id = ?
+    ORDER BY id DESC
+    LIMIT 1
+  `).get(tx.id);
+
+  let parsedChatJson = null;
+  if (chatLogRow?.parsed_json) {
+    try {
+      parsedChatJson = JSON.parse(chatLogRow.parsed_json);
+    } catch {
+      parsedChatJson = null;
+    }
+  }
+
+  // Monthly context (how much this transaction contributes to its category & month)
+  let monthlyContext = null;
+  if (monthPart) {
+    const monthTotalsRow = db.prepare(`
+      SELECT
+        COALESCE(SUM(CASE WHEN type = ? AND is_confirmed = 1 THEN amount ELSE 0 END), 0) AS monthly_type_total,
+        COALESCE(SUM(CASE WHEN type = ? AND is_confirmed = 1 AND LOWER(COALESCE((SELECT name FROM categories WHERE id = transactions.category_id), category_name, 'Lainnya')) = LOWER(?) THEN amount ELSE 0 END), 0) AS category_total,
+        COUNT(CASE WHEN type = ? AND is_confirmed = 1 AND LOWER(COALESCE((SELECT name FROM categories WHERE id = transactions.category_id), category_name, 'Lainnya')) = LOWER(?) THEN 1 END) AS category_tx_count
+      FROM transactions
+      WHERE user_id = ? AND occurred_at LIKE ?
+    `).get(tx.type, tx.type, categoryName, tx.type, categoryName, userId, `${monthPart}%`);
+
+    const monthlyTypeTotal = Number(monthTotalsRow?.monthly_type_total || 0);
+    const categoryTotalInMonth = Number(monthTotalsRow?.category_total || 0);
+    const categoryTransactionCountInMonth = Number(monthTotalsRow?.category_tx_count || 0);
+
+    monthlyContext = {
+      month: monthPart,
+      categoryTotalInMonth,
+      categoryTransactionCountInMonth,
+      monthlyTypeTotal,
+      shareOfCategoryPct: categoryTotalInMonth > 0
+        ? Math.round((amount / categoryTotalInMonth) * 1000) / 10
+        : 0,
+      shareOfMonthlyTotalPct: monthlyTypeTotal > 0
+        ? Math.round((amount / monthlyTypeTotal) * 1000) / 10
+        : 0,
+    };
+  }
+
+  return {
+    id: tx.id,
+    displayId: `#${tx.id}`,
+    userId: tx.user_id,
+    categoryId: tx.category_id,
+    category: categoryName,
+    categoryName,
+    categoryIcon: tx.category_icon || (isIncome ? 'attach_money_rounded' : 'more_horiz_rounded'),
+    categoryColor: tx.category_color || (isIncome ? 'green' : 'blue'),
+    isCustomCategory: tx.category_is_default === 0,
+    type: tx.type,
+    typeLabel: isIncome ? 'Pemasukan' : 'Pengeluaran',
+    amount,
+    formattedAmount,
+    note: tx.note,
+    occurredAt: tx.occurred_at,
+    date: datePart,
+    month: monthPart,
+    isConfirmed,
+    verificationStatus: isConfirmed ? 'confirmed' : 'pending',
+    verificationStatusLabel: isConfirmed ? 'Terkonfirmasi' : 'Menunggu Konfirmasi',
+    isGuessedCategory: Boolean(tx.is_guessed),
+    confidenceScore,
+    confidencePercentage,
+    formattedConfidence: `${confidencePercentage}%`,
+    aiReasoning: tx.ai_reasoning || null,
+    createdAt: tx.created_at,
+    chatLog: chatLogRow ? {
+      id: chatLogRow.id,
+      message: chatLogRow.message,
+      status: chatLogRow.status,
+      parsed: parsedChatJson,
+      createdAt: chatLogRow.created_at,
+    } : null,
+    monthlyContext,
+  };
+}
+
+/**
  * Controller to get a single transaction by ID.
+ * Supports GET /api/transactions/:id, GET /api/rekap/transactions/:id
  */
 export function getTransactionByIdHandler(req, res) {
   try {
     const db = getDatabase();
     const txId = Number(req.params.id);
+    if (!req.params.id || isNaN(txId) || txId <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID transaksi tidak valid.',
+      });
+    }
+
     const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const detail = getTransactionDetailById(db, userId, txId);
 
-    const tx = db.prepare(`
-      SELECT t.*, c.name AS category_name, c.icon AS category_icon, c.color AS category_color
-      FROM transactions t
-      LEFT JOIN categories c ON t.category_id = c.id
-      WHERE t.id = ? AND t.user_id = ?
-    `).get(txId, userId);
-
-    if (!tx) {
+    if (!detail) {
       return res.status(404).json({
         success: false,
         error: 'Transaksi tidak ditemukan.',
@@ -336,23 +466,14 @@ export function getTransactionByIdHandler(req, res) {
 
     return res.status(200).json({
       success: true,
-      transaction: {
-        id: tx.id,
-        userId: tx.user_id,
-        categoryId: tx.category_id,
-        category: tx.category_name || 'Lainnya',
-        type: tx.type,
-        amount: tx.amount,
-        note: tx.note,
-        occurredAt: tx.occurred_at,
-        isConfirmed: Boolean(tx.is_confirmed),
-        createdAt: tx.created_at,
-      },
+      transaction: detail,
     });
   } catch (error) {
+    console.error('[TransactionController] Error getting transaction detail:', error);
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan saat memuat detail transaksi.',
+      details: error.message,
     });
   }
 }

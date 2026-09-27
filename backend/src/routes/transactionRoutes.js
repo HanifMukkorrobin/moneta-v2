@@ -8,7 +8,12 @@ import {
   deleteTransactionHandler,
 } from '../controllers/transactionController.js';
 import { classifyCategoryAndTypeHandler } from '../controllers/categoryController.js';
-import { getIncomeExpenseSummaryHandler } from '../controllers/summaryBudgetController.js';
+import {
+  getIncomeExpenseSummaryHandler,
+  getExpensesByCategoryHandler,
+  getMonthlyTransactionsHandler,
+  getComparisonHandler,
+} from '../controllers/summaryBudgetController.js';
 
 const router = Router();
 
@@ -24,10 +29,16 @@ router.put('/:id/confirm', confirmTransactionHandler);
 // Ringkasan Pemasukan & Pengeluaran transaksi
 router.get('/summary', getIncomeExpenseSummaryHandler);
 router.get('/income-expense', getIncomeExpenseSummaryHandler);
+router.get('/expenses-by-category', getExpensesByCategoryHandler);
+router.get('/by-category', getExpensesByCategoryHandler);
+router.get('/monthly', getMonthlyTransactionsHandler);
+router.get('/by-month', getMonthlyTransactionsHandler);
+router.get('/comparison', getComparisonHandler);
 
 // CRUD / List & Detail transactions
 router.get('/', listTransactionsHandler);
 router.get('/:id', getTransactionByIdHandler);
+router.get('/:id/detail', getTransactionByIdHandler);
 router.post('/', confirmTransactionHandler);
 
 // Endpoint ubah kategori dan jenis transaksi

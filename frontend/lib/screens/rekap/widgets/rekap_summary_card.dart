@@ -67,29 +67,36 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tabungan Bersih (Net Savings)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.textSecondary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tabungan Bersih (Net Savings)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          data.formattedNetSavings,
-                          key: const Key('net_savings_amount_text'),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: isSurplus ? AppTheme.primaryColor : AppTheme.expenseColor,
+                          const SizedBox(height: 4),
+                          Text(
+                            data.formattedNetSavings,
+                            key: const Key('net_savings_amount_text'),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: isSurplus ? AppTheme.primaryColor : AppTheme.expenseColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       key: const Key('rekap_status_badge'),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -192,12 +199,16 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    'Pemasukan',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.textSecondary,
+                                  const Flexible(
+                                    child: Text(
+                                      'Pemasukan',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -286,12 +297,16 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Text(
-                                    'Pengeluaran',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.textSecondary,
+                                  const Flexible(
+                                    child: Text(
+                                      'Pengeluaran',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
@@ -358,24 +373,32 @@ class _RekapSummaryCardState extends State<RekapSummaryCard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.savings_outlined,
-                              size: 15,
-                              color: AppTheme.primaryColor,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Rasio Tabungan: ${data.formattedSavingsRate}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.savings_outlined,
+                                size: 15,
+                                color: AppTheme.primaryColor,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'Rasio Tabungan: ${data.formattedSavingsRate}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           isSurplus ? 'Kondisi Sehat 🎉' : 'Perlu Evaluasi ⚠️',
                           style: TextStyle(

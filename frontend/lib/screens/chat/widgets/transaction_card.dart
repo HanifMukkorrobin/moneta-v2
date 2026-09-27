@@ -145,20 +145,27 @@ class TransactionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Type Badge (clickable to toggle if allowed)
-              TransactionTypeIndicator(
-                type: transaction.type,
-                onToggle: onToggleType,
+              Flexible(
+                child: TransactionTypeIndicator(
+                  type: transaction.type,
+                  onToggle: onToggleType,
+                ),
               ),
+              const SizedBox(width: 8),
 
               // Large Formatted Amount
-              Text(
-                transaction.formattedAmount,
-                style: TextStyle(
-                  color:
-                      isExpense ? AppTheme.expenseColor : AppTheme.incomeColor,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+              Flexible(
+                child: Text(
+                  transaction.formattedAmount,
+                  style: TextStyle(
+                    color:
+                        isExpense ? AppTheme.expenseColor : AppTheme.incomeColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -195,33 +202,34 @@ class TransactionCard extends StatelessWidget {
           const SizedBox(height: 10),
 
           // Category Badge + Status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    const Text(
-                      'Kategori: ',
-                      style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 12,
-                      ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Kategori: ',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 12,
                     ),
-                    Flexible(
-                      child: GuessedCategoryBadge(
-                        category: transaction.category,
-                        isExpense: transaction.isExpense,
-                        confidenceScore: transaction.confidenceScore,
-                        isCustom: false,
-                        onTap: onChangeCategory,
-                        isCompact: true,
-                      ),
+                  ),
+                  Flexible(
+                    child: GuessedCategoryBadge(
+                      category: transaction.category,
+                      isExpense: transaction.isExpense,
+                      confidenceScore: transaction.confidenceScore,
+                      isCustom: false,
+                      onTap: onChangeCategory,
+                      isCompact: true,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
 
               // Status badge if confirmed
               if (isConfirmed)

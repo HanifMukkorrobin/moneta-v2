@@ -876,18 +876,22 @@ class _MonthlyTransactionListSectionState
                                     const SizedBox(height: 3),
                                     Row(
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                                          decoration: BoxDecoration(
-                                            color: color.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            tx.category,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: color,
+                                        Flexible(
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                            decoration: BoxDecoration(
+                                              color: color.withValues(alpha: 0.1),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              tx.category,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: color,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ),
