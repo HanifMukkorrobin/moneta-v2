@@ -107,8 +107,30 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                   // Quick Month Chips
                   _buildQuickMonthChips(),
 
-                  // Financial Summary Banner
-                  RekapSummaryCard(data: rekapData),
+                  // Financial Summary Banner (Kartu Ringkasan Pemasukan dan Pengeluaran)
+                  RekapSummaryCard(
+                    data: rekapData,
+                    onIncomeTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Total Pemasukan: ${rekapData.formattedTotalIncome} (${rekapData.incomeTransactionsCount} transaksi)',
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    onExpenseTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Total Pengeluaran: ${rekapData.formattedTotalExpense} (${rekapData.expenseTransactionsCount} transaksi)',
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
 
                   // Month-over-Month Comparison
                   RekapComparisonCard(data: rekapData),
