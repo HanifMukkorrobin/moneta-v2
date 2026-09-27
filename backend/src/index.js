@@ -13,6 +13,7 @@ import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
 import reminderSettingsRoutes, { notifikasiRouter } from './routes/reminderSettingsRoutes.js';
 import debtRoutes from './routes/debtRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import { globalReminderScheduler } from './services/reminderSchedulerService.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
@@ -88,6 +89,14 @@ app.use('/debts', debtRoutes);
 app.use('/api/debts', debtRoutes);
 app.use('/hutang', debtRoutes);
 app.use('/api/hutang', debtRoutes);
+
+// Mount Autentikasi, Akun & Pengaturan endpoints
+app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/users', authRoutes);
+app.use('/api/users', authRoutes);
+app.use('/akun', authRoutes);
+app.use('/api/akun', authRoutes);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
