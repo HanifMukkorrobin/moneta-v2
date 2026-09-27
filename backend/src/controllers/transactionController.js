@@ -1,6 +1,7 @@
 import { getDatabase } from '../config/database.js';
 import { getOrCreateDefaultUser, findCategoryByName } from './chatController.js';
 import { getMonthlyTransactionsListQuery } from '../services/rekapQueryService.js';
+import { recalculateFinancialAnalysis } from '../services/financialAnalysisService.js';
 
 /**
  * Resolves a category by ID or name and type.
@@ -138,6 +139,18 @@ export async function confirmTransactionHandler(req, res) {
         WHERE t.id = ?
       `).get(targetTransactionId);
 
+      // Recalculate financial analysis automatically
+      let analysis = null;
+      try {
+        const recalc = recalculateFinancialAnalysis(db, {
+          userId,
+          referenceDate: updatedTx.occurred_at,
+        });
+        analysis = recalc.summary;
+      } catch (err) {
+        console.warn('[TransactionController] Failed to recalculate financial analysis:', err.message);
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Transaksi berhasil dikonfirmasi dan disimpan.',
@@ -156,6 +169,7 @@ export async function confirmTransactionHandler(req, res) {
           aiReasoning: updatedTx.ai_reasoning,
           createdAt: updatedTx.created_at,
         },
+        analysis,
         chatLogId: chatLogId || null,
       });
     }
@@ -223,6 +237,18 @@ export async function confirmTransactionHandler(req, res) {
       WHERE t.id = ?
     `).get(newTxId);
 
+    // Recalculate financial analysis automatically
+    let analysis = null;
+    try {
+      const recalc = recalculateFinancialAnalysis(db, {
+        userId,
+        referenceDate: insertedTx.occurred_at,
+      });
+      analysis = recalc.summary;
+    } catch (err) {
+      console.warn('[TransactionController] Failed to recalculate financial analysis:', err.message);
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Transaksi berhasil disimpan.',
@@ -241,6 +267,7 @@ export async function confirmTransactionHandler(req, res) {
         aiReasoning: insertedTx.ai_reasoning,
         createdAt: insertedTx.created_at,
       },
+      analysis,
       chatLogId: chatLogId || null,
     });
   } catch (error) {
@@ -595,6 +622,18 @@ export function updateTransactionHandler(req, res) {
       WHERE t.id = ?
     `).get(txId);
 
+    // Recalculate financial analysis automatically
+    let analysis = null;
+    try {
+      const recalc = recalculateFinancialAnalysis(db, {
+        userId,
+        referenceDate: updatedTx.occurred_at,
+      });
+      analysis = recalc.summary;
+    } catch (err) {
+      console.warn('[TransactionController] Failed to recalculate financial analysis:', err.message);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Transaksi berhasil diperbarui.',
@@ -613,6 +652,7 @@ export function updateTransactionHandler(req, res) {
         aiReasoning: updatedTx.ai_reasoning,
         createdAt: updatedTx.created_at,
       },
+      analysis,
     });
   } catch (error) {
     console.error('[TransactionController] Error updating transaction:', error);
@@ -635,7 +675,7 @@ export function deleteTransactionHandler(req, res) {
     const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
 
     const existingTx = db
-      .prepare('SELECT id, note, amount FROM transactions WHERE id = ? AND user_id = ?')
+      .prepare('SELECT id, note, amount, occurred_at FROM transactions WHERE id = ? AND user_id = ?')
       .get(txId, userId);
 
     if (!existingTx) {
@@ -657,10 +697,23 @@ export function deleteTransactionHandler(req, res) {
       db.prepare('DELETE FROM transactions WHERE id = ?').run(txId);
     })();
 
+    // Recalculate financial analysis automatically
+    let analysis = null;
+    try {
+      const recalc = recalculateFinancialAnalysis(db, {
+        userId,
+        referenceDate: existingTx.occurred_at,
+      });
+      analysis = recalc.summary;
+    } catch (err) {
+      console.warn('[TransactionController] Failed to recalculate financial analysis:', err.message);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Transaksi berhasil dihapus.',
       id: txId,
+      analysis,
     });
   } catch (error) {
     console.error('[TransactionController] Error deleting transaction:', error);
@@ -825,6 +878,18 @@ export function updateTransactionCategoryAndTypeHandler(req, res) {
       WHERE t.id = ?
     `).get(txId);
 
+    // Recalculate financial analysis automatically
+    let analysis = null;
+    try {
+      const recalc = recalculateFinancialAnalysis(db, {
+        userId,
+        referenceDate: updatedTx.occurred_at,
+      });
+      analysis = recalc.summary;
+    } catch (err) {
+      console.warn('[TransactionController] Failed to recalculate financial analysis:', err.message);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Kategori dan jenis transaksi berhasil diperbarui.',
@@ -846,6 +911,7 @@ export function updateTransactionCategoryAndTypeHandler(req, res) {
         isCustomCategory: isCustom || !Boolean(updatedTx.is_default),
         createdAt: updatedTx.created_at,
       },
+      analysis,
       previous: {
         category: previousCategory,
         categoryId: existingTx.category_id,
