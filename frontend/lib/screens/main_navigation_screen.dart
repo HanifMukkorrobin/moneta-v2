@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'analisa/analisa_keuangan_screen.dart';
 import 'budget/atur_budget_screen.dart';
 import 'chat/chat_screen.dart';
 import 'rekap/rekap_bulanan_screen.dart';
@@ -25,13 +26,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           'Pengingat jatuh tempo dan pelunasan tagihan kredit/paylater.',
       featureTag: 'Fitur Hutang/Paylater',
     ),
-    const _PlaceholderScreen(
-      title: 'Analisa & Saran AI',
-      icon: Icons.insights_rounded,
-      description:
-          'Perkiraan ketahanan uang (berapa hari) & rekomendasi batas belanja harian.',
-      featureTag: 'Fitur Analisa AI',
-    ),
+    const AnalisaKeuanganScreen(),
   ];
 
   @override
