@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/budget_item.dart';
 import '../../../theme/app_theme.dart';
+import 'sisa_batas_bulan_berjalan_card.dart';
 
 class BudgetHeaderSummaryCard extends StatelessWidget {
   final MonthlyBudgetSummary summary;
@@ -211,7 +212,7 @@ class BudgetHeaderSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isOver ? 'Kelebihan (Over)' : 'Sisa Anggaran',
+                      isOver ? 'Kelebihan (Over)' : 'Sisa Batas Bulan Berjalan',
                       style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                     ),
                     const SizedBox(height: 2),
@@ -229,6 +230,11 @@ class BudgetHeaderSummaryCard extends StatelessWidget {
               ),
             ],
           ),
+
+          const SizedBox(height: 16),
+
+          // Sisa Batas Bulan Berjalan Spotlight Card
+          SisaBatasBulanBerjalanCard(summary: summary),
         ],
       ),
     );

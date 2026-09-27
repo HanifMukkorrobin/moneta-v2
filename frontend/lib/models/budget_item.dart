@@ -127,6 +127,9 @@ class MonthlyBudgetSummary {
 
   double get totalRemaining => totalBudget - totalSpent;
   double get percentageUsed => totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0.0;
+  double get remainingPercentage => totalBudget > 0
+      ? ((totalRemaining / totalBudget) * 100).clamp(0.0, 100.0)
+      : 0.0;
   bool get isOverBudget => totalSpent > totalBudget;
 
   String get formattedTotalBudget => NumberFormat.currency(
@@ -146,4 +149,50 @@ class MonthlyBudgetSummary {
         symbol: 'Rp ',
         decimalDigits: 0,
       ).format(totalRemaining.abs());
+
+  String get formattedRemainingWithSign {
+    final formatted = formattedTotalRemaining;
+    if (totalRemaining < 0) {
+      return '- $formatted';
+    }
+    return formatted;
+  }
+
+  int get daysInMonth {
+    try {
+      final parts = month.split('-');
+      if (parts.length >= 2) {
+        final year = int.parse(parts[0]);
+        final monthNum = int.parse(parts[1]);
+        return DateTime(year, monthNum + 1, 0).day;
+      }
+    } catch (_) {}
+    return 30;
+  }
+
+  double get dailyRemainingAverage {
+    if (totalRemaining <= 0 || daysInMonth <= 0) return 0.0;
+    return totalRemaining / daysInMonth;
+  }
+
+  String get formattedDailyRemainingAverage {
+    final formatted = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    ).format(dailyRemainingAverage);
+    return '$formatted / hari';
+  }
+
+  String get remainingStatusLabel {
+    if (isOverBudget) {
+      return 'Batas Terlampaui';
+    } else if (remainingPercentage <= 15.0) {
+      return 'Batas Menipis';
+    } else if (remainingPercentage <= 30.0) {
+      return 'Perlu Hemat';
+    } else {
+      return 'Batas Aman';
+    }
+  }
 }

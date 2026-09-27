@@ -7,7 +7,12 @@ class BudgetMockData {
   static const double defaultSavingsPct = 30.0;
   static const double defaultFunPct = 20.0;
 
-  static List<BudgetBucketItem> getDefaultBuckets({double totalBudget = defaultTotalBudget}) {
+  static List<BudgetBucketItem> getDefaultBuckets({
+    double totalBudget = defaultTotalBudget,
+    double needsSpent = 1600000,
+    double savingsSpent = 800000,
+    double funSpent = 450000,
+  }) {
     final needsLimit = totalBudget * (defaultNeedsPct / 100);
     final savingsLimit = totalBudget * (defaultSavingsPct / 100);
     final funLimit = totalBudget * (defaultFunPct / 100);
@@ -18,7 +23,7 @@ class BudgetMockData {
         title: 'Kebutuhan Pokok',
         percentage: defaultNeedsPct,
         amountLimit: needsLimit,
-        amountSpent: 3050000,
+        amountSpent: needsSpent,
         color: const Color(0xFF2563EB), // Blue
         icon: Icons.home_work_rounded,
       ),
@@ -27,7 +32,7 @@ class BudgetMockData {
         title: 'Tabungan & Investasi',
         percentage: defaultSavingsPct,
         amountLimit: savingsLimit,
-        amountSpent: 1500000,
+        amountSpent: savingsSpent,
         color: const Color(0xFF10B981), // Emerald Green
         icon: Icons.savings_rounded,
       ),
@@ -36,7 +41,7 @@ class BudgetMockData {
         title: 'Hiburan & Keinginan',
         percentage: defaultFunPct,
         amountLimit: funLimit,
-        amountSpent: 1100000,
+        amountSpent: funSpent,
         color: const Color(0xFF8B5CF6), // Purple
         icon: Icons.celebration_rounded,
       ),
@@ -107,7 +112,38 @@ class BudgetMockData {
       return getEmptyBudget(month: month, monthLabel: 'Oktober 2026');
     }
 
-    final buckets = getDefaultBuckets();
+    String monthLabel = 'September 2026';
+    List<BudgetBucketItem> buckets;
+
+    if (month == '2026-08') {
+      monthLabel = 'Agustus 2026';
+      // Low remaining budget (10% remaining): spent 5.400.000 -> remaining 600.000
+      buckets = getDefaultBuckets(
+        totalBudget: defaultTotalBudget,
+        needsSpent: 2800000,
+        savingsSpent: 1600000,
+        funSpent: 1000000,
+      );
+    } else if (month == '2026-07') {
+      monthLabel = 'Juli 2026';
+      // Over budget: spent 6.250.000 -> remaining -250.000
+      buckets = getDefaultBuckets(
+        totalBudget: defaultTotalBudget,
+        needsSpent: 3200000,
+        savingsSpent: 1800000,
+        funSpent: 1250000,
+      );
+    } else {
+      monthLabel = 'September 2026';
+      // Safe remaining budget (52.5% remaining): spent 2.850.000 -> remaining 3.150.000
+      buckets = getDefaultBuckets(
+        totalBudget: defaultTotalBudget,
+        needsSpent: 1600000,
+        savingsSpent: 800000,
+        funSpent: 450000,
+      );
+    }
+
     final categoryBudgets = getDefaultCategoryBudgets();
 
     double totalSpent = 0;
@@ -117,7 +153,7 @@ class BudgetMockData {
 
     return MonthlyBudgetSummary(
       month: month,
-      monthLabel: 'September 2026',
+      monthLabel: monthLabel,
       totalBudget: defaultTotalBudget,
       totalSpent: totalSpent,
       needsPercentage: defaultNeedsPct,
