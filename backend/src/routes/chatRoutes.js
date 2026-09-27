@@ -11,11 +11,16 @@ import {
   updateTransactionHandler,
   deleteTransactionHandler,
 } from '../controllers/transactionController.js';
+import { classifyCategoryAndTypeHandler } from '../controllers/categoryController.js';
 
 const router = Router();
 
 // Endpoint parsing kalimat jadi catatan
 router.post('/parse', parseChatHandler);
+
+// Endpoint klasifikasi kategori dan jenis transaksi via chat route
+router.post('/classify', classifyCategoryAndTypeHandler);
+router.get('/classify', classifyCategoryAndTypeHandler);
 
 // Endpoint konfirmasi transaksi via chat route
 router.post('/confirm', confirmTransactionHandler);

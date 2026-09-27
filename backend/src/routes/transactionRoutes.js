@@ -6,8 +6,13 @@ import {
   updateTransactionHandler,
   deleteTransactionHandler,
 } from '../controllers/transactionController.js';
+import { classifyCategoryAndTypeHandler } from '../controllers/categoryController.js';
 
 const router = Router();
+
+// Endpoint klasifikasi kategori dan jenis transaksi
+router.post('/classify', classifyCategoryAndTypeHandler);
+router.get('/classify', classifyCategoryAndTypeHandler);
 
 // Endpoint konfirmasi transaksi dari hasil chat atau form konfirmasi
 router.post('/confirm', confirmTransactionHandler);

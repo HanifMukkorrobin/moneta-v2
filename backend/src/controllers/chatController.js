@@ -110,19 +110,24 @@ export async function parseChatHandler(req, res, customParser) {
     let chatLogId = null;
 
     const dbTx = db.transaction(() => {
-      // Create pending unconfirmed transaction
+      // Create pending unconfirmed transaction with category and AI guess metadata
       const txRes = db
         .prepare(`
-          INSERT INTO transactions (user_id, category_id, type, amount, note, occurred_at, is_confirmed)
-          VALUES (?, ?, ?, ?, ?, ?, 0)
+          INSERT INTO transactions (
+            user_id, category_id, category_name, type, amount, note, occurred_at, is_confirmed, is_guessed, confidence_score, ai_reasoning
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, 0, 1, ?, ?)
         `)
         .run(
           userId,
           categoryId,
+          finalCategoryName,
           parseResult.type,
           parseResult.amount,
           parseResult.note,
-          parseResult.occurredAt || new Date().toISOString()
+          parseResult.occurredAt || new Date().toISOString(),
+          parseResult.confidence || 0.9,
+          parseResult.reasoning || null
         );
       transactionId = txRes.lastInsertRowid;
 

@@ -77,14 +77,14 @@ describe('Integrate Chat Transactions to Rekap and Budget Tests', () => {
     const cat = db.prepare("SELECT id FROM categories WHERE name = 'Makan & Minuman' AND type = 'expense'").get();
     assert.ok(cat, 'Category Makan & Minuman should exist');
 
-    // 1. Create a budget for Makan & Minuman with limit 200,000
+    // 1. Create a budget for Makan & Minuman with limit 5,000,000
     const createBudgetRes = await fetch(`${baseUrl}/api/budgets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         categoryId: cat.id,
         name: 'Budget Makan Bulanan',
-        amountLimit: 200000,
+        amountLimit: 5000000,
         month: currentMonth,
       }),
     });
@@ -92,7 +92,7 @@ describe('Integrate Chat Transactions to Rekap and Budget Tests', () => {
     assert.equal(createBudgetRes.status, 201);
     const budgetData = await createBudgetRes.json();
     assert.equal(budgetData.success, true);
-    assert.equal(budgetData.budget.amountLimit, 200000);
+    assert.equal(budgetData.budget.amountLimit, 5000000);
 
     // 2. Fetch budgets and verify calculated spent
     const listRes = await fetch(`${baseUrl}/api/budgets?month=${currentMonth}`);
@@ -102,9 +102,9 @@ describe('Integrate Chat Transactions to Rekap and Budget Tests', () => {
 
     const budgetItem = listData.budgets.find((b) => b.categoryId === cat.id);
     assert.ok(budgetItem, 'Budget item for category must be present');
-    assert.equal(budgetItem.amountLimit, 200000);
+    assert.equal(budgetItem.amountLimit, 5000000);
     assert.ok(budgetItem.totalSpent >= 45000, 'Total spent should include confirmed transaction');
-    assert.equal(budgetItem.remaining, 200000 - budgetItem.totalSpent);
+    assert.equal(budgetItem.remaining, 5000000 - budgetItem.totalSpent);
     assert.equal(budgetItem.isOverBudget, false);
 
     // 3. Verify budgetStatus section in /api/rekap
@@ -112,7 +112,7 @@ describe('Integrate Chat Transactions to Rekap and Budget Tests', () => {
     const rekapData = await rekapRes.json();
     const budgetStatusItem = rekapData.budgetStatus.find((b) => b.categoryId === cat.id);
     assert.ok(budgetStatusItem);
-    assert.equal(budgetStatusItem.limit, 200000);
+    assert.equal(budgetStatusItem.limit, 5000000);
     assert.equal(budgetStatusItem.spent, budgetItem.totalSpent);
   });
 

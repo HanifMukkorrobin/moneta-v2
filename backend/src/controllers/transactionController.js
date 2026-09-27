@@ -102,13 +102,16 @@ export async function confirmTransactionHandler(req, res) {
 
       const finalOccurredAt = body.occurredAt || existingTx.occurred_at;
 
+      const finalCategoryRecord = finalCategoryId ? db.prepare('SELECT name FROM categories WHERE id = ?').get(finalCategoryId) : null;
+      const finalCategoryName = finalCategoryRecord?.name || body.category || body.categoryName || existingTx.category_name || 'Lainnya';
+
       // Update transaction inside a database transaction
       db.transaction(() => {
         db.prepare(`
           UPDATE transactions
-          SET amount = ?, type = ?, category_id = ?, note = ?, occurred_at = ?, is_confirmed = 1
+          SET amount = ?, type = ?, category_id = ?, category_name = ?, note = ?, occurred_at = ?, is_confirmed = 1, is_guessed = 0
           WHERE id = ?
-        `).run(finalAmount, finalType, finalCategoryId, finalNote, finalOccurredAt, targetTransactionId);
+        `).run(finalAmount, finalType, finalCategoryId, finalCategoryName, finalNote, finalOccurredAt, targetTransactionId);
 
         // Update chat logs status to 'confirmed'
         if (chatLogId) {
@@ -141,12 +144,15 @@ export async function confirmTransactionHandler(req, res) {
           id: updatedTx.id,
           userId: updatedTx.user_id,
           categoryId: updatedTx.category_id,
-          category: updatedTx.category_name || 'Lainnya',
+          category: updatedTx.category_name || finalCategoryName,
           type: updatedTx.type,
           amount: updatedTx.amount,
           note: updatedTx.note,
           occurredAt: updatedTx.occurred_at,
           isConfirmed: Boolean(updatedTx.is_confirmed),
+          isGuessedCategory: Boolean(updatedTx.is_guessed),
+          confidenceScore: updatedTx.confidence_score,
+          aiReasoning: updatedTx.ai_reasoning,
           createdAt: updatedTx.created_at,
         },
         chatLogId: chatLogId || null,
@@ -192,9 +198,11 @@ export async function confirmTransactionHandler(req, res) {
 
     db.transaction(() => {
       const insertRes = db.prepare(`
-        INSERT INTO transactions (user_id, category_id, type, amount, note, occurred_at, is_confirmed)
-        VALUES (?, ?, ?, ?, ?, ?, 1)
-      `).run(userId, finalCategoryId, type, numAmount, trimmedNote, txOccurredAt);
+        INSERT INTO transactions (
+          user_id, category_id, category_name, type, amount, note, occurred_at, is_confirmed, is_guessed
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0)
+      `).run(userId, finalCategoryId, finalCategoryName, type, numAmount, trimmedNote, txOccurredAt);
 
       newTxId = insertRes.lastInsertRowid;
 
@@ -227,6 +235,9 @@ export async function confirmTransactionHandler(req, res) {
         note: insertedTx.note,
         occurredAt: insertedTx.occurred_at,
         isConfirmed: Boolean(insertedTx.is_confirmed),
+        isGuessedCategory: Boolean(insertedTx.is_guessed),
+        confidenceScore: insertedTx.confidence_score,
+        aiReasoning: insertedTx.ai_reasoning,
         createdAt: insertedTx.created_at,
       },
       chatLogId: chatLogId || null,
@@ -424,12 +435,15 @@ export function updateTransactionHandler(req, res) {
       ? (body.isConfirmed === true || body.isConfirmed === 1 ? 1 : 0)
       : existingTx.is_confirmed;
 
+    const finalCategoryRecord = finalCategoryId ? db.prepare('SELECT name FROM categories WHERE id = ?').get(finalCategoryId) : null;
+    const finalCategoryName = finalCategoryRecord?.name || body.category || body.categoryName || existingTx.category_name || 'Lainnya';
+
     db.transaction(() => {
       db.prepare(`
         UPDATE transactions
-        SET amount = ?, type = ?, category_id = ?, note = ?, occurred_at = ?, is_confirmed = ?
+        SET amount = ?, type = ?, category_id = ?, category_name = ?, note = ?, occurred_at = ?, is_confirmed = ?, is_guessed = 0
         WHERE id = ?
-      `).run(finalAmount, finalType, finalCategoryId, finalNote, finalOccurredAt, finalIsConfirmed, txId);
+      `).run(finalAmount, finalType, finalCategoryId, finalCategoryName, finalNote, finalOccurredAt, finalIsConfirmed, txId);
 
       // Also update linked chat_log parsed_json if exists
       const chatLog = db.prepare('SELECT id, parsed_json FROM chat_logs WHERE transaction_id = ?').get(txId);
@@ -467,12 +481,15 @@ export function updateTransactionHandler(req, res) {
         id: updatedTx.id,
         userId: updatedTx.user_id,
         categoryId: updatedTx.category_id,
-        category: updatedTx.category_name || 'Lainnya',
+        category: updatedTx.category_name || finalCategoryName,
         type: updatedTx.type,
         amount: updatedTx.amount,
         note: updatedTx.note,
         occurredAt: updatedTx.occurred_at,
         isConfirmed: Boolean(updatedTx.is_confirmed),
+        isGuessedCategory: Boolean(updatedTx.is_guessed),
+        confidenceScore: updatedTx.confidence_score,
+        aiReasoning: updatedTx.ai_reasoning,
         createdAt: updatedTx.created_at,
       },
     });

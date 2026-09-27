@@ -7,6 +7,8 @@ import { runMigrations } from './db/migrate.js';
 import chatRoutes from './routes/chatRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
 import summaryBudgetRoutes, { rekapRouter, budgetRouter } from './routes/summaryBudgetRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
 
@@ -36,6 +38,16 @@ app.use('/api/summary', rekapRouter);
 app.use('/budgets', budgetRouter);
 app.use('/api/budgets', budgetRouter);
 app.use('/api', summaryBudgetRoutes);
+
+// Mount Category & Classification endpoints
+app.use('/categories', categoryRoutes);
+app.use('/api/categories', categoryRoutes);
+
+// Direct top-level classify endpoint aliases
+app.post('/classify', classifyCategoryAndTypeHandler);
+app.get('/classify', classifyCategoryAndTypeHandler);
+app.post('/api/classify', classifyCategoryAndTypeHandler);
+app.get('/api/classify', classifyCategoryAndTypeHandler);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

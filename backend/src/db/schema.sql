@@ -34,11 +34,15 @@ CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    category_name TEXT,
     type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
     amount REAL NOT NULL CHECK(amount > 0),
     note TEXT NOT NULL,
     occurred_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_confirmed INTEGER NOT NULL DEFAULT 1,
+    is_guessed INTEGER NOT NULL DEFAULT 1,
+    confidence_score REAL,
+    ai_reasoning TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -56,6 +60,8 @@ CREATE TABLE IF NOT EXISTS chat_logs (
 -- Indices for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions(user_id, occurred_at);
 CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_cat_type ON transactions(category_id, type);
 CREATE INDEX IF NOT EXISTS idx_chat_logs_user ON chat_logs(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_chat_logs_status ON chat_logs(status);
 CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id, type);

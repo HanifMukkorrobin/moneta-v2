@@ -26,6 +26,30 @@ export const defaultIncomeCategories = [
   { name: 'Lainnya', icon: 'attach_money_rounded', color: 'grey' },
 ];
 
+export function ensureTransactionCategoryAndTypeColumns(db) {
+  const columns = db.prepare("PRAGMA table_info(transactions)").all().map((c) => c.name);
+
+  if (!columns.includes('category_name')) {
+    db.exec("ALTER TABLE transactions ADD COLUMN category_name TEXT");
+  }
+  if (!columns.includes('type')) {
+    db.exec("ALTER TABLE transactions ADD COLUMN type TEXT NOT NULL DEFAULT 'expense'");
+  }
+  if (!columns.includes('is_guessed')) {
+    db.exec("ALTER TABLE transactions ADD COLUMN is_guessed INTEGER NOT NULL DEFAULT 1");
+  }
+  if (!columns.includes('confidence_score')) {
+    db.exec("ALTER TABLE transactions ADD COLUMN confidence_score REAL");
+  }
+  if (!columns.includes('ai_reasoning')) {
+    db.exec("ALTER TABLE transactions ADD COLUMN ai_reasoning TEXT");
+  }
+
+  // Create composite indices for performance
+  db.exec("CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_transactions_cat_type ON transactions(category_id, type)");
+}
+
 export function runMigrations(db) {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
@@ -33,9 +57,13 @@ export function runMigrations(db) {
   // Execute schema creation
   db.exec(schemaSql);
 
+  // Ensure transaction columns (category, type, guessed flags) exist on pre-existing tables
+  ensureTransactionCategoryAndTypeColumns(db);
+
   // Seed default categories (with user_id = NULL)
   seedDefaultCategories(db);
 }
+
 
 export function seedDefaultCategories(db) {
   const insertStmt = db.prepare(`
