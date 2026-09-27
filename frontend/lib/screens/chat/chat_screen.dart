@@ -5,6 +5,7 @@ import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/chat_bubble.dart';
+import 'widgets/chat_input_bar.dart';
 import 'widgets/quick_suggestion_chips.dart';
 import 'widgets/transaction_card.dart';
 
@@ -405,63 +406,11 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
 
-          // Input Bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: AppTheme.borderSubtle),
-              ),
-            ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.mic_none_rounded,
-                      color: AppTheme.textSecondary,
-                    ),
-                    tooltip: 'Input Suara',
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Fitur input suara (voice note) dalam tahap pengembangan'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: _handleSendMessage,
-                      decoration: const InputDecoration(
-                        hintText: 'Ketik transaksi... mis. makan padang 25rb',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.send_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () =>
-                          _handleSendMessage(_textController.text),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // Freeform Chat Input Bar Component
+          ChatInputBar(
+            controller: _textController,
+            isAiTyping: _isAiTyping,
+            onSendMessage: _handleSendMessage,
           ),
         ],
       ),
