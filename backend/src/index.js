@@ -6,6 +6,7 @@ import { runMigrations } from './db/migrate.js';
 
 import chatRoutes from './routes/chatRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
+import summaryBudgetRoutes, { rekapRouter, budgetRouter } from './routes/summaryBudgetRoutes.js';
 
 dotenv.config();
 
@@ -26,6 +27,15 @@ app.use('/api/chat', chatRoutes);
 // Mount Transaction endpoints
 app.use('/transactions', transactionRoutes);
 app.use('/api/transactions', transactionRoutes);
+
+// Mount Rekap & Budget endpoints
+app.use('/rekap', rekapRouter);
+app.use('/api/rekap', rekapRouter);
+app.use('/summary', rekapRouter);
+app.use('/api/summary', rekapRouter);
+app.use('/budgets', budgetRouter);
+app.use('/api/budgets', budgetRouter);
+app.use('/api', summaryBudgetRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

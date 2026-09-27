@@ -59,3 +59,19 @@ CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category_id
 CREATE INDEX IF NOT EXISTS idx_chat_logs_user ON chat_logs(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_chat_logs_status ON chat_logs(status);
 CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id, type);
+
+-- 5. Budgets Table
+CREATE TABLE IF NOT EXISTS budgets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    amount_limit REAL NOT NULL CHECK(amount_limit > 0),
+    period TEXT NOT NULL DEFAULT 'monthly' CHECK(period IN ('monthly', 'weekly', 'custom')),
+    month TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_category_month UNIQUE (user_id, category_id, month)
+);
+
+CREATE INDEX IF NOT EXISTS idx_budgets_user_month ON budgets(user_id, month);
+
