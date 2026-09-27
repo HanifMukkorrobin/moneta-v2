@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "3d5ec5440ab931a089f1ec013b24c30b89c17cab",
+  "generatedForCommit": "f68856868ec9cd0b7aa3f5b6a93637ccef2a15f4",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -106,19 +106,19 @@
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 6904
+      "size": 7556
     },
     {
       "path": "frontend/lib/models/chat_message.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 370
+      "size": 473
     },
     {
       "path": "frontend/lib/models/transaction_item.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 1328
     },
@@ -126,7 +126,13 @@
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "changed",
       "language": null,
-      "size": 12212
+      "size": 14749
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
+      "reason": "new",
+      "language": null,
+      "size": 4183
     },
     {
       "path": "frontend/lib/screens/chat/widgets/chat_bubble.dart",
@@ -142,9 +148,15 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/edit_transaction_sheet.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 13451
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/manual_input_sheet.dart",
+      "reason": "new",
+      "language": null,
+      "size": 14811
     },
     {
       "path": "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart",
@@ -196,9 +208,15 @@
     },
     {
       "path": "frontend/test/edit_transaction_sheet_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 4447
+    },
+    {
+      "path": "frontend/test/manual_input_flow_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 3725
     },
     {
       "path": "frontend/test/transaction_card_test.dart",

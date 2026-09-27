@@ -1,3 +1,4 @@
+import '../models/chat_log_item.dart';
 import '../models/chat_message.dart';
 import '../models/transaction_item.dart';
 
@@ -236,5 +237,92 @@ class MockData {
       occurredAt: DateTime.now(),
       isConfirmed: false,
     );
+  }
+
+  static List<ChatLogItem> getMockChatLogs() {
+    final now = DateTime.now();
+    return [
+      ChatLogItem(
+        id: 'log_1',
+        message: 'Makan siang ayam geprek 25rb',
+        status: ChatLogStatus.confirmed,
+        createdAt: now.subtract(const Duration(minutes: 45)),
+        transaction: TransactionItem(
+          id: 'tx_1',
+          note: 'Makan siang ayam geprek',
+          amount: 25000,
+          type: 'expense',
+          category: 'Makan & Minuman',
+          occurredAt: now.subtract(const Duration(minutes: 45)),
+          isConfirmed: true,
+        ),
+      ),
+      ChatLogItem(
+        id: 'log_2',
+        message: 'Bensin pertamax 50rb',
+        status: ChatLogStatus.confirmed,
+        createdAt: now.subtract(const Duration(minutes: 20)),
+        transaction: TransactionItem(
+          id: 'tx_2',
+          note: 'Bensin pertamax',
+          amount: 50000,
+          type: 'expense',
+          category: 'Transportasi',
+          occurredAt: now.subtract(const Duration(minutes: 20)),
+          isConfirmed: true,
+        ),
+      ),
+      ChatLogItem(
+        id: 'log_3',
+        message: 'Kopi americano 22rb',
+        status: ChatLogStatus.pending,
+        createdAt: now.subtract(const Duration(minutes: 5)),
+        transaction: TransactionItem(
+          id: 'tx_3',
+          note: 'Kopi americano',
+          amount: 22000,
+          type: 'expense',
+          category: 'Makan & Minuman',
+          occurredAt: now.subtract(const Duration(minutes: 5)),
+          isConfirmed: false,
+        ),
+      ),
+      ChatLogItem(
+        id: 'log_4',
+        message: 'Gajian freelance 2.5jt',
+        status: ChatLogStatus.confirmed,
+        createdAt: now.subtract(const Duration(hours: 3)),
+        transaction: TransactionItem(
+          id: 'tx_4',
+          note: 'Gajian freelance',
+          amount: 2500000,
+          type: 'income',
+          category: 'Freelance',
+          occurredAt: now.subtract(const Duration(hours: 3)),
+          isConfirmed: true,
+        ),
+      ),
+      ChatLogItem(
+        id: 'log_5',
+        message: 'Beli baju kemeja kerja 185rb',
+        status: ChatLogStatus.deleted,
+        createdAt: now.subtract(const Duration(hours: 6)),
+        transaction: TransactionItem(
+          id: 'tx_5',
+          note: 'Beli baju kemeja kerja',
+          amount: 185000,
+          type: 'expense',
+          category: 'Belanja',
+          occurredAt: now.subtract(const Duration(hours: 6)),
+          isConfirmed: false,
+        ),
+      ),
+      ChatLogItem(
+        id: 'log_6',
+        message: 'error tidak jelas',
+        status: ChatLogStatus.failed,
+        createdAt: now.subtract(const Duration(hours: 12)),
+      ),
+    ];
   }
 }

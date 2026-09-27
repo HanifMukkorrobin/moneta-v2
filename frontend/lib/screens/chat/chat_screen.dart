@@ -4,6 +4,7 @@ import '../../mock/mock_data.dart';
 import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../theme/app_theme.dart';
+import 'chat_history_screen.dart';
 import 'widgets/ai_fallback_card.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
@@ -298,6 +299,18 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded, size: 22),
+            tooltip: 'Riwayat Obrolan',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ChatHistoryScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.edit_note_rounded, size: 24),
             tooltip: 'Input Transaksi Manual',
