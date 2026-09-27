@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import 'widgets/budget_allocation_buckets_section.dart';
 import 'widgets/budget_header_summary_card.dart';
 import 'widgets/category_budget_list_section.dart';
+import 'widgets/edit_budget_limit_sheet.dart';
 
 class AturBudgetScreen extends StatefulWidget {
   final String initialMonth;
@@ -57,6 +58,50 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
       default:
         return monthKey;
     }
+  }
+
+  void _openEditBudgetSheet() {
+    EditBudgetLimitSheet.show(
+      context,
+      currentAmount: _budgetSummary.totalBudget,
+      monthLabel: _getMonthLabel(_selectedMonth),
+      onSave: (newAmount) {
+        setState(() {
+          final buckets = BudgetMockData.getDefaultBuckets(totalBudget: newAmount);
+          _budgetSummary = MonthlyBudgetSummary(
+            month: _selectedMonth,
+            monthLabel: _getMonthLabel(_selectedMonth),
+            totalBudget: newAmount,
+            totalSpent: _budgetSummary.totalSpent,
+            needsPercentage: _budgetSummary.needsPercentage,
+            savingsPercentage: _budgetSummary.savingsPercentage,
+            funPercentage: _budgetSummary.funPercentage,
+            buckets: buckets,
+            categoryBudgets: _budgetSummary.categoryBudgets,
+          );
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Batas budget berhasil diperbarui: ${_budgetSummary.formattedTotalBudget}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onDelete: () {
+        setState(() {
+          _budgetSummary = BudgetMockData.getEmptyBudget(
+            month: _selectedMonth,
+            monthLabel: _getMonthLabel(_selectedMonth),
+          );
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Batas budget bulanan berhasil dihapus.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -228,14 +273,7 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                 // Main Header Summary Card
                 BudgetHeaderSummaryCard(
                   summary: summary,
-                  onEditBudget: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Fitur ubah batas budget akan segera dibuka.'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                  },
+                  onEditBudget: _openEditBudgetSheet,
                 ),
 
                 // 3-Bucket Allocation Section
