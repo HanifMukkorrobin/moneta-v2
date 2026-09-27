@@ -5,6 +5,7 @@ import '../widgets/in_app_notification_banner.dart';
 import 'analisa/analisa_keuangan_screen.dart';
 import 'budget/atur_budget_screen.dart';
 import 'chat/chat_screen.dart';
+import 'hutang/hutang_screen.dart';
 import 'rekap/rekap_bulanan_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -21,13 +22,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const ChatScreen(),
     const RekapBulananScreen(),
     const AturBudgetScreen(),
-    const _PlaceholderScreen(
-      title: 'Hutang & Paylater',
-      icon: Icons.receipt_long_rounded,
-      description:
-          'Pengingat jatuh tempo dan pelunasan tagihan kredit/paylater.',
-      featureTag: 'Fitur Hutang/Paylater',
-    ),
+    const HutangScreen(),
     const AnalisaKeuanganScreen(),
   ];
 
