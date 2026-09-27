@@ -539,11 +539,42 @@ export function ensureSaranHarianSchema(db) {
   db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_stale ON daily_advice_cache(user_id, is_stale)");
   db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_expires ON daily_advice_cache(expires_at)");
 
+  // Ensure notification_logs table exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS notification_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        payload_json TEXT,
+        scheduled_time TEXT,
+        date TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d', 'now')),
+        status TEXT NOT NULL DEFAULT 'sent' CHECK(status IN ('sent', 'failed', 'delivered', 'pending')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  const notifCols = db.prepare("PRAGMA table_info(notification_logs)").all().map((c) => c.name);
+  if (!notifCols.includes('payload_json')) db.exec("ALTER TABLE notification_logs ADD COLUMN payload_json TEXT");
+  if (!notifCols.includes('scheduled_time')) db.exec("ALTER TABLE notification_logs ADD COLUMN scheduled_time TEXT");
+  if (!notifCols.includes('date')) db.exec("ALTER TABLE notification_logs ADD COLUMN date TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d', 'now'))");
+  if (!notifCols.includes('status')) db.exec("ALTER TABLE notification_logs ADD COLUMN status TEXT NOT NULL DEFAULT 'sent'");
+  if (!notifCols.includes('created_at')) {
+    db.exec("ALTER TABLE notification_logs ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE notification_logs SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+
+  db.exec("CREATE INDEX IF NOT EXISTS idx_notification_logs_user_date ON notification_logs(user_id, date)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_notification_logs_type ON notification_logs(type)");
+
   // Create Views
   db.exec("CREATE VIEW IF NOT EXISTS tips_harian AS SELECT * FROM daily_tips;");
   db.exec("CREATE VIEW IF NOT EXISTS pengaturan_pengingat AS SELECT * FROM reminder_settings;");
   db.exec("CREATE VIEW IF NOT EXISTS cache_saran AS SELECT * FROM daily_advice_cache;");
   db.exec("CREATE VIEW IF NOT EXISTS saran_cache AS SELECT * FROM daily_advice_cache;");
+  db.exec("CREATE VIEW IF NOT EXISTS log_notifikasi AS SELECT * FROM notification_logs;");
+  db.exec("CREATE VIEW IF NOT EXISTS riwayat_notifikasi AS SELECT * FROM notification_logs;");
 }
 
 export function seedDefaultSavingTips(db) {

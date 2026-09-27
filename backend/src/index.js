@@ -11,7 +11,8 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
 import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
-import reminderSettingsRoutes from './routes/reminderSettingsRoutes.js';
+import reminderSettingsRoutes, { notifikasiRouter } from './routes/reminderSettingsRoutes.js';
+import { globalReminderScheduler } from './services/reminderSchedulerService.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
@@ -69,11 +70,17 @@ app.use('/api/tips-harian', dailyTipsRoutes);
 app.use('/riwayat-tips', riwayatTipsRouter);
 app.use('/api/riwayat-tips', riwayatTipsRouter);
 
-// Mount Pengaturan Pengingat Harian endpoints
+// Mount Pengaturan Pengingat Harian & Scheduler endpoints
 app.use('/pengaturan-pengingat', reminderSettingsRoutes);
 app.use('/api/pengaturan-pengingat', reminderSettingsRoutes);
 app.use('/reminders', reminderSettingsRoutes);
 app.use('/api/reminders', reminderSettingsRoutes);
+
+// Mount Notifikasi endpoints
+app.use('/notifikasi', notifikasiRouter);
+app.use('/api/notifikasi', notifikasiRouter);
+app.use('/notifications', notifikasiRouter);
+app.use('/api/notifications', notifikasiRouter);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);
@@ -87,6 +94,7 @@ app.get('/health', (req, res) => {
     status: 'ok',
     service: 'moneta-backend',
     database: 'connected',
+    scheduler: globalReminderScheduler.getStatus(),
     timestamp: new Date().toISOString(),
   });
 });
@@ -94,17 +102,28 @@ app.get('/health', (req, res) => {
 // Start server when executed directly as main module
 const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1]);
 if (process.env.NODE_ENV !== 'test' && isMain) {
+  // Start daily reminder background scheduler
+  if (process.env.ENABLE_REMINDER_SCHEDULER !== 'false') {
+    globalReminderScheduler.start({
+      intervalMs: Number(process.env.REMINDER_SCHEDULER_INTERVAL_MS) || 60000,
+      dbGetter: getDatabase,
+    });
+    console.log('[Reminder Scheduler] Daily reminder background scheduler started.');
+  }
+
   app.listen(PORT, () => {
     console.log(`[Moneta Backend] Server listening on http://localhost:${PORT}`);
   });
 }
 
 process.on('SIGINT', () => {
+  globalReminderScheduler.stop();
   closeDatabase();
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
+  globalReminderScheduler.stop();
   closeDatabase();
   process.exit(0);
 });

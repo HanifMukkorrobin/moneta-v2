@@ -258,3 +258,23 @@ CREATE INDEX IF NOT EXISTS idx_daily_advice_expires ON daily_advice_cache(expire
 CREATE VIEW IF NOT EXISTS cache_saran AS SELECT * FROM daily_advice_cache;
 CREATE VIEW IF NOT EXISTS saran_cache AS SELECT * FROM daily_advice_cache;
 
+-- 11. Notification Logs Table (Riwayat & Log Notifikasi Pengingat AI)
+CREATE TABLE IF NOT EXISTS notification_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    payload_json TEXT,
+    scheduled_time TEXT,
+    date TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d', 'now')),
+    status TEXT NOT NULL DEFAULT 'sent' CHECK(status IN ('sent', 'failed', 'delivered', 'pending')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_logs_user_date ON notification_logs(user_id, date);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_type ON notification_logs(type);
+
+CREATE VIEW IF NOT EXISTS log_notifikasi AS SELECT * FROM notification_logs;
+CREATE VIEW IF NOT EXISTS riwayat_notifikasi AS SELECT * FROM notification_logs;
+

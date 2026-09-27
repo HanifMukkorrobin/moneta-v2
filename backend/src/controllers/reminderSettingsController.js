@@ -18,6 +18,14 @@ import {
 } from '../services/reminderSettingsService.js';
 import { getSafeDailySpendingForUser } from '../services/safeDailySpendingService.js';
 import { formatRupiah } from '../services/dailyAverageSpendingService.js';
+import {
+  createNotificationLog,
+  getNotificationLogs,
+  deleteNotificationLog,
+  checkAndDispatchRemindersForUser,
+  checkAndDispatchAllReminders,
+  globalReminderScheduler,
+} from '../services/reminderSchedulerService.js';
 
 /**
  * Helper untuk memvalidasi dan mengekstrak userId dari request
@@ -243,6 +251,21 @@ export function testReminderNotificationHandler(req, res) {
       };
     }
 
+    // Catat ke notification_logs
+    try {
+      createNotificationLog(db, {
+        userId,
+        type: notification.type,
+        title: notification.title,
+        body: notification.body,
+        payload: notification.data,
+        scheduledTime: notification.scheduledTime,
+        status: 'delivered',
+      });
+    } catch {
+      // Non-fatal
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Notifikasi percobaan pengingat harian berhasil disimulasikan.',
@@ -256,6 +279,198 @@ export function testReminderNotificationHandler(req, res) {
     return res.status(statusCode).json({
       success: false,
       error: error.message || 'Terjadi kesalahan saat menguji notifikasi pengingat.',
+    });
+  }
+}
+
+/**
+ * POST /api/pengaturan-pengingat/scheduler/trigger
+ * Memicu eksekusi scheduler pengingat harian secara manual atau terjadwal
+ */
+export async function triggerReminderSchedulerHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const body = req.body || {};
+    const query = req.query || {};
+
+    const specificUserId = body.userId || query.userId;
+    const simulatedTime = body.time || body.simulatedTime || query.time;
+    const simulatedDate = body.date || body.simulatedDate || query.date;
+    const simulatedDay = body.dayOfWeek || query.dayOfWeek;
+    const force = Boolean(body.force !== undefined ? body.force : query.force === 'true');
+    const type = body.type || query.type;
+
+    let result;
+
+    if (specificUserId) {
+      const numUserId = Number(specificUserId);
+      if (isNaN(numUserId) || numUserId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Parameter userId harus berupa bilangan bulat positif.',
+        });
+      }
+      const settings = getReminderSettings(db, numUserId);
+      const userRes = await checkAndDispatchRemindersForUser(db, settings, {
+        force,
+        targetType: type,
+        simulatedTime,
+        simulatedDate,
+        simulatedDay,
+      });
+
+      result = {
+        totalUsersChecked: 1,
+        totalDispatched: userRes.dispatchedCount || 0,
+        results: [userRes],
+      };
+    } else {
+      result = await checkAndDispatchAllReminders(db, {
+        force,
+        targetType: type,
+        simulatedTime,
+        simulatedDate,
+        simulatedDay,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Pemeriksaan pengingat harian selesai. ${result.totalDispatched} notifikasi dikirimkan.`,
+      ...result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Terjadi kesalahan saat memicu scheduler pengingat.',
+    });
+  }
+}
+
+/**
+ * GET /api/pengaturan-pengingat/scheduler/status
+ * Mengambil status operasional background scheduler
+ */
+export function getReminderSchedulerStatusHandler(req, res) {
+  try {
+    const status = globalReminderScheduler.getStatus();
+    return res.status(200).json({
+      success: true,
+      scheduler: status,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Terjadi kesalahan saat membaca status scheduler.',
+    });
+  }
+}
+
+/**
+ * POST /api/pengaturan-pengingat/scheduler/start
+ * Memulai background loop scheduler pengingat
+ */
+export function startReminderSchedulerHandler(req, res) {
+  try {
+    const intervalMs = Number(req.body?.intervalMs || req.query?.intervalMs) || 60000;
+    globalReminderScheduler.start({
+      intervalMs,
+      dbGetter: getDatabase,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Background scheduler pengingat harian berhasil dimulai (interval: ${intervalMs}ms).`,
+      scheduler: globalReminderScheduler.getStatus(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Gagal memulai background scheduler.',
+    });
+  }
+}
+
+/**
+ * POST /api/pengaturan-pengingat/scheduler/stop
+ * Menghentikan background loop scheduler pengingat
+ */
+export function stopReminderSchedulerHandler(req, res) {
+  try {
+    globalReminderScheduler.stop();
+    return res.status(200).json({
+      success: true,
+      message: 'Background scheduler pengingat harian berhasil dihentikan.',
+      scheduler: globalReminderScheduler.getStatus(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Gagal menghentikan background scheduler.',
+    });
+  }
+}
+
+/**
+ * GET /api/pengaturan-pengingat/notifikasi & GET /api/notifikasi
+ * Mengambil riwayat log notifikasi untuk pengguna
+ */
+export function getNotificationHistoryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromRequest(db, req);
+    const type = req.query?.type;
+    const limit = Number(req.query?.limit) || 50;
+    const offset = Number(req.query?.offset) || 0;
+
+    const notifications = getNotificationLogs(db, { userId, type, limit, offset });
+
+    const totalCount = db.prepare(`
+      SELECT COUNT(*) as count FROM notification_logs WHERE user_id = ?
+    `).get(userId)?.count || 0;
+
+    return res.status(200).json({
+      success: true,
+      userId,
+      total: totalCount,
+      limit,
+      offset,
+      notifications,
+      data: notifications,
+    });
+  } catch (error) {
+    const isClientError = error.message.includes('userId');
+    const statusCode = isClientError ? 400 : 500;
+    return res.status(statusCode).json({
+      success: false,
+      error: error.message || 'Gagal memuat riwayat notifikasi.',
+    });
+  }
+}
+
+/**
+ * DELETE /api/pengaturan-pengingat/notifikasi/:id & DELETE /api/notifikasi/:id
+ * Menghapus satu atau seluruh entri log notifikasi
+ */
+export function deleteNotificationHistoryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromRequest(db, req);
+    const id = req.params?.id;
+
+    const deleted = deleteNotificationLog(db, { userId, id });
+
+    return res.status(200).json({
+      success: true,
+      message: id ? 'Log notifikasi berhasil dihapus.' : 'Seluruh log notifikasi berhasil dibersihkan.',
+      deleted,
+    });
+  } catch (error) {
+    const isClientError = error.message.includes('userId');
+    const statusCode = isClientError ? 400 : 500;
+    return res.status(statusCode).json({
+      success: false,
+      error: error.message || 'Gagal menghapus log notifikasi.',
     });
   }
 }
