@@ -35,6 +35,7 @@ class AppState extends ChangeNotifier {
       DailySpendingMockData.getDefaultDailyAnalysis();
   DailyReminderSettings _reminderSettings = const DailyReminderSettings();
   UserProfile _userProfile = UserProfile.defaultProfile();
+  bool _isLoggedIn = true;
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
@@ -45,6 +46,7 @@ class AppState extends ChangeNotifier {
   DailySpendingAnalysis get dailySpendingAnalysis => _dailySpendingAnalysis;
   DailyReminderSettings get reminderSettings => _reminderSettings;
   UserProfile get userProfile => _userProfile;
+  bool get isLoggedIn => _isLoggedIn;
 
   int get activeDebtsCount => _debts.where((d) => !d.isPaid).length;
   int get paidDebtsCount => _debts.where((d) => d.isPaid).length;
@@ -120,6 +122,7 @@ class AppState extends ChangeNotifier {
     _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
     _reminderSettings = const DailyReminderSettings();
     _userProfile = UserProfile.defaultProfile();
+    _isLoggedIn = true;
   }
 
   void resetToDefault() {
@@ -144,6 +147,39 @@ class AppState extends ChangeNotifier {
 
   void updateUserProfile(UserProfile newProfile) {
     _userProfile = newProfile;
+    notifyListeners();
+  }
+
+  void loginMock({
+    required String email,
+    String? displayName,
+    String currency = 'IDR',
+  }) {
+    _isLoggedIn = true;
+    _userProfile = _userProfile.copyWith(
+      email: email,
+      displayName: displayName ?? _userProfile.displayName,
+      currency: currency,
+    );
+    notifyListeners();
+  }
+
+  void registerMock({
+    required String name,
+    required String email,
+    String currency = 'IDR',
+  }) {
+    _isLoggedIn = true;
+    _userProfile = _userProfile.copyWith(
+      displayName: name,
+      email: email,
+      currency: currency,
+    );
+    notifyListeners();
+  }
+
+  void logout() {
+    _isLoggedIn = false;
     notifyListeners();
   }
 

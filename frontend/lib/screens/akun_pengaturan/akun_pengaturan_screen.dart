@@ -830,12 +830,14 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
                     ),
                   ),
                   onPressed: () {
+                    AppState.instance.logout();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Sesi pengguna saat ini tetap aktif.'),
+                        content: Text('Anda telah keluar dari akun.'),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
+                    Navigator.pushNamed(context, '/login');
                   },
                 ),
               ),
