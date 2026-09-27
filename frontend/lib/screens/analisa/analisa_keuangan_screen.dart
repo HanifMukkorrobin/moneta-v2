@@ -7,6 +7,7 @@ import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../chat/widgets/financial_analysis_card.dart';
 import 'widgets/avg_daily_spend_card.dart';
+import 'widgets/early_warning_indicator_card.dart';
 import 'widgets/money_depletion_projection_card.dart';
 
 class AnalisaKeuanganScreen extends StatefulWidget {
@@ -105,6 +106,11 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
 
             // Perkiraan Uang Bertahan dan Tanggal Habis Card
             MoneyDepletionProjectionCard(
+              insight: insight,
+            ),
+
+            // Indikator Peringatan Dini Tiga Tingkat Card
+            EarlyWarningIndicatorCard(
               insight: insight,
             ),
 
