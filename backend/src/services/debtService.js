@@ -26,8 +26,8 @@ export function normalizeDebtType(type) {
   if (!type) return 'paylater';
   const clean = String(type).trim();
   const lower = clean.toLowerCase();
-  if (lower === 'kartukredit' || lower === 'kartu_kredit' || lower === 'kartu') return 'kartu_kredit';
-  if (lower === 'pinjamanpribadi' || lower === 'pinjaman_pribadi' || lower === 'pinjaman') return 'pinjaman_pribadi';
+  if (lower === 'kartukredit' || lower === 'kartu_kredit' || lower === 'kartu' || lower === 'credit_card') return 'kartu_kredit';
+  if (lower === 'pinjamanpribadi' || lower === 'pinjaman_pribadi' || lower === 'pinjaman' || lower === 'personal' || lower === 'pribadi') return 'pinjaman_pribadi';
   return clean.toLowerCase();
 }
 

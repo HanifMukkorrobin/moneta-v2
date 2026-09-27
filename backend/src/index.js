@@ -13,7 +13,8 @@ import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
 import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
 import reminderSettingsRoutes, { notifikasiRouter } from './routes/reminderSettingsRoutes.js';
 import debtRoutes from './routes/debtRoutes.js';
-import authRoutes, { preferencesRouter } from './routes/authRoutes.js';
+import authRoutes, { preferencesRouter, syncRouter } from './routes/authRoutes.js';
+import { attachAuthUserMiddleware } from './controllers/authController.js';
 import { globalReminderScheduler } from './services/reminderSchedulerService.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(attachAuthUserMiddleware);
 
 // Initialize database & run migrations on startup
 const db = getDatabase();
@@ -115,6 +117,12 @@ app.use('/profile', preferencesRouter);
 app.use('/api/profile', preferencesRouter);
 app.use('/profil', preferencesRouter);
 app.use('/api/profil', preferencesRouter);
+
+// Mount Sinkronisasi Catatan Per Akun endpoints
+app.use('/sync', syncRouter);
+app.use('/api/sync', syncRouter);
+app.use('/sinkronisasi', syncRouter);
+app.use('/api/sinkronisasi', syncRouter);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);

@@ -606,7 +606,7 @@ export function normalizeThemeMode(mode) {
 export function normalizeAiTone(tone) {
   if (tone === undefined || tone === null) return null;
   const lower = String(tone).trim().toLowerCase();
-  if (lower === 'santai' || lower === 'casual') return 'Santai';
+  if (lower === 'santai' || lower === 'casual' || lower === 'friendly' || lower === 'ramah') return 'Santai';
   if (lower === 'standar' || lower === 'standard' || lower === 'normal') return 'Standar';
   if (lower === 'tegas' || lower === 'strict') return 'Tegas';
   return null;
@@ -777,7 +777,7 @@ export function updateUserPreferences(db, userId, payload = {}) {
   }
 
   // 7. AI Advice Tone
-  const rawTone = payload.aiAdviceTone ?? payload.ai_advice_tone ?? payload.gayaBahasaAi;
+  const rawTone = payload.aiAdviceTone ?? payload.ai_advice_tone ?? payload.aiTone ?? payload.ai_tone ?? payload.gayaBahasaAi;
   if (rawTone !== undefined) {
     const normalizedTone = normalizeAiTone(rawTone);
     if (!normalizedTone) {

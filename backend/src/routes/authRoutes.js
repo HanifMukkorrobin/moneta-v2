@@ -41,10 +41,33 @@ import {
   getUserPreferencesHandler,
   updateUserPreferencesHandler,
   resetUserPreferencesHandler,
+  getAccountSyncHandler,
+  syncAccountRecordsHandler,
+  exportAccountDataHandler,
+  resetAccountRecordsHandler,
 } from '../controllers/authController.js';
 
 const router = Router();
 export const preferencesRouter = Router();
+export const syncRouter = Router();
+
+// Dedicated Account Sync Router (mounted at /sync, /api/sync, /sinkronisasi, /api/sinkronisasi)
+syncRouter.get('/', getAccountSyncHandler);
+syncRouter.get('/snapshot', getAccountSyncHandler);
+syncRouter.get('/pull', getAccountSyncHandler);
+syncRouter.post('/', syncAccountRecordsHandler);
+syncRouter.put('/', syncAccountRecordsHandler);
+syncRouter.post('/push', syncAccountRecordsHandler);
+syncRouter.put('/push', syncAccountRecordsHandler);
+syncRouter.get('/export', exportAccountDataHandler);
+syncRouter.post('/export', exportAccountDataHandler);
+syncRouter.get('/ekspor', exportAccountDataHandler);
+syncRouter.post('/ekspor', exportAccountDataHandler);
+syncRouter.post('/reset', resetAccountRecordsHandler);
+syncRouter.delete('/reset', resetAccountRecordsHandler);
+syncRouter.delete('/', resetAccountRecordsHandler);
+syncRouter.post('/reset-data', resetAccountRecordsHandler);
+syncRouter.delete('/reset-data', resetAccountRecordsHandler);
 
 // Dedicated Preferences Router (mounted at /preferences, /api/preferences, /preferensi, /api/preferensi, /settings, /api/settings, /pengaturan, /api/pengaturan)
 preferencesRouter.get('/', getUserPreferencesHandler);
@@ -54,6 +77,13 @@ preferencesRouter.post('/', updateUserPreferencesHandler);
 preferencesRouter.post('/reset', resetUserPreferencesHandler);
 preferencesRouter.delete('/reset', resetUserPreferencesHandler);
 preferencesRouter.delete('/', resetUserPreferencesHandler);
+preferencesRouter.get('/sync', getAccountSyncHandler);
+preferencesRouter.post('/sync', syncAccountRecordsHandler);
+preferencesRouter.put('/sync', syncAccountRecordsHandler);
+preferencesRouter.get('/export', exportAccountDataHandler);
+preferencesRouter.post('/export', exportAccountDataHandler);
+preferencesRouter.post('/reset-data', resetAccountRecordsHandler);
+preferencesRouter.delete('/reset-data', resetAccountRecordsHandler);
 preferencesRouter.put('/theme', updateUserPreferencesHandler);
 preferencesRouter.patch('/theme', updateUserPreferencesHandler);
 preferencesRouter.put('/tema', updateUserPreferencesHandler);
@@ -184,4 +214,25 @@ router.put('/pengaturan', updateUserPreferencesHandler);
 router.patch('/pengaturan', updateUserPreferencesHandler);
 router.post('/pengaturan', updateUserPreferencesHandler);
 
+// Sinkronisasi Catatan, Ekspor Data & Reset Data Per Akun
+router.get('/sync', getAccountSyncHandler);
+router.post('/sync', syncAccountRecordsHandler);
+router.put('/sync', syncAccountRecordsHandler);
+router.get('/sinkronisasi', getAccountSyncHandler);
+router.post('/sinkronisasi', syncAccountRecordsHandler);
+router.put('/sinkronisasi', syncAccountRecordsHandler);
+
+router.get('/export', exportAccountDataHandler);
+router.post('/export', exportAccountDataHandler);
+router.get('/ekspor', exportAccountDataHandler);
+router.post('/ekspor', exportAccountDataHandler);
+
+router.post('/reset-data', resetAccountRecordsHandler);
+router.delete('/reset-data', resetAccountRecordsHandler);
+router.post('/sync/reset', resetAccountRecordsHandler);
+router.delete('/sync/reset', resetAccountRecordsHandler);
+router.post('/hapus-data', resetAccountRecordsHandler);
+router.delete('/hapus-data', resetAccountRecordsHandler);
+
 export default router;
+

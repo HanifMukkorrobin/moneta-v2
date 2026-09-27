@@ -39,6 +39,12 @@ import {
   toggleBiometric,
   verifyBiometric,
 } from '../services/pinBiometricService.js';
+import {
+  getAccountSyncSnapshot,
+  syncAccountRecords,
+  exportAccountData,
+  resetAccountRecords,
+} from '../services/accountSyncService.js';
 
 /**
  * Helper untuk mengekstrak token dari Authorization header, custom header, body, atau query
@@ -91,6 +97,55 @@ export function resolveUserIdFromAuthOrRequest(db, req) {
   }
 
   return getOrCreateDefaultUser(db);
+}
+
+/**
+ * Middleware opsional untuk mengisolasi dan menyinkronkan userId per akun berdasarkan
+ * token sesi aktif atau header x-user-id pada seluruh endpoint aplikasi.
+ */
+export function attachAuthUserMiddleware(req, res, next) {
+  try {
+    const explicitUserId = req.query?.userId || req.body?.userId || req.headers?.['x-user-id'];
+    if (explicitUserId !== undefined && explicitUserId !== null && explicitUserId !== '') {
+      const num = Number(explicitUserId);
+      if (!isNaN(num) && num > 0 && Number.isInteger(num)) {
+        req.userId = num;
+        if (req.query && req.query.userId === undefined) {
+          req.query.userId = String(num);
+        }
+        if (req.body && typeof req.body === 'object' && req.body.userId === undefined) {
+          req.body.userId = num;
+        }
+      }
+      return next();
+    }
+
+    const headerToken = extractTokenFromRequest({
+      headers: req.headers,
+      query: {},
+      body: {},
+    });
+
+    if (headerToken) {
+      const db = getDatabase();
+      const verified = verifySessionToken(db, headerToken);
+      if (verified?.user?.id) {
+        const resolvedId = verified.user.id;
+        req.userId = resolvedId;
+        req.authUser = verified.user;
+        req.headers['x-user-id'] = String(resolvedId);
+        if (req.query && req.query.userId === undefined) {
+          req.query.userId = String(resolvedId);
+        }
+        if (req.body && typeof req.body === 'object' && req.body.userId === undefined) {
+          req.body.userId = resolvedId;
+        }
+      }
+    }
+  } catch {
+    // Abaikan error token di middleware opsional agar handler spesifik menangani validasi bila diperlukan
+  }
+  return next();
 }
 
 /**
@@ -698,4 +753,113 @@ export async function resetUserPreferencesHandler(req, res) {
     });
   }
 }
+
+/**
+ * GET /api/sync, /api/sinkronisasi, /api/auth/sync, /api/users/sync
+ * Mengambil snapshot sinkronisasi seluruh catatan milik akun pengguna
+ */
+export async function getAccountSyncHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const snapshot = getAccountSyncSnapshot(db, userId, req.query || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'Data catatan akun berhasil disinkronkan.',
+      data: snapshot,
+      ...snapshot,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'ACCOUNT_SYNC_FETCH_FAILED',
+      error: err.message || 'Gagal mengambil data sinkronisasi akun.',
+    });
+  }
+}
+
+/**
+ * POST & PUT /api/sync, /api/sinkronisasi, /api/auth/sync, /api/users/sync
+ * Menyinkronkan catatan (push/merge/replace) milik akun pengguna
+ */
+export async function syncAccountRecordsHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = syncAccountRecords(db, userId, req.body || {});
+
+    return res.status(200).json({
+      success: true,
+      message: 'Sinkronisasi catatan akun berhasil diproses.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'ACCOUNT_SYNC_PUSH_FAILED',
+      error: err.message || 'Gagal menyinkronkan catatan akun.',
+    });
+  }
+}
+
+/**
+ * GET & POST /api/sync/export, /api/auth/export, /api/users/export, /api/preferences/export
+ * Mengekspor seluruh catatan akun pengguna dalam format JSON atau CSV
+ */
+export async function exportAccountDataHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const format = req.query?.format || req.body?.format || 'json';
+    const exported = exportAccountData(db, userId, { format });
+
+    return res.status(200).json({
+      success: true,
+      message: `Data akun berhasil diekspor dalam format ${exported.format.toUpperCase()}.`,
+      data: exported,
+      ...exported,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'ACCOUNT_EXPORT_FAILED',
+      error: err.message || 'Gagal mengekspor data akun.',
+    });
+  }
+}
+
+/**
+ * POST & DELETE /api/sync/reset, /api/auth/reset-data, /api/users/reset-data
+ * Menghapus / mereset seluruh catatan keuangan milik satu akun pengguna tanpa memengaruhi akun lain
+ */
+export async function resetAccountRecordsHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromAuthOrRequest(db, req);
+    const result = resetAccountRecords(db, userId, {
+      ...(req.query || {}),
+      ...(req.body || {}),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Seluruh catatan keuangan akun berhasil direset.',
+      data: result,
+      ...result,
+    });
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return res.status(status).json({
+      success: false,
+      code: err.code || 'ACCOUNT_RESET_FAILED',
+      error: err.message || 'Gagal mereset catatan keuangan akun.',
+    });
+  }
+}
+
 
