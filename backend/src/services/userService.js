@@ -268,3 +268,196 @@ export function registerUser(db, payload = {}) {
 
   return tx();
 }
+
+export function loginUser(db, payload = {}) {
+  const rawEmail =
+    payload.email !== undefined && payload.email !== null
+      ? String(payload.email).trim().toLowerCase()
+      : '';
+
+  if (!rawEmail) {
+    const err = new Error('Alamat email wajib diisi.');
+    err.statusCode = 400;
+    err.code = 'EMAIL_REQUIRED';
+    throw err;
+  }
+
+  if (!isValidEmail(rawEmail)) {
+    const err = new Error('Format alamat email tidak valid.');
+    err.statusCode = 400;
+    err.code = 'INVALID_EMAIL';
+    throw err;
+  }
+
+  const rawPassword =
+    payload.password ??
+    payload.kataSandi ??
+    payload.kata_sandi;
+
+  if (rawPassword === undefined || rawPassword === null || String(rawPassword).length === 0) {
+    const err = new Error('Kata sandi wajib diisi.');
+    err.statusCode = 400;
+    err.code = 'PASSWORD_REQUIRED';
+    throw err;
+  }
+
+  const userRow = getUserByEmail(db, rawEmail);
+  if (!userRow || !userRow.password_hash) {
+    const err = new Error('Email atau kata sandi salah.');
+    err.statusCode = 401;
+    err.code = 'INVALID_CREDENTIALS';
+    throw err;
+  }
+
+  const isPasswordValid = verifySecret(String(rawPassword), userRow.password_hash);
+  if (!isPasswordValid) {
+    const err = new Error('Email atau kata sandi salah.');
+    err.statusCode = 401;
+    err.code = 'INVALID_CREDENTIALS';
+    throw err;
+  }
+
+  const tx = db.transaction(() => {
+    db.prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?').run(userRow.id);
+
+    const session = createUserSession(db, userRow.id, {
+      deviceName: payload.deviceName || payload.device_name || 'Flutter Mobile App',
+      ipAddress: payload.ipAddress || null,
+      ttlDays: Number(payload.ttlDays) > 0 ? Number(payload.ttlDays) : 30,
+    });
+
+    const user = getUserById(db, userRow.id);
+    return { user, session };
+  });
+
+  return tx();
+}
+
+export function verifySessionToken(db, token) {
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    const err = new Error('Token autentikasi wajib disertakan.');
+    err.statusCode = 401;
+    err.code = 'TOKEN_REQUIRED';
+    throw err;
+  }
+
+  const cleanToken = token.trim();
+  const sessionRow = db
+    .prepare('SELECT * FROM user_sessions WHERE token = ?')
+    .get(cleanToken);
+
+  if (!sessionRow) {
+    const err = new Error('Token sesi tidak ditemukan atau tidak valid.');
+    err.statusCode = 401;
+    err.code = 'INVALID_TOKEN';
+    throw err;
+  }
+
+  if (sessionRow.is_revoked) {
+    const err = new Error('Sesi telah berakhir atau sudah keluar (revoked).');
+    err.statusCode = 401;
+    err.code = 'TOKEN_REVOKED';
+    throw err;
+  }
+
+  const expiresDate = new Date(sessionRow.expires_at);
+  if (!isNaN(expiresDate.getTime()) && expiresDate.getTime() <= Date.now()) {
+    const err = new Error('Token sesi telah kedaluwarsa.');
+    err.statusCode = 401;
+    err.code = 'TOKEN_EXPIRED';
+    throw err;
+  }
+
+  const user = getUserById(db, sessionRow.user_id);
+  if (!user) {
+    const err = new Error('Pengguna pemilik sesi tidak ditemukan.');
+    err.statusCode = 401;
+    err.code = 'USER_NOT_FOUND';
+    throw err;
+  }
+
+  return {
+    user,
+    session: {
+      id: sessionRow.id,
+      userId: sessionRow.user_id,
+      token: sessionRow.token,
+      deviceName: sessionRow.device_name,
+      ipAddress: sessionRow.ip_address,
+      expiresAt: sessionRow.expires_at,
+      isRevoked: Boolean(sessionRow.is_revoked),
+      createdAt: sessionRow.created_at,
+    },
+  };
+}
+
+export function refreshUserSession(db, token, options = {}) {
+  const { user, session: oldSession } = verifySessionToken(db, token);
+
+  const tx = db.transaction(() => {
+    db.prepare('UPDATE user_sessions SET is_revoked = 1 WHERE id = ?').run(oldSession.id);
+
+    const newSession = createUserSession(db, user.id, {
+      deviceName: options.deviceName || oldSession.deviceName || 'Flutter Mobile App',
+      ipAddress: options.ipAddress || oldSession.ipAddress || null,
+      ttlDays: Number(options.ttlDays) > 0 ? Number(options.ttlDays) : 30,
+    });
+
+    return { user, session: newSession, revokedToken: oldSession.token };
+  });
+
+  return tx();
+}
+
+export function revokeUserSession(db, token) {
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    const err = new Error('Token sesi wajib disertakan untuk logout.');
+    err.statusCode = 400;
+    err.code = 'TOKEN_REQUIRED';
+    throw err;
+  }
+
+  const cleanToken = token.trim();
+  const res = db
+    .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE token = ?')
+    .run(cleanToken);
+
+  return {
+    revoked: res.changes > 0,
+    token: cleanToken,
+  };
+}
+
+export function revokeAllUserSessions(db, userId) {
+  const res = db
+    .prepare('UPDATE user_sessions SET is_revoked = 1 WHERE user_id = ? AND is_revoked = 0')
+    .run(userId);
+
+  return {
+    revokedCount: res.changes,
+    userId: Number(userId),
+  };
+}
+
+export function getUserActiveSessions(db, userId) {
+  const rows = db
+    .prepare(`
+      SELECT id, user_id, token, device_name, ip_address, expires_at, is_revoked, created_at
+      FROM user_sessions
+      WHERE user_id = ? AND is_revoked = 0
+      ORDER BY id DESC
+    `)
+    .all(userId);
+
+  return rows.map((r) => ({
+    id: r.id,
+    userId: r.user_id,
+    token: r.token,
+    deviceName: r.device_name,
+    ipAddress: r.ip_address,
+    expiresAt: r.expires_at,
+    isRevoked: Boolean(r.is_revoked),
+    createdAt: r.created_at,
+  }));
+}
+
