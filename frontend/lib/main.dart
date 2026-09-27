@@ -28,27 +28,34 @@ class MonetaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: MockNotificationService.navigatorKey,
-      title: 'Moneta',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const MainNavigationScreen(),
-      routes: {
-        '/beranda': (_) => const BerandaScreen(),
-        '/riwayat-tips': (_) => const RiwayatTipsHematScreen(),
-        '/pengaturan-pengingat': (_) => const PengaturanPengingatScreen(),
-        '/hutang': (_) => const HutangScreen(),
-        '/akun': (_) => const AkunPengaturanScreen(),
-        '/pengaturan': (_) => const AkunPengaturanScreen(),
-        '/preferensi': (_) => const PreferensiAplikasiScreen(),
-        '/manage-categories': (_) => const ManageCategoriesScreen(),
-        '/auth': (_) => const AuthScreen(),
-        '/login': (_) => const AuthScreen(initialMode: AuthMode.login),
-        '/daftar': (_) => const AuthScreen(initialMode: AuthMode.register),
-        '/pin-lock': (_) => const PinLockScreen(),
-        '/pin-setup': (_) => const PinLockScreen(mode: PinLockMode.setup),
-        '/pin-change': (_) => const PinLockScreen(mode: PinLockMode.change),
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          navigatorKey: MockNotificationService.navigatorKey,
+          title: 'Moneta',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: AppState.instance.themeMode,
+          home: const MainNavigationScreen(),
+          routes: {
+            '/beranda': (_) => const BerandaScreen(),
+            '/riwayat-tips': (_) => const RiwayatTipsHematScreen(),
+            '/pengaturan-pengingat': (_) => const PengaturanPengingatScreen(),
+            '/hutang': (_) => const HutangScreen(),
+            '/akun': (_) => const AkunPengaturanScreen(),
+            '/pengaturan': (_) => const AkunPengaturanScreen(),
+            '/preferensi': (_) => const PreferensiAplikasiScreen(),
+            '/manage-categories': (_) => const ManageCategoriesScreen(),
+            '/auth': (_) => const AuthScreen(),
+            '/login': (_) => const AuthScreen(initialMode: AuthMode.login),
+            '/daftar': (_) => const AuthScreen(initialMode: AuthMode.register),
+            '/pin-lock': (_) => const PinLockScreen(),
+            '/pin-setup': (_) => const PinLockScreen(mode: PinLockMode.setup),
+            '/pin-change': (_) => const PinLockScreen(mode: PinLockMode.change),
+          },
+        );
       },
     );
   }

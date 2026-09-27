@@ -243,8 +243,14 @@ class PreferensiAplikasiScreen extends StatelessWidget {
                     ? const Icon(Icons.check_circle, color: AppTheme.primaryColor)
                     : null,
                 onTap: () {
-                  AppState.instance.updateUserProfile(profile.copyWith(themeMode: t['name']));
+                  AppState.instance.updateThemeMode(t['name']!);
                   Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Tema diubah ke ${t['name']}'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 },
               );
             }),

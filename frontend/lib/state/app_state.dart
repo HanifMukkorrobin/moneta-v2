@@ -13,6 +13,8 @@ import '../models/daily_spending_item.dart';
 import '../models/debt_item.dart';
 import '../models/transaction_item.dart';
 import '../models/user_profile.dart';
+import '../services/local_preference_service.dart';
+import '../theme/app_theme.dart';
 import '../utils/currency_format.dart';
 
 class AppState extends ChangeNotifier {
@@ -47,6 +49,7 @@ class AppState extends ChangeNotifier {
   DailyReminderSettings get reminderSettings => _reminderSettings;
   UserProfile get userProfile => _userProfile;
   bool get isLoggedIn => _isLoggedIn;
+  ThemeMode get themeMode => AppTheme.parseThemeMode(_userProfile.themeMode);
 
   int get activeDebtsCount => _debts.where((d) => !d.isPaid).length;
   int get paidDebtsCount => _debts.where((d) => d.isPaid).length;
@@ -122,6 +125,10 @@ class AppState extends ChangeNotifier {
     _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
     _reminderSettings = const DailyReminderSettings();
     _userProfile = UserProfile.defaultProfile();
+    final savedTheme = LocalPreferenceService.instance.getThemeMode();
+    if (savedTheme != null && savedTheme.isNotEmpty) {
+      _userProfile = _userProfile.copyWith(themeMode: savedTheme);
+    }
     _isLoggedIn = true;
   }
 
@@ -147,6 +154,13 @@ class AppState extends ChangeNotifier {
 
   void updateUserProfile(UserProfile newProfile) {
     _userProfile = newProfile;
+    LocalPreferenceService.instance.saveThemeMode(newProfile.themeMode);
+    notifyListeners();
+  }
+
+  void updateThemeMode(String mode) {
+    _userProfile = _userProfile.copyWith(themeMode: mode);
+    LocalPreferenceService.instance.saveThemeMode(mode);
     notifyListeners();
   }
 

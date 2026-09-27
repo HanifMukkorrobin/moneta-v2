@@ -305,6 +305,71 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
     );
   }
 
+  void _openThemePicker(UserProfile profile) {
+    final themes = [
+      {'name': 'Terang', 'desc': 'Tampilan bersih dan cerah (Default)'},
+      {'name': 'Gelap', 'desc': 'Hemat daya dan nyaman di mata malam hari'},
+      {'name': 'Ikuti Sistem', 'desc': 'Menyesuaikan tema otomatis perangkat'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text(
+                  'Pilih Tema Tampilan',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+              const Divider(),
+              ...themes.map((t) {
+                final isSelected = profile.themeMode == t['name'];
+                return ListTile(
+                  key: Key('setting_theme_option_${t['name']}'),
+                  title: Text(
+                    t['name']!,
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary,
+                    ),
+                  ),
+                  subtitle: Text(t['desc']!),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_circle, color: AppTheme.primaryColor)
+                      : null,
+                  onTap: () {
+                    AppState.instance.updateThemeMode(t['name']!);
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Tema diubah ke ${t['name']}'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                );
+              }),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showExportDialog() {
     showDialog(
       context: context,
@@ -606,6 +671,14 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
                       ),
                     );
                   },
+                ),
+                _buildSettingsTile(
+                  key: const Key('setting_theme_tile'),
+                  icon: Icons.palette_outlined,
+                  iconColor: Colors.indigo,
+                  title: 'Tema Tampilan',
+                  subtitle: profile.themeMode,
+                  onTap: () => _openThemePicker(profile),
                 ),
               ]),
 
