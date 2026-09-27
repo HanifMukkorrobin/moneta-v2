@@ -1,10 +1,10 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "76485a4446168af23d106bec306741c0cd00071a",
+  "generatedForCommit": "3bbd33e1aa7458a2ed26b3a950b91f971ed4f6d9",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "markdown",
       "size": 19096
     },
@@ -22,13 +22,13 @@
     },
     {
       "path": ".gitignore",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 336
     },
     {
       "path": ".ngodingpakeaiignore",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 351
     },
@@ -46,139 +46,151 @@
     },
     {
       "path": "frontend/.gitignore",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 703
     },
     {
       "path": "frontend/.idea/libraries/Dart_SDK.xml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 1029
     },
     {
       "path": "frontend/.idea/libraries/KotlinJavaRuntime.xml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 599
     },
     {
       "path": "frontend/.idea/modules.xml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 380
     },
     {
       "path": "frontend/.idea/runConfigurations/main_dart.xml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 271
     },
     {
       "path": "frontend/.idea/workspace.xml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 1517
     },
     {
       "path": "frontend/.metadata",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 1706
     },
     {
       "path": "frontend/README.md",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "markdown",
       "size": 549
     },
     {
       "path": "frontend/analysis_options.yaml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "yaml",
       "size": 1420
     },
     {
       "path": "frontend/lib/main.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 512
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 6904
     },
     {
       "path": "frontend/lib/models/chat_message.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 370
     },
     {
       "path": "frontend/lib/models/transaction_item.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 1352
     },
     {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
-      "reason": "new",
+      "reason": "changed",
       "language": null,
-      "size": 15336
+      "size": 13385
     },
     {
       "path": "frontend/lib/screens/chat/widgets/chat_bubble.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3159
     },
     {
-      "path": "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart",
+      "path": "frontend/lib/screens/chat/widgets/chat_input_bar.dart",
       "reason": "new",
+      "language": null,
+      "size": 5932
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart",
+      "reason": "needs_summary",
       "language": null,
       "size": 1905
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 10005
     },
     {
       "path": "frontend/lib/screens/main_navigation_screen.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 5521
     },
     {
       "path": "frontend/lib/theme/app_theme.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3413
     },
     {
       "path": "frontend/moneta.iml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 842
     },
     {
       "path": "frontend/pubspec.lock",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 6299
     },
     {
       "path": "frontend/pubspec.yaml",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": "yaml",
       "size": 3849
     },
     {
-      "path": "frontend/test/widget_test.dart",
+      "path": "frontend/test/chat_input_bar_test.dart",
       "reason": "new",
+      "language": null,
+      "size": 1847
+    },
+    {
+      "path": "frontend/test/widget_test.dart",
+      "reason": "needs_summary",
       "language": null,
       "size": 2713
     }

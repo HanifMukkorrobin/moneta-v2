@@ -7,6 +7,7 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback onChangeCategory;
   final VoidCallback onDelete;
+  final VoidCallback? onToggleType;
 
   const TransactionCard({
     super.key,
@@ -14,13 +15,48 @@ class TransactionCard extends StatelessWidget {
     required this.onConfirm,
     required this.onChangeCategory,
     required this.onDelete,
+    this.onToggleType,
   });
+
+  static IconData getCategoryIcon(String category, bool isExpense) {
+    switch (category) {
+      case 'Makan & Minuman':
+        return Icons.restaurant_rounded;
+      case 'Transportasi':
+        return Icons.directions_car_rounded;
+      case 'Belanja':
+        return Icons.shopping_bag_rounded;
+      case 'Hiburan':
+        return Icons.sports_esports_rounded;
+      case 'Tagihan & Utilitas':
+        return Icons.receipt_long_rounded;
+      case 'Hutang & Paylater':
+        return Icons.credit_card_rounded;
+      case 'Kebutuhan Rumah':
+        return Icons.home_rounded;
+      case 'Kesehatan':
+        return Icons.medical_services_rounded;
+      case 'Gaji':
+        return Icons.account_balance_wallet_rounded;
+      case 'Freelance':
+        return Icons.laptop_mac_rounded;
+      case 'Bonus':
+        return Icons.card_giftcard_rounded;
+      case 'Investasi':
+        return Icons.trending_up_rounded;
+      case 'Transfer Masuk':
+        return Icons.move_to_inbox_rounded;
+      default:
+        return isExpense ? Icons.sell_rounded : Icons.savings_rounded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isExpense = transaction.isExpense;
     final badgeColor = isExpense ? AppTheme.expenseColor : AppTheme.incomeColor;
     final isConfirmed = transaction.isConfirmed;
+    final categoryIcon = getCategoryIcon(transaction.category, isExpense);
 
     return Container(
       margin: const EdgeInsets.only(left: 48, right: 12, top: 4, bottom: 8),
@@ -46,35 +82,40 @@ class TransactionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Type badge & Time
+          // Sub-header: AI Detection Tag & Time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isExpense ? Icons.arrow_outward : Icons.arrow_downward,
-                      size: 14,
-                      color: badgeColor,
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isExpense ? 'Pengeluaran' : 'Pemasukan',
-                      style: TextStyle(
-                        color: badgeColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.auto_awesome,
+                          size: 11,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isConfirmed ? 'Tercatat Otomatis' : 'Hasil Parse AI',
+                          style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               Row(
                 children: [
@@ -96,22 +137,63 @@ class TransactionCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Amount
-          Text(
-            transaction.formattedAmount,
-            style: TextStyle(
-              color: isExpense ? AppTheme.expenseColor : AppTheme.incomeColor,
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-            ),
+          // Main Row: Type Badge + Toggle & Amount
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Type Badge (clickable to toggle if allowed)
+              InkWell(
+                onTap: onToggleType,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: badgeColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isExpense ? Icons.arrow_outward : Icons.arrow_downward,
+                        size: 14,
+                        color: badgeColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isExpense ? 'Pengeluaran' : 'Pemasukan',
+                        style: TextStyle(
+                          color: badgeColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Large Formatted Amount
+              Text(
+                transaction.formattedAmount,
+                style: TextStyle(
+                  color:
+                      isExpense ? AppTheme.expenseColor : AppTheme.incomeColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
-          // Note / description
+          // Note / prompt quotation
           Row(
             children: [
               const Icon(
@@ -139,7 +221,7 @@ class TransactionCard extends StatelessWidget {
           const Divider(height: 1, color: AppTheme.borderSubtle),
           const SizedBox(height: 10),
 
-          // Category badge with "Ubah" button
+          // Category Badge + Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -167,6 +249,12 @@ class TransactionCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              Icon(
+                                categoryIcon,
+                                size: 13,
+                                color: AppTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 5),
                               Flexible(
                                 child: Text(
                                   transaction.category,

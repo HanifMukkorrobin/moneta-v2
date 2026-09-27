@@ -4,7 +4,7 @@ class TransactionItem {
   final String id;
   final String note;
   final double amount;
-  final String type; // 'income' | 'expense'
+  String type; // 'income' | 'expense'
   String category;
   final DateTime occurredAt;
   bool isConfirmed;

@@ -191,6 +191,23 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _handleToggleType(TransactionItem tx) {
+    setState(() {
+      final newType = tx.isExpense ? 'income' : 'expense';
+      tx.type = newType;
+      tx.category = newType == 'income'
+          ? MockData.incomeCategories.first
+          : MockData.expenseCategories.first;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Diubah menjadi ${tx.isExpense ? 'Pengeluaran' : 'Pemasukan'}'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   double get _todayTotalExpense {
     double total = 0;
     for (var m in _messages) {
@@ -391,6 +408,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         onChangeCategory: () =>
                             _handleChangeCategory(message.transaction!),
                         onDelete: () => _handleDeleteTransaction(message),
+                        onToggleType: () =>
+                            _handleToggleType(message.transaction!),
                       ),
                   ],
                 );
