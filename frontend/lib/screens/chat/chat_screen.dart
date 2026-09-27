@@ -185,16 +185,59 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _handleDeleteTransaction(ChatMessage message) {
-    setState(() {
-      _messages.remove(message);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Transaksi dibatalkan'),
-        duration: Duration(seconds: 1),
+  Future<void> _handleDeleteTransaction(ChatMessage message) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Catatan Transaksi?'),
+        content: Text(
+          message.transaction != null
+              ? 'Catatan "${message.transaction!.note}" senilai ${message.transaction!.formattedAmount} akan dihapus.'
+              : 'Pesan transaksi ini akan dihapus.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Hapus'),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true && mounted) {
+      final index = _messages.indexOf(message);
+      setState(() {
+        _messages.remove(message);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Transaksi berhasil dihapus'),
+          action: SnackBarAction(
+            label: 'Urungkan',
+            textColor: Colors.amberAccent,
+            onPressed: () {
+              setState(() {
+                if (index >= 0 && index <= _messages.length) {
+                  _messages.insert(index, message);
+                } else {
+                  _messages.add(message);
+                }
+              });
+            },
+          ),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _handleToggleType(TransactionItem tx) {

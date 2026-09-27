@@ -310,6 +310,39 @@ class TransactionCard extends StatelessWidget {
             ],
           ),
 
+          // Action buttons for confirmed transactions
+          if (isConfirmed) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: onChangeCategory,
+                  icon: const Icon(Icons.edit_outlined, size: 14),
+                  label: const Text('Ubah Data', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_outline, size: 14, color: Colors.redAccent),
+                  label: const Text('Hapus',
+                      style: TextStyle(fontSize: 12, color: Colors.redAccent)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
           // Action buttons if pending confirmation
           if (!isConfirmed) ...[
             const SizedBox(height: 14),

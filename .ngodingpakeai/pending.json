@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "f68856868ec9cd0b7aa3f5b6a93637ccef2a15f4",
+  "generatedForCommit": "be164be0cf45f7485caa7a995a5a1c04ab0fc384",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -108,11 +108,17 @@
       "path": "frontend/lib/mock/mock_data.dart",
       "reason": "changed",
       "language": null,
-      "size": 7556
+      "size": 10305
+    },
+    {
+      "path": "frontend/lib/models/chat_log_item.dart",
+      "reason": "new",
+      "language": null,
+      "size": 1372
     },
     {
       "path": "frontend/lib/models/chat_message.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 473
     },
@@ -123,14 +129,20 @@
       "size": 1328
     },
     {
+      "path": "frontend/lib/screens/chat/chat_history_screen.dart",
+      "reason": "new",
+      "language": null,
+      "size": 14620
+    },
+    {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
       "reason": "changed",
       "language": null,
-      "size": 14749
+      "size": 15152
     },
     {
       "path": "frontend/lib/screens/chat/widgets/ai_fallback_card.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 4183
     },
@@ -154,7 +166,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/manual_input_sheet.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 14811
     },
@@ -201,6 +213,12 @@
       "size": 3849
     },
     {
+      "path": "frontend/test/chat_history_screen_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 3906
+    },
+    {
       "path": "frontend/test/chat_input_bar_test.dart",
       "reason": "needs_summary",
       "language": null,
@@ -214,7 +232,7 @@
     },
     {
       "path": "frontend/test/manual_input_flow_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3725
     },
