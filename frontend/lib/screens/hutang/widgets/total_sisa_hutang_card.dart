@@ -3,19 +3,23 @@ import '../../../models/debt_item.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/currency_format.dart';
 
-class DebtSummaryCard extends StatelessWidget {
+class TotalSisaHutangCard extends StatelessWidget {
   final List<DebtItem> debts;
+  final bool showBreakdown;
   final VoidCallback? onFilterDueSoon;
+  final VoidCallback? onTap;
 
-  const DebtSummaryCard({
+  const TotalSisaHutangCard({
     super.key,
     required this.debts,
+    this.showBreakdown = true,
     this.onFilterDueSoon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    double totalDebt = 0;
+    double totalOriginal = 0;
     double totalRemaining = 0;
     int activeCount = 0;
     int dueSoonCount = 0;
@@ -23,23 +27,24 @@ class DebtSummaryCard extends StatelessWidget {
     final breakdown = <DebtType, double>{};
 
     for (var d in debts) {
-      totalDebt += d.totalAmount;
+      totalOriginal += d.totalAmount;
       if (!d.isPaid) {
         totalRemaining += d.remainingAmount;
         activeCount++;
         if (d.isDueSoon) {
           dueSoonCount++;
         }
+
         breakdown[d.type] = (breakdown[d.type] ?? 0) + d.remainingAmount;
       }
     }
 
-    final totalPaid = (totalDebt - totalRemaining).clamp(0.0, totalDebt);
-    final overallRatio = totalDebt > 0 ? (totalPaid / totalDebt).clamp(0.0, 1.0) : 1.0;
-    final overallPercent = (overallRatio * 100).toInt();
+    final totalPaid = (totalOriginal - totalRemaining).clamp(0.0, totalOriginal);
+    final ratio = totalOriginal > 0 ? (totalPaid / totalOriginal).clamp(0.0, 1.0) : 1.0;
+    final percent = (ratio * 100).toInt();
 
     return Container(
-      key: const Key('debt_summary_card'),
+      key: const Key('total_sisa_hutang_card'),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -117,7 +122,7 @@ class DebtSummaryCard extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          // Total Sisa Hutang Aktif
+          // Total Sisa Hutang Header & Nominal Rupiah
           const Text(
             'Total Sisa Hutang & Paylater',
             style: TextStyle(
@@ -126,17 +131,15 @@ class DebtSummaryCard extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          KeyedSubtree(
-            key: const Key('total_remaining_debt_text'),
-            child: Text(
-              CurrencyFormat.formatRupiah(totalRemaining),
-              key: const Key('total_sisa_hutang_rupiah_text'),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
-                letterSpacing: -0.5,
-              ),
+          const SizedBox(height: 4),
+          Text(
+            CurrencyFormat.formatRupiah(totalRemaining),
+            key: const Key('total_sisa_hutang_rupiah_text'),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+              letterSpacing: -0.5,
             ),
           ),
 
@@ -146,8 +149,8 @@ class DebtSummaryCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              key: const Key('debt_clearance_progress_bar'),
-              value: overallRatio,
+              key: const Key('total_sisa_hutang_progress_bar'),
+              value: ratio,
               minHeight: 7,
               backgroundColor: AppTheme.surfaceColor,
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
@@ -161,7 +164,7 @@ class DebtSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Terbayar: ${CurrencyFormat.formatRupiah(totalPaid)} ($overallPercent%)',
+                  'Terbayar: ${CurrencyFormat.formatRupiah(totalPaid)} ($percent%)',
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
@@ -172,7 +175,7 @@ class DebtSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Total: ${CurrencyFormat.formatRupiah(totalDebt)}',
+                'Total: ${CurrencyFormat.formatRupiah(totalOriginal)}',
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppTheme.textSecondary,
@@ -181,9 +184,9 @@ class DebtSummaryCard extends StatelessWidget {
             ],
           ),
 
-          // Breakdown per Tipe Tagihan
-          if (breakdown.isNotEmpty) ...[
-            const SizedBox(height: 12),
+          // Breakdown per Tipe Tagihan (jika ada tagihan aktif)
+          if (showBreakdown && breakdown.isNotEmpty) ...[
+            const SizedBox(height: 14),
             Container(
               key: const Key('sisa_hutang_breakdown_section'),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -268,7 +271,8 @@ class DebtSummaryCard extends StatelessWidget {
               onTap: onFilterDueSoon,
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),

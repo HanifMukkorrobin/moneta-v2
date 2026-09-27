@@ -56,6 +56,11 @@ void main() {
 
     testWidgets('filters debts by status tabs (Semua, Aktif, Jatuh Tempo Dekat, Lunas)',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         buildTestableWidget(const HutangScreen()),
       );
