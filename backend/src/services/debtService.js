@@ -88,6 +88,19 @@ export function formatDebtRow(row, referenceDate = new Date()) {
   const progressRatio = totalAmount > 0 ? Math.min(1.0, Math.max(0.0, paidAmount / totalAmount)) : 1.0;
   const progressPercent = Math.round(progressRatio * 100);
 
+  const monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+  ];
+  let formattedDueDate = row.due_date;
+  try {
+    const d = new Date(row.due_date);
+    if (!isNaN(d.getTime())) {
+      const m = monthNames[d.getMonth()];
+      formattedDueDate = `${d.getDate()} ${m} ${d.getFullYear()}`;
+    }
+  } catch {}
+
   return {
     id: row.id,
     userId: row.user_id,
@@ -109,6 +122,7 @@ export function formatDebtRow(row, referenceDate = new Date()) {
     formattedTotalAmount: formatRupiah(totalAmount),
     formattedRemainingAmount: formatRupiah(remainingAmount),
     formattedPaidAmount: formatRupiah(paidAmount),
+    formattedDueDate,
     paidAt: row.paid_at || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -208,6 +222,8 @@ export function getDebtsByUserId(db, userId, {
   type = null,
   isDueSoon = null,
   isOverdue = null,
+  filter = null,
+  search = null,
   sortBy = 'due_date',
   sortOrder = 'ASC',
   limit = 100,
@@ -220,8 +236,21 @@ export function getDebtsByUserId(db, userId, {
   let query = 'SELECT * FROM debts WHERE user_id = ?';
   const params = [userId];
 
-  if (status) {
-    const normStatus = normalizeDebtStatus(status);
+  // Penanganan parameter filter ('active', 'paid', 'due_soon', 'overdue')
+  let effectiveStatus = status;
+  let effectiveDueSoon = isDueSoon;
+  let effectiveOverdue = isOverdue;
+
+  if (filter) {
+    const f = String(filter).trim().toLowerCase();
+    if (f === 'active' || f === 'aktif') effectiveStatus = 'active';
+    else if (f === 'paid' || f === 'lunas') effectiveStatus = 'paid';
+    else if (f === 'due_soon' || f === 'segera') effectiveDueSoon = true;
+    else if (f === 'overdue' || f === 'lewat') effectiveOverdue = true;
+  }
+
+  if (effectiveStatus) {
+    const normStatus = normalizeDebtStatus(effectiveStatus);
     query += ' AND status = ?';
     params.push(normStatus);
   }
@@ -230,6 +259,12 @@ export function getDebtsByUserId(db, userId, {
     const normType = normalizeDebtType(type);
     query += ' AND type = ?';
     params.push(normType);
+  }
+
+  if (search) {
+    query += ' AND (name LIKE ? OR notes LIKE ?)';
+    const searchPattern = `%${String(search).trim()}%`;
+    params.push(searchPattern, searchPattern);
   }
 
   const validSortColumns = {
@@ -253,10 +288,10 @@ export function getDebtsByUserId(db, userId, {
   const rows = db.prepare(query).all(...params);
   let list = rows.map((r) => formatDebtRow(r));
 
-  if (isDueSoon === true || isDueSoon === 'true') {
+  if (effectiveDueSoon === true || effectiveDueSoon === 'true') {
     list = list.filter((d) => d.isDueSoon);
   }
-  if (isOverdue === true || isOverdue === 'true') {
+  if (effectiveOverdue === true || effectiveOverdue === 'true') {
     list = list.filter((d) => d.isOverdue);
   }
 

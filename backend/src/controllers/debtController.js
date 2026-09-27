@@ -25,6 +25,7 @@ import {
   VALID_DEBT_TYPES,
   normalizeDebtType,
 } from '../services/debtService.js';
+import { formatRupiah } from '../services/dailyAverageSpendingService.js';
 
 /**
  * Helper untuk memvalidasi dan mengekstrak userId dari request
@@ -193,8 +194,10 @@ export function listDebtsHandler(req, res) {
     const type = req.query?.type;
     const isDueSoon = req.query?.isDueSoon;
     const isOverdue = req.query?.isOverdue;
-    const sortBy = req.query?.sortBy || 'due_date';
-    const sortOrder = req.query?.sortOrder || 'ASC';
+    const filter = req.query?.filter;
+    const search = req.query?.search || req.query?.q;
+    const sortBy = req.query?.sortBy || req.query?.sort_by || 'due_date';
+    const sortOrder = req.query?.sortOrder || req.query?.sort_order || 'ASC';
     const limit = Number(req.query?.limit) || 100;
     const offset = Number(req.query?.offset) || 0;
 
@@ -203,16 +206,42 @@ export function listDebtsHandler(req, res) {
       type,
       isDueSoon,
       isOverdue,
+      filter,
+      search,
       sortBy,
       sortOrder,
       limit,
       offset,
     });
 
+    // Hitung ringkasan cepat untuk header UI
+    let activeCount = 0;
+    let paidCount = 0;
+    let dueSoonCount = 0;
+    let overdueCount = 0;
+    let totalRemainingAmount = 0;
+
+    for (const d of debts) {
+      if (d.isPaid) {
+        paidCount += 1;
+      } else {
+        activeCount += 1;
+        totalRemainingAmount += d.remainingAmount;
+        if (d.isDueSoon) dueSoonCount += 1;
+        if (d.isOverdue) overdueCount += 1;
+      }
+    }
+
     return res.status(200).json({
       success: true,
       userId,
       total: debts.length,
+      activeCount,
+      paidCount,
+      dueSoonCount,
+      overdueCount,
+      totalRemainingAmount,
+      formattedTotalRemainingAmount: formatRupiah(totalRemainingAmount),
       debts,
       data: debts,
     });
