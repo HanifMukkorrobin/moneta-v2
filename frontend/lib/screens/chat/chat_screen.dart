@@ -6,6 +6,7 @@ import '../../models/transaction_item.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
+import 'widgets/edit_transaction_sheet.dart';
 import 'widgets/quick_suggestion_chips.dart';
 import 'widgets/transaction_card.dart';
 
@@ -109,70 +110,22 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handleChangeCategory(TransactionItem tx) {
-    final categories = tx.isIncome
-        ? MockData.incomeCategories
-        : MockData.expenseCategories;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Pilih Kategori Transaksi',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: categories.map((cat) {
-                    final isSelected = tx.category == cat;
-                    return ChoiceChip(
-                      label: Text(cat),
-                      selected: isSelected,
-                      selectedColor: AppTheme.primaryColor,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : AppTheme.textPrimary,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
-                        fontSize: 13,
-                      ),
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() {
-                            tx.category = cat;
-                          });
-                          Navigator.pop(ctx);
-                        }
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
+    EditTransactionSheet.show(
+      context,
+      transaction: tx,
+      onSave: (updated) {
+        setState(() {
+          tx.amount = updated.amount;
+          tx.note = updated.note;
+          tx.category = updated.category;
+          tx.type = updated.type;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Data transaksi diperbarui: ${updated.formattedAmount} (${updated.category})'),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
           ),
         );
       },

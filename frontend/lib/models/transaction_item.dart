@@ -2,11 +2,11 @@ import 'package:intl/intl.dart';
 
 class TransactionItem {
   final String id;
-  final String note;
-  final double amount;
+  String note;
+  double amount;
   String type; // 'income' | 'expense'
   String category;
-  final DateTime occurredAt;
+  DateTime occurredAt;
   bool isConfirmed;
 
   TransactionItem({
