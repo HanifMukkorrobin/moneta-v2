@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import 'widgets/adjust_allocation_percentages_sheet.dart';
 import 'widgets/budget_allocation_buckets_section.dart';
 import 'widgets/budget_header_summary_card.dart';
+import 'widgets/budget_warning_banner.dart';
 import 'widgets/category_budget_list_section.dart';
 import 'widgets/edit_budget_limit_sheet.dart';
 
@@ -23,6 +24,7 @@ class AturBudgetScreen extends StatefulWidget {
 class _AturBudgetScreenState extends State<AturBudgetScreen> {
   late String _selectedMonth;
   late MonthlyBudgetSummary _budgetSummary;
+  bool _isWarningBannerDismissed = false;
 
   final List<String> _availableMonths = const [
     '2026-09',
@@ -44,6 +46,7 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
   void _onMonthSelected(String month) {
     setState(() {
       _selectedMonth = month;
+      _isWarningBannerDismissed = false;
       _loadBudget();
     });
   }
@@ -344,6 +347,18 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                   ),
                 )
               else ...[
+                // Budget Warning Banner (Near Limit / Over Limit)
+                if (!_isWarningBannerDismissed)
+                  BudgetWarningBanner(
+                    summary: summary,
+                    onAdjustBudget: _openEditBudgetSheet,
+                    onDismiss: () {
+                      setState(() {
+                        _isWarningBannerDismissed = true;
+                      });
+                    },
+                  ),
+
                 // Main Header Summary Card
                 BudgetHeaderSummaryCard(
                   summary: summary,
