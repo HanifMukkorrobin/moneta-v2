@@ -1,5 +1,6 @@
 import { getDatabase } from '../config/database.js';
 import { defaultAiParser } from '../services/aiParserService.js';
+import { categorySuggestionService } from '../services/categorySuggestionService.js';
 import { getOrCreateDefaultUser } from './chatController.js';
 
 /**
@@ -273,44 +274,119 @@ export function getCategorySuggestionsHandler(req, res) {
   try {
     const db = getDatabase();
     const userId = getOrCreateDefaultUser(db, req.query?.userId);
-    const { type = 'expense', limit = 5 } = req.query;
+    const {
+      type = 'expense',
+      limit = 5,
+      days,
+      q,
+      text,
+      sortBy = 'frequency',
+      timeOfDay,
+      includeUnused = 'true',
+    } = req.query;
 
-    const numLimit = Math.max(1, Math.min(20, Number(limit) || 5));
+    const queryText = q || text;
+    let suggestions;
 
-    // Get categories with transaction usage count
-    const rows = db.prepare(`
-      SELECT 
-        c.id, c.name, c.type, c.icon, c.color, c.is_default,
-        COUNT(t.id) AS usage_count
-      FROM categories c
-      LEFT JOIN transactions t ON (t.category_id = c.id OR LOWER(t.category_name) = LOWER(c.name)) AND t.user_id = ?
-      WHERE (c.user_id IS NULL OR c.user_id = ?) AND (c.type = ? OR ? IS NULL)
-      GROUP BY c.id
-      ORDER BY usage_count DESC, c.is_default DESC, c.name ASC
-      LIMIT ?
-    `).all(userId, userId, type, type, numLimit);
+    if (queryText && String(queryText).trim() !== '') {
+      suggestions = categorySuggestionService.getSuggestionsForText(db, userId, String(queryText).trim(), {
+        type: type && type !== 'all' ? type : null,
+        limit,
+      });
+    } else {
+      suggestions = categorySuggestionService.getFrequentCategories(db, userId, {
+        type: type && type !== 'all' ? type : null,
+        limit,
+        days: days ? Number(days) : null,
+        sortBy,
+        includeUnused: includeUnused !== 'false',
+      });
+    }
 
-    const suggestions = rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      type: r.type,
-      icon: r.icon,
-      color: r.color,
-      isDefault: Boolean(r.is_default),
-      isCustom: !Boolean(r.is_default),
-      usageCount: r.usage_count,
-    }));
+    let timeContext = null;
+    if (timeOfDay || req.query.includeTimeContext === 'true') {
+      timeContext = categorySuggestionService.getSuggestionsByTimeOfDay(db, userId, {
+        type: type && type !== 'all' ? type : 'expense',
+        timeSlot: timeOfDay,
+      });
+    }
 
     return res.status(200).json({
       success: true,
       type,
+      total: suggestions.length,
       suggestions,
+      timeContext: timeContext || undefined,
     });
   } catch (error) {
     console.error('[CategoryController] Error fetching category suggestions:', error);
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan saat memuat saran kategori.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to provide contextual category suggestions for a given input note/sentence.
+ *
+ * Supported endpoints:
+ * - POST /api/categories/suggestions
+ * - GET /api/categories/contextual-suggestions
+ */
+export function getContextualSuggestionsHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const body = req.body || {};
+    const userId = getOrCreateDefaultUser(db, req.query?.userId || body.userId);
+    const text = body.text || body.note || req.query?.text || req.query?.q || '';
+    const type = body.type || req.query?.type || null;
+    const limit = body.limit || req.query?.limit || 5;
+
+    const suggestions = categorySuggestionService.getSuggestionsForText(db, userId, text, {
+      type: type && type !== 'all' ? type : null,
+      limit,
+    });
+
+    return res.status(200).json({
+      success: true,
+      query: text,
+      type,
+      total: suggestions.length,
+      suggestions,
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error generating contextual category suggestions:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat menghasilkan saran kategori kontekstual.',
+      details: error.message,
+    });
+  }
+}
+
+/**
+ * Controller to retrieve overall category usage statistics for a user.
+ *
+ * Supported endpoints:
+ * - GET /api/categories/stats
+ */
+export function getCategoryStatsHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const stats = categorySuggestionService.getCategoryStats(db, userId);
+
+    return res.status(200).json({
+      success: true,
+      stats,
+    });
+  } catch (error) {
+    console.error('[CategoryController] Error fetching category stats:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memuat statistik kategori.',
       details: error.message,
     });
   }
@@ -559,13 +635,15 @@ export function updateCustomCategoryHandler(req, res) {
       });
     }
 
+    const targetUserId = category.user_id !== null ? category.user_id : userId;
+
     // Check collision with another category
     const collision = db.prepare(`
       SELECT id FROM categories
       WHERE id != ? AND (user_id IS NULL OR user_id = ?)
         AND LOWER(name) = LOWER(?) AND type = ?
       LIMIT 1
-    `).get(catId, userId, newName, newType);
+    `).get(catId, targetUserId, newName, newType);
 
     if (collision) {
       return res.status(400).json({
@@ -574,21 +652,31 @@ export function updateCustomCategoryHandler(req, res) {
       });
     }
 
-    db.transaction(() => {
-      // Update category
-      db.prepare(`
-        UPDATE categories
-        SET name = ?, type = ?, icon = ?, color = ?
-        WHERE id = ?
-      `).run(newName, newType, newIcon, newColor, catId);
+    try {
+      db.transaction(() => {
+        // Update category
+        db.prepare(`
+          UPDATE categories
+          SET name = ?, type = ?, icon = ?, color = ?
+          WHERE id = ?
+        `).run(newName, newType, newIcon, newColor, catId);
 
-      // Keep transaction category_name in sync
-      db.prepare(`
-        UPDATE transactions
-        SET category_name = ?
-        WHERE category_id = ?
-      `).run(newName, catId);
-    })();
+        // Keep transaction category_name in sync
+        db.prepare(`
+          UPDATE transactions
+          SET category_name = ?
+          WHERE category_id = ?
+        `).run(newName, catId);
+      })();
+    } catch (err) {
+      if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || String(err.message).includes('UNIQUE')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nama kategori sudah digunakan.',
+        });
+      }
+      throw err;
+    }
 
     const updated = db.prepare('SELECT * FROM categories WHERE id = ?').get(catId);
 

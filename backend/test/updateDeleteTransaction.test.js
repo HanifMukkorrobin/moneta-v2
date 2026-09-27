@@ -103,8 +103,19 @@ describe('Update & Delete Chat Transaction Integration Tests', () => {
     });
     assert.equal(res404.status, 404);
 
+    // Ensure at least one transaction exists
+    let existing = db.prepare('SELECT id FROM transactions LIMIT 1').get();
+    if (!existing) {
+      const ins = db.prepare(`
+        INSERT INTO transactions (user_id, category_name, type, amount, note, occurred_at, is_confirmed)
+        VALUES (1, 'Lainnya', 'expense', 10000, 'Test placeholder', CURRENT_TIMESTAMP, 1)
+      `).run();
+      existing = { id: ins.lastInsertRowid };
+    }
+    const validTxId = existing.id;
+
     // 400 negative amount
-    const resAmount = await fetch(`${baseUrl}/api/transactions/1`, {
+    const resAmount = await fetch(`${baseUrl}/api/transactions/${validTxId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: -100 }),
@@ -112,7 +123,7 @@ describe('Update & Delete Chat Transaction Integration Tests', () => {
     assert.equal(resAmount.status, 400);
 
     // 400 empty note
-    const resNote = await fetch(`${baseUrl}/api/transactions/1`, {
+    const resNote = await fetch(`${baseUrl}/api/transactions/${validTxId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ note: '   ' }),

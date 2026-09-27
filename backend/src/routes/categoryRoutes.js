@@ -3,6 +3,8 @@ import {
   classifyCategoryAndTypeHandler,
   listCategoriesHandler,
   getCategorySuggestionsHandler,
+  getContextualSuggestionsHandler,
+  getCategoryStatsHandler,
   createCustomCategoryHandler,
   listCustomCategoriesHandler,
   getCategoryByIdHandler,
@@ -29,9 +31,14 @@ router.put('/custom/:id', updateCustomCategoryHandler);
 router.patch('/custom/:id', updateCustomCategoryHandler);
 router.delete('/custom/:id', deleteCustomCategoryHandler);
 
-// Endpoint saran kategori paling sering digunakan
+// Endpoint statistik kategori
+router.get('/stats', getCategoryStatsHandler);
+
+// Endpoint saran kategori berbasis frekuensi & kontekstual
 router.get('/frequent', getCategorySuggestionsHandler);
 router.get('/suggestions', getCategorySuggestionsHandler);
+router.post('/suggestions', getContextualSuggestionsHandler);
+router.get('/contextual-suggestions', getContextualSuggestionsHandler);
 
 // General category endpoints (CRUD + List)
 router.get('/', listCategoriesHandler);
