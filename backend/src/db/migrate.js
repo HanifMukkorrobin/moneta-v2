@@ -289,6 +289,283 @@ export function ensureAiInsightsSchema(db) {
   db.exec("CREATE VIEW IF NOT EXISTS financial_analysis_cache AS SELECT * FROM ai_insights;");
 }
 
+export const defaultSavingTips = [
+  {
+    title: 'Bawa Bekal Makan Siang 2x Sepekan',
+    category: 'Makan & Minuman',
+    description:
+      'Mengganti makan siang luar dengan bekal rumahan 2 kali seminggu dapat menghemat hingga Rp 150.000 per pekan.',
+    potential_saving: 150000,
+    impact_level: 'Tinggi',
+    icon: 'restaurant_rounded',
+    action_text: 'Rencanakan Menu Bekal',
+  },
+  {
+    title: 'Aturan Tunda 24 Jam Belanja Online',
+    category: 'Belanja',
+    description:
+      'Masukkan barang non-pokok ke keranjang belanja dan tunggu 24 jam sebelum bayar untuk meredam belanja impulsif.',
+    potential_saving: 250000,
+    impact_level: 'Tinggi',
+    icon: 'shopping_bag_rounded',
+    action_text: 'Terapkan Aturan 24 Jam',
+  },
+  {
+    title: 'Audit Langganan Aplikasi Digital',
+    category: 'Tagihan & Utilitas',
+    description:
+      'Cek aplikasi streaming atau cloud yang jarang dipakai bulan ini. Nonaktifkan tagihan otomatis untuk pos yang tidak aktif.',
+    potential_saving: 89000,
+    impact_level: 'Sedang',
+    icon: 'subscriptions_rounded',
+    action_text: 'Cek Langganan Aktif',
+  },
+  {
+    title: 'Seduh Kopi Sendiri di Pagi Hari',
+    category: 'Makan & Minuman',
+    description:
+      'Beli bubuk kopi favorit dan seduh sendiri sebelum berangkat kerja. Mengurangi frekuensi jajan kopi susu kekinian.',
+    potential_saving: 120000,
+    impact_level: 'Sedang',
+    icon: 'coffee_rounded',
+    action_text: 'Seduh Kopi Rumah',
+  },
+  {
+    title: 'Manfaatkan Promo Transportasi Terpadu',
+    category: 'Transportasi',
+    description:
+      'Gunakan kartu langganan bulanan atau tiket komuter terusan saat jam kerja untuk menghemat biaya ojek harian.',
+    potential_saving: 75000,
+    impact_level: 'Ringan',
+    icon: 'directions_bus_rounded',
+    action_text: 'Cek Jalur Transit',
+  },
+  {
+    title: 'Matikan Saklar Colokan Listrik Malam Hari',
+    category: 'Tagihan & Utilitas',
+    description:
+      'Mematikan colokan TV, dispenser, dan charger saat tidur dapat menurunkan tagihan listrik bulanan.',
+    potential_saving: 45000,
+    impact_level: 'Ringan',
+    icon: 'power_rounded',
+    action_text: 'Cabut Saklar Malam',
+  },
+  {
+    title: 'Beralih ke Paket Data Bulanan Promo',
+    category: 'Tagihan & Utilitas',
+    description:
+      'Beli paket data kuota besar per 30 hari daripada membeli paket harian atau mingguan yang berulang kali lebih mahal.',
+    potential_saving: 60000,
+    impact_level: 'Sedang',
+    icon: 'wifi_rounded',
+    action_text: 'Cek Paket Bulanan',
+  },
+  {
+    title: 'Pilih Berjalan Kaki untuk Jarak < 1 KM',
+    category: 'Transportasi',
+    description:
+      'Mengurangi pesanan ojek online untuk rute dekat selain menyehatkan tubuh juga menghemat pengeluaran transportasi mikro.',
+    potential_saving: 50000,
+    impact_level: 'Ringan',
+    icon: 'directions_walk_rounded',
+    action_text: 'Mulai Jalan Kaki',
+  },
+  {
+    title: 'Beli Kebutuhan Dapur Kemasan Grosir',
+    category: 'Belanja',
+    description:
+      'Beli beras, minyak goreng, dan deterjen dalam ukuran isi ulang besar untuk mendapatkan potongan harga per liter/kg.',
+    potential_saving: 180000,
+    impact_level: 'Tinggi',
+    icon: 'storefront_rounded',
+    action_text: 'Beli Kemasan Grosir',
+  },
+];
+
+export function ensureSaranHarianSchema(db) {
+  // 1. Tabel Daily Tips
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS daily_tips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT 'Umum',
+        description TEXT NOT NULL,
+        potential_saving REAL NOT NULL DEFAULT 0 CHECK(potential_saving >= 0),
+        impact_level TEXT NOT NULL DEFAULT 'Sedang' CHECK(impact_level IN ('Tinggi', 'Sedang', 'Ringan', 'tinggi', 'sedang', 'ringan')),
+        icon TEXT DEFAULT 'lightbulb_outline_rounded',
+        action_text TEXT NOT NULL DEFAULT 'Terapkan Hari Ini',
+        is_active INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0, 1)),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // 2. Tabel User Saving Tips (Relasi Tracking Tips Diterapkan)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_saving_tips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        tip_id INTEGER NOT NULL REFERENCES daily_tips(id) ON DELETE CASCADE,
+        is_applied INTEGER NOT NULL DEFAULT 0 CHECK(is_applied IN (0, 1)),
+        applied_at DATETIME,
+        date TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d', 'now')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_user_tip_date UNIQUE (user_id, tip_id, date)
+    );
+  `);
+
+  // 3. Tabel Reminder Settings (Pengaturan Pengingat Harian & Notifikasi)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS reminder_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        is_enabled INTEGER NOT NULL DEFAULT 1 CHECK(is_enabled IN (0, 1)),
+        morning_reminder_time TEXT NOT NULL DEFAULT '08:00',
+        is_morning_reminder_enabled INTEGER NOT NULL DEFAULT 1 CHECK(is_morning_reminder_enabled IN (0, 1)),
+        evening_reminder_time TEXT NOT NULL DEFAULT '20:00',
+        is_evening_reminder_enabled INTEGER NOT NULL DEFAULT 1 CHECK(is_evening_reminder_enabled IN (0, 1)),
+        active_days TEXT NOT NULL DEFAULT '[1,2,3,4,5,6,7]',
+        notify_on_overbudget INTEGER NOT NULL DEFAULT 1 CHECK(notify_on_overbudget IN (0, 1)),
+        notify_saving_tips INTEGER NOT NULL DEFAULT 1 CHECK(notify_saving_tips IN (0, 1)),
+        notify_debt_due INTEGER NOT NULL DEFAULT 1 CHECK(notify_debt_due IN (0, 1)),
+        sound_enabled INTEGER NOT NULL DEFAULT 1 CHECK(sound_enabled IN (0, 1)),
+        vibration_enabled INTEGER NOT NULL DEFAULT 1 CHECK(vibration_enabled IN (0, 1)),
+        fcm_token TEXT,
+        timezone TEXT NOT NULL DEFAULT 'Asia/Jakarta',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_user_reminder_settings UNIQUE (user_id)
+    );
+  `);
+
+  // 4. Tabel Daily Advice Cache (Cache Saran Pengeluaran Harian)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS daily_advice_cache (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        date TEXT NOT NULL,
+        recommended_daily_budget REAL NOT NULL DEFAULT 0 CHECK(recommended_daily_budget >= 0),
+        estimated_days_left INTEGER NOT NULL DEFAULT 0 CHECK(estimated_days_left >= 0),
+        daily_advice TEXT NOT NULL,
+        warn_level TEXT NOT NULL DEFAULT 'normal' CHECK(warn_level IN ('normal', 'warning', 'critical')),
+        avg_daily_spend REAL NOT NULL DEFAULT 0 CHECK(avg_daily_spend >= 0),
+        total_monthly_budget REAL NOT NULL DEFAULT 0,
+        total_spent REAL NOT NULL DEFAULT 0,
+        remaining_balance REAL NOT NULL DEFAULT 0,
+        source TEXT NOT NULL DEFAULT 'rule_based' CHECK(source IN ('rule_based', 'ai_generated', 'hybrid', 'fallback')),
+        advice_json TEXT,
+        is_applied INTEGER NOT NULL DEFAULT 0 CHECK(is_applied IN (0, 1)),
+        is_stale INTEGER NOT NULL DEFAULT 0 CHECK(is_stale IN (0, 1)),
+        expires_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT unique_user_daily_advice UNIQUE (user_id, date)
+    );
+  `);
+
+  // Column safety checks for pre-existing tables:
+  const tipsCols = db.prepare("PRAGMA table_info(daily_tips)").all().map((c) => c.name);
+  if (!tipsCols.includes('category')) db.exec("ALTER TABLE daily_tips ADD COLUMN category TEXT NOT NULL DEFAULT 'Umum'");
+  if (!tipsCols.includes('potential_saving')) db.exec("ALTER TABLE daily_tips ADD COLUMN potential_saving REAL NOT NULL DEFAULT 0");
+  if (!tipsCols.includes('impact_level')) db.exec("ALTER TABLE daily_tips ADD COLUMN impact_level TEXT NOT NULL DEFAULT 'Sedang'");
+  if (!tipsCols.includes('icon')) db.exec("ALTER TABLE daily_tips ADD COLUMN icon TEXT DEFAULT 'lightbulb_outline_rounded'");
+  if (!tipsCols.includes('action_text')) db.exec("ALTER TABLE daily_tips ADD COLUMN action_text TEXT NOT NULL DEFAULT 'Terapkan Hari Ini'");
+  if (!tipsCols.includes('is_active')) db.exec("ALTER TABLE daily_tips ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1");
+  if (!tipsCols.includes('created_at')) {
+    db.exec("ALTER TABLE daily_tips ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE daily_tips SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+  if (!tipsCols.includes('updated_at')) {
+    db.exec("ALTER TABLE daily_tips ADD COLUMN updated_at DATETIME");
+    db.exec("UPDATE daily_tips SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+  }
+
+  const reminderCols = db.prepare("PRAGMA table_info(reminder_settings)").all().map((c) => c.name);
+  if (!reminderCols.includes('is_enabled')) db.exec("ALTER TABLE reminder_settings ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('morning_reminder_time')) db.exec("ALTER TABLE reminder_settings ADD COLUMN morning_reminder_time TEXT NOT NULL DEFAULT '08:00'");
+  if (!reminderCols.includes('is_morning_reminder_enabled')) db.exec("ALTER TABLE reminder_settings ADD COLUMN is_morning_reminder_enabled INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('evening_reminder_time')) db.exec("ALTER TABLE reminder_settings ADD COLUMN evening_reminder_time TEXT NOT NULL DEFAULT '20:00'");
+  if (!reminderCols.includes('is_evening_reminder_enabled')) db.exec("ALTER TABLE reminder_settings ADD COLUMN is_evening_reminder_enabled INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('active_days')) db.exec("ALTER TABLE reminder_settings ADD COLUMN active_days TEXT NOT NULL DEFAULT '[1,2,3,4,5,6,7]'");
+  if (!reminderCols.includes('notify_on_overbudget')) db.exec("ALTER TABLE reminder_settings ADD COLUMN notify_on_overbudget INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('notify_saving_tips')) db.exec("ALTER TABLE reminder_settings ADD COLUMN notify_saving_tips INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('notify_debt_due')) db.exec("ALTER TABLE reminder_settings ADD COLUMN notify_debt_due INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('sound_enabled')) db.exec("ALTER TABLE reminder_settings ADD COLUMN sound_enabled INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('vibration_enabled')) db.exec("ALTER TABLE reminder_settings ADD COLUMN vibration_enabled INTEGER NOT NULL DEFAULT 1");
+  if (!reminderCols.includes('fcm_token')) db.exec("ALTER TABLE reminder_settings ADD COLUMN fcm_token TEXT");
+  if (!reminderCols.includes('timezone')) db.exec("ALTER TABLE reminder_settings ADD COLUMN timezone TEXT NOT NULL DEFAULT 'Asia/Jakarta'");
+  if (!reminderCols.includes('created_at')) {
+    db.exec("ALTER TABLE reminder_settings ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE reminder_settings SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+  if (!reminderCols.includes('updated_at')) {
+    db.exec("ALTER TABLE reminder_settings ADD COLUMN updated_at DATETIME");
+    db.exec("UPDATE reminder_settings SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+  }
+
+  const adviceCols = db.prepare("PRAGMA table_info(daily_advice_cache)").all().map((c) => c.name);
+  if (!adviceCols.includes('recommended_daily_budget')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN recommended_daily_budget REAL NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('estimated_days_left')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN estimated_days_left INTEGER NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('daily_advice')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN daily_advice TEXT NOT NULL DEFAULT ''");
+  if (!adviceCols.includes('warn_level')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN warn_level TEXT NOT NULL DEFAULT 'normal'");
+  if (!adviceCols.includes('avg_daily_spend')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN avg_daily_spend REAL NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('total_monthly_budget')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN total_monthly_budget REAL NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('total_spent')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN total_spent REAL NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('remaining_balance')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN remaining_balance REAL NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('source')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN source TEXT NOT NULL DEFAULT 'rule_based'");
+  if (!adviceCols.includes('advice_json')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN advice_json TEXT");
+  if (!adviceCols.includes('is_applied')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN is_applied INTEGER NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('is_stale')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN is_stale INTEGER NOT NULL DEFAULT 0");
+  if (!adviceCols.includes('expires_at')) db.exec("ALTER TABLE daily_advice_cache ADD COLUMN expires_at DATETIME");
+  if (!adviceCols.includes('created_at')) {
+    db.exec("ALTER TABLE daily_advice_cache ADD COLUMN created_at DATETIME");
+    db.exec("UPDATE daily_advice_cache SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+  }
+  if (!adviceCols.includes('updated_at')) {
+    db.exec("ALTER TABLE daily_advice_cache ADD COLUMN updated_at DATETIME");
+    db.exec("UPDATE daily_advice_cache SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+  }
+
+  // Create performance indices
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_tips_category ON daily_tips(category)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_tips_active ON daily_tips(is_active)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_saving_tips_user ON user_saving_tips(user_id, date)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_user_saving_tips_applied ON user_saving_tips(user_id, is_applied)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_reminder_settings_user ON reminder_settings(user_id)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_reminder_settings_enabled ON reminder_settings(is_enabled)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_user_date ON daily_advice_cache(user_id, date)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_warn_level ON daily_advice_cache(warn_level)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_stale ON daily_advice_cache(user_id, is_stale)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_daily_advice_expires ON daily_advice_cache(expires_at)");
+
+  // Create Views
+  db.exec("CREATE VIEW IF NOT EXISTS tips_harian AS SELECT * FROM daily_tips;");
+  db.exec("CREATE VIEW IF NOT EXISTS pengaturan_pengingat AS SELECT * FROM reminder_settings;");
+  db.exec("CREATE VIEW IF NOT EXISTS cache_saran AS SELECT * FROM daily_advice_cache;");
+  db.exec("CREATE VIEW IF NOT EXISTS saran_cache AS SELECT * FROM daily_advice_cache;");
+}
+
+export function seedDefaultSavingTips(db) {
+  const countRow = db.prepare("SELECT COUNT(*) as count FROM daily_tips").get();
+  if (countRow && countRow.count > 0) {
+    return; // Already seeded
+  }
+
+  const insertStmt = db.prepare(`
+    INSERT INTO daily_tips (title, category, description, potential_saving, impact_level, icon, action_text, is_active)
+    VALUES (@title, @category, @description, @potential_saving, @impact_level, @icon, @action_text, 1)
+  `);
+
+  const tx = db.transaction(() => {
+    for (const tip of defaultSavingTips) {
+      insertStmt.run(tip);
+    }
+  });
+
+  tx();
+}
+
 export function runMigrations(db) {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
@@ -305,10 +582,15 @@ export function runMigrations(db) {
   // Ensure ai_insights and financial analysis cache schema exists
   ensureAiInsightsSchema(db);
 
+  // Ensure daily tips, reminder settings, and daily advice cache schema exists
+  ensureSaranHarianSchema(db);
+
   // Seed default categories (with user_id = NULL)
   seedDefaultCategories(db);
-}
 
+  // Seed default saving tips
+  seedDefaultSavingTips(db);
+}
 
 export function seedDefaultCategories(db) {
   const insertStmt = db.prepare(`
@@ -342,10 +624,12 @@ const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1]);
 if (isMain) {
   const { getDatabase, closeDatabase } = await import('../config/database.js');
   const db = getDatabase();
-  console.log('[Migrate] Running migrations and seeding default categories...');
+  console.log('[Migrate] Running migrations and seeding default categories and tips...');
   runMigrations(db);
   const count = db.prepare('SELECT COUNT(*) as count FROM categories WHERE is_default = 1').get().count;
-  console.log(`[Migrate] Migration complete. Total ${count} default categories seeded.`);
+  const tipCount = db.prepare('SELECT COUNT(*) as count FROM daily_tips').get().count;
+  console.log(`[Migrate] Migration complete. Total ${count} default categories and ${tipCount} saving tips seeded.`);
   closeDatabase();
 }
+
 
