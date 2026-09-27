@@ -4,6 +4,7 @@ import '../../models/chat_message.dart';
 import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../beranda/beranda_screen.dart';
 import '../category_confirmation/category_confirmation_screen.dart';
 import '../history/transaction_history_screen.dart';
 import 'chat_history_screen.dart';
@@ -313,6 +314,20 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: const Icon(Icons.edit_note_rounded, size: 24),
             tooltip: 'Input Transaksi Manual',
             onPressed: () => _openManualInput(),
+          ),
+          IconButton(
+            key: const Key('chat_appbar_beranda_button'),
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.dashboard_outlined, size: 22),
+            tooltip: 'Halaman Beranda',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BerandaScreen(),
+                ),
+              );
+            },
           ),
           IconButton(
             visualDensity: VisualDensity.compact,
