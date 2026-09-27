@@ -15,6 +15,7 @@ import { Router } from 'express';
 import {
   getDailyTipsHandler,
   getTipsHistoryHandler,
+  getTipsHistorySummaryHandler,
   toggleTipStatusHandler,
   generateTipsHandler,
   getTipDetailHandler,
@@ -27,7 +28,9 @@ const router = Router();
 router.get('/', getDailyTipsHandler);
 router.get('/harian', getDailyTipsHandler);
 
-// Endpoint Riwayat Tips Hemat (Pencarian & Filter)
+// Endpoint Riwayat Tips Hemat (Pencarian & Filter & Summary)
+router.get('/riwayat/summary', getTipsHistorySummaryHandler);
+router.get('/history/summary', getTipsHistorySummaryHandler);
 router.get('/riwayat', getTipsHistoryHandler);
 router.get('/history', getTipsHistoryHandler);
 
@@ -36,11 +39,21 @@ router.post('/generate', generateTipsHandler);
 
 // Endpoint Toggle Status Diterapkan
 router.post('/toggle', toggleTipStatusHandler);
+router.post('/riwayat/toggle', toggleTipStatusHandler);
+router.post('/riwayat/:id/toggle', toggleTipStatusHandler);
 router.post('/:id/toggle', toggleTipStatusHandler);
 router.patch('/:id/toggle', toggleTipStatusHandler);
 
 // Endpoint Detail & Pembuatan Tip
 router.get('/:id', getTipDetailHandler);
 router.post('/', createTipHandler);
+
+// Dedicated router untuk endpoint /riwayat-tips & /api/riwayat-tips
+export const riwayatTipsRouter = Router();
+riwayatTipsRouter.get('/summary', getTipsHistorySummaryHandler);
+riwayatTipsRouter.get('/', getTipsHistoryHandler);
+riwayatTipsRouter.post('/toggle', toggleTipStatusHandler);
+riwayatTipsRouter.post('/:id/toggle', toggleTipStatusHandler);
+riwayatTipsRouter.patch('/:id/toggle', toggleTipStatusHandler);
 
 export default router;

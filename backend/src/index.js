@@ -10,7 +10,7 @@ import summaryBudgetRoutes, { rekapRouter, budgetRouter } from './routes/summary
 import categoryRoutes from './routes/categoryRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
 import dailyAdviceRoutes from './routes/dailyAdviceRoutes.js';
-import dailyTipsRoutes from './routes/dailyTipsRoutes.js';
+import dailyTipsRoutes, { riwayatTipsRouter } from './routes/dailyTipsRoutes.js';
 import { classifyCategoryAndTypeHandler } from './controllers/categoryController.js';
 
 dotenv.config();
@@ -65,6 +65,8 @@ app.use('/tips', dailyTipsRoutes);
 app.use('/api/tips', dailyTipsRoutes);
 app.use('/tips-harian', dailyTipsRoutes);
 app.use('/api/tips-harian', dailyTipsRoutes);
+app.use('/riwayat-tips', riwayatTipsRouter);
+app.use('/api/riwayat-tips', riwayatTipsRouter);
 
 // Direct top-level classify endpoint aliases
 app.post('/classify', classifyCategoryAndTypeHandler);

@@ -16,6 +16,7 @@ import {
   getAllTips,
   getTipById,
   getUserSavingTips,
+  getUserTipsHistory,
   toggleUserSavingTip,
   createDailyTip,
   getTodayDateString,
@@ -96,50 +97,23 @@ export function getTipsHistoryHandler(req, res) {
   try {
     const db = getDatabase();
     const userId = resolveUserIdFromRequest(db, req);
-    const search = (req.query?.search || req.query?.q || '').toLowerCase().trim();
-    const status = (req.query?.status || 'semua').toLowerCase();
+    const search = req.query?.search || req.query?.q || '';
+    const status = req.query?.status || 'semua';
     const category = req.query?.category || null;
+    const referenceDate = req.query?.date || req.query?.referenceDate || new Date();
 
-    // Ambil semua tips untuk user ini
-    let tips = getUserSavingTips(db, {
+    const historyData = getUserTipsHistory(db, {
       userId,
-      category: category && category !== 'Semua' ? category : null,
+      search,
+      status,
+      category,
+      referenceDate,
     });
-
-    // Filter berdasarkan status
-    if (status === 'diterapkan' || status === 'applied') {
-      tips = tips.filter((t) => t.isApplied);
-    } else if (status === 'belum_diterapkan' || status === 'unapplied') {
-      tips = tips.filter((t) => !t.isApplied);
-    }
-
-    // Filter berdasarkan pencarian kata kunci
-    if (search) {
-      tips = tips.filter((t) =>
-        t.title.toLowerCase().includes(search) ||
-        t.description.toLowerCase().includes(search) ||
-        t.category.toLowerCase().includes(search)
-      );
-    }
-
-    const appliedCount = tips.filter((t) => t.isApplied).length;
-    const unappliedCount = tips.filter((t) => !t.isApplied).length;
-    const totalCount = tips.length;
-    const successRate = totalCount > 0 ? Math.round((appliedCount / totalCount) * 100) : 0;
 
     return res.status(200).json({
       success: true,
-      userId,
-      count: tips.length,
-      summary: {
-        appliedCount,
-        unappliedCount,
-        totalCount,
-        successRate,
-        summaryText: `${appliedCount} dari ${totalCount} tips berhasil dijalankan`,
-      },
-      tips,
-      data: tips,
+      ...historyData,
+      data: historyData.tips,
     });
   } catch (error) {
     const isClientError = error.message.includes('userId');
@@ -147,6 +121,37 @@ export function getTipsHistoryHandler(req, res) {
     return res.status(statusCode).json({
       success: false,
       error: error.message || 'Terjadi kesalahan saat memuat riwayat tips hemat.',
+    });
+  }
+}
+
+/**
+ * GET /api/tips/riwayat/summary & GET /api/riwayat-tips/summary
+ * Mengambil ringkasan metrik statistik riwayat tips hemat pengguna
+ */
+export function getTipsHistorySummaryHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const userId = resolveUserIdFromRequest(db, req);
+    const referenceDate = req.query?.date || req.query?.referenceDate || new Date();
+
+    const historyData = getUserTipsHistory(db, {
+      userId,
+      referenceDate,
+    });
+
+    return res.status(200).json({
+      success: true,
+      userId,
+      summary: historyData.summary,
+      data: historyData.summary,
+    });
+  } catch (error) {
+    const isClientError = error.message.includes('userId');
+    const statusCode = isClientError ? 400 : 500;
+    return res.status(statusCode).json({
+      success: false,
+      error: error.message || 'Terjadi kesalahan saat memuat ringkasan riwayat tips.',
     });
   }
 }
