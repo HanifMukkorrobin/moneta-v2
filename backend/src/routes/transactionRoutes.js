@@ -4,6 +4,7 @@ import {
   listTransactionsHandler,
   getTransactionByIdHandler,
   updateTransactionHandler,
+  updateTransactionCategoryAndTypeHandler,
   deleteTransactionHandler,
 } from '../controllers/transactionController.js';
 import { classifyCategoryAndTypeHandler } from '../controllers/categoryController.js';
@@ -24,7 +25,15 @@ router.get('/', listTransactionsHandler);
 router.get('/:id', getTransactionByIdHandler);
 router.post('/', confirmTransactionHandler);
 
-// Ubah dan Hapus transaksi
+// Endpoint ubah kategori dan jenis transaksi
+router.put('/:id/category', updateTransactionCategoryAndTypeHandler);
+router.patch('/:id/category', updateTransactionCategoryAndTypeHandler);
+router.put('/:id/type', updateTransactionCategoryAndTypeHandler);
+router.patch('/:id/type', updateTransactionCategoryAndTypeHandler);
+router.put('/:id/category-type', updateTransactionCategoryAndTypeHandler);
+router.patch('/:id/category-type', updateTransactionCategoryAndTypeHandler);
+
+// Ubah dan Hapus transaksi umum
 router.put('/:id', updateTransactionHandler);
 router.patch('/:id', updateTransactionHandler);
 router.delete('/:id', deleteTransactionHandler);

@@ -9,8 +9,13 @@ import {
   updateCustomCategoryHandler,
   deleteCustomCategoryHandler,
 } from '../controllers/categoryController.js';
+import { updateTransactionCategoryAndTypeHandler } from '../controllers/transactionController.js';
 
 const router = Router();
+
+// Endpoint ubah kategori & jenis transaksi via /categories/transactions/:id
+router.put('/transactions/:id', updateTransactionCategoryAndTypeHandler);
+router.patch('/transactions/:id', updateTransactionCategoryAndTypeHandler);
 
 // Endpoint klasifikasi kategori dan jenis transaksi
 router.post('/classify', classifyCategoryAndTypeHandler);

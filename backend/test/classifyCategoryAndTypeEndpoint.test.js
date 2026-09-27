@@ -11,6 +11,7 @@ describe('Endpoint Klasifikasi Kategori dan Jenis Transaksi Tests', () => {
 
   before(async () => {
     db = getDatabase();
+    db.prepare('DELETE FROM categories WHERE is_default = 0').run();
     await new Promise((resolve) => {
       server = app.listen(0, () => {
         const port = server.address().port;
@@ -21,6 +22,9 @@ describe('Endpoint Klasifikasi Kategori dan Jenis Transaksi Tests', () => {
   });
 
   after(async () => {
+    if (db) {
+      db.prepare('DELETE FROM categories WHERE is_default = 0').run();
+    }
     if (server) {
       await new Promise((resolve) => server.close(resolve));
     }

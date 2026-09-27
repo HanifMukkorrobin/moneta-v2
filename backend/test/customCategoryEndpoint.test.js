@@ -11,6 +11,7 @@ describe('Endpoint Kategori Pengeluaran Kustom Tests', () => {
 
   before(async () => {
     db = getDatabase();
+    db.prepare('DELETE FROM categories WHERE is_default = 0').run();
     const user = db.prepare('SELECT id FROM users LIMIT 1').get();
     testUserId = user ? user.id : 1;
 
@@ -24,6 +25,9 @@ describe('Endpoint Kategori Pengeluaran Kustom Tests', () => {
   });
 
   after(async () => {
+    if (db) {
+      db.prepare('DELETE FROM categories WHERE is_default = 0').run();
+    }
     if (server) {
       await new Promise((resolve) => server.close(resolve));
     }

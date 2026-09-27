@@ -551,3 +551,194 @@ export function deleteTransactionHandler(req, res) {
   }
 }
 
+/**
+ * Controller specifically for updating the category and transaction type of a transaction.
+ * Also handles creating a new custom category on-the-fly if requested.
+ *
+ * Supported endpoints:
+ * - PUT /api/transactions/:id/category
+ * - PATCH /api/transactions/:id/category
+ * - PUT /api/transactions/:id/type
+ * - PATCH /api/transactions/:id/type
+ * - PUT /api/transactions/:id/category-type
+ * - PATCH /api/transactions/:id/category-type
+ */
+export function updateTransactionCategoryAndTypeHandler(req, res) {
+  try {
+    const db = getDatabase();
+    const txId = Number(req.params.id || req.body?.transactionId);
+    const body = req.body || {};
+    const userId = getOrCreateDefaultUser(db, body.userId || req.query?.userId);
+
+    const existingTx = db
+      .prepare('SELECT * FROM transactions WHERE id = ? AND user_id = ?')
+      .get(txId, userId);
+
+    if (!existingTx) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaksi tidak ditemukan.',
+      });
+    }
+
+    // Determine type
+    let finalType = existingTx.type;
+    if (body.type !== undefined) {
+      if (!['income', 'expense'].includes(body.type)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Jenis transaksi harus berupa income atau expense.',
+        });
+      }
+      finalType = body.type;
+    }
+
+    // Determine category
+    let finalCategoryId = existingTx.category_id;
+    let finalCategoryName = existingTx.category_name;
+    let isCustom = false;
+
+    // Check if user is defining a new custom category on-the-fly
+    if (body.isCustom && (body.category || body.categoryName) && !body.categoryId) {
+      const customName = String(body.category || body.categoryName).trim();
+      let customCat = db.prepare(`
+        SELECT id, name, is_default, icon, color FROM categories
+        WHERE (user_id IS NULL OR user_id = ?) AND LOWER(name) = LOWER(?) AND type = ?
+        LIMIT 1
+      `).get(userId, customName, finalType);
+
+      if (!customCat) {
+        const ins = db.prepare(`
+          INSERT INTO categories (user_id, name, type, is_default, icon, color)
+          VALUES (?, ?, ?, 0, ?, ?)
+        `).run(userId, customName, finalType, body.icon || 'bookmark_border_rounded', body.color || 'purple');
+        finalCategoryId = ins.lastInsertRowid;
+        finalCategoryName = customName;
+        isCustom = true;
+      } else {
+        finalCategoryId = customCat.id;
+        finalCategoryName = customCat.name;
+        isCustom = !Boolean(customCat.is_default);
+      }
+    } else if (body.categoryId || body.category || body.categoryName || body.type) {
+      const resolved = resolveCategory(db, {
+        categoryId: body.categoryId,
+        categoryName: body.category || body.categoryName,
+        type: finalType,
+      });
+
+      if (resolved) {
+        finalCategoryId = resolved.id;
+        finalCategoryName = resolved.name;
+        isCustom = !Boolean(resolved.is_default);
+      }
+    }
+
+    // Optional amount or note edit if provided
+    let finalAmount = existingTx.amount;
+    if (body.amount !== undefined && body.amount !== null) {
+      const num = Number(body.amount);
+      if (isNaN(num) || num <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nominal transaksi harus berupa angka lebih besar dari 0.',
+        });
+      }
+      finalAmount = num;
+    }
+
+    let finalNote = existingTx.note;
+    if (body.note !== undefined && body.note !== null) {
+      const noteStr = String(body.note).trim();
+      if (!noteStr) {
+        return res.status(400).json({
+          success: false,
+          error: 'Catatan transaksi tidak boleh kosong.',
+        });
+      }
+      finalNote = noteStr;
+    }
+
+    const previousCategory = existingTx.category_name;
+    const previousType = existingTx.type;
+
+    db.transaction(() => {
+      // Update transaction: is_guessed is reset to 0, confidence set to 1.0
+      db.prepare(`
+        UPDATE transactions
+        SET amount = ?, type = ?, category_id = ?, category_name = ?, note = ?, is_guessed = 0, confidence_score = 1.0, ai_reasoning = 'Kategori diubah/ditentukan oleh pengguna.'
+        WHERE id = ?
+      `).run(finalAmount, finalType, finalCategoryId, finalCategoryName, finalNote, txId);
+
+      // Keep linked chat_log in sync
+      const chatLog = db.prepare('SELECT id, parsed_json FROM chat_logs WHERE transaction_id = ?').get(txId);
+      if (chatLog) {
+        let parsed = {};
+        try {
+          parsed = JSON.parse(chatLog.parsed_json || '{}');
+        } catch {
+          parsed = {};
+        }
+        parsed.type = finalType;
+        parsed.category = finalCategoryName;
+        parsed.categoryId = finalCategoryId;
+        parsed.isCustomCategory = isCustom;
+        parsed.confidenceScore = 1.0;
+        parsed.userCorrection = {
+          previousCategory,
+          newCategory: finalCategoryName,
+          previousType,
+          newType: finalType,
+          correctedAt: new Date().toISOString(),
+        };
+
+        db.prepare('UPDATE chat_logs SET parsed_json = ? WHERE id = ?')
+          .run(JSON.stringify(parsed), chatLog.id);
+      }
+    })();
+
+    const updatedTx = db.prepare(`
+      SELECT t.*, c.icon AS category_icon, c.color AS category_color, c.is_default
+      FROM transactions t
+      LEFT JOIN categories c ON t.category_id = c.id
+      WHERE t.id = ?
+    `).get(txId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Kategori dan jenis transaksi berhasil diperbarui.',
+      transaction: {
+        id: updatedTx.id,
+        userId: updatedTx.user_id,
+        categoryId: updatedTx.category_id,
+        category: updatedTx.category_name,
+        categoryIcon: updatedTx.category_icon || 'bookmark_border_rounded',
+        categoryColor: updatedTx.category_color || 'purple',
+        type: updatedTx.type,
+        amount: updatedTx.amount,
+        note: updatedTx.note,
+        occurredAt: updatedTx.occurred_at,
+        isConfirmed: Boolean(updatedTx.is_confirmed),
+        isGuessedCategory: false,
+        confidenceScore: 1.0,
+        aiReasoning: updatedTx.ai_reasoning,
+        isCustomCategory: isCustom || !Boolean(updatedTx.is_default),
+        createdAt: updatedTx.created_at,
+      },
+      previous: {
+        category: previousCategory,
+        categoryId: existingTx.category_id,
+        type: previousType,
+      },
+    });
+  } catch (error) {
+    console.error('[TransactionController] Error updating category and type:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Terjadi kesalahan saat memperbarui kategori dan jenis transaksi.',
+      details: error.message,
+    });
+  }
+}
+
+
