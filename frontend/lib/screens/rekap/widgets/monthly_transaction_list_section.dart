@@ -27,6 +27,8 @@ class _MonthlyTransactionListSectionState
     extends State<MonthlyTransactionListSection> {
   final TextEditingController _searchController = TextEditingController();
   String _typeFilter = 'all'; // 'all', 'expense', 'income'
+  String _statusFilter = 'all'; // 'all', 'confirmed', 'pending'
+  String _amountFilter = 'all'; // 'all', 'under_100k', '100k_500k', 'above_500k'
   String _searchQuery = '';
   String _sortBy = 'newest'; // 'newest', 'oldest', 'highest', 'lowest'
 
@@ -36,11 +38,50 @@ class _MonthlyTransactionListSectionState
     super.dispose();
   }
 
+  int get _activeFiltersCount {
+    int count = 0;
+    if (_typeFilter != 'all') count++;
+    if (_statusFilter != 'all') count++;
+    if (_amountFilter != 'all') count++;
+    if (widget.activeCategoryFilter != null && widget.activeCategoryFilter!.isNotEmpty) count++;
+    if (_searchQuery.isNotEmpty) count++;
+    return count;
+  }
+
+  void _resetAllFilters() {
+    setState(() {
+      _typeFilter = 'all';
+      _statusFilter = 'all';
+      _amountFilter = 'all';
+      _searchQuery = '';
+      _searchController.clear();
+    });
+    widget.onCategoryFilterChanged(null);
+  }
+
+  List<String> get _availableCategories {
+    final set = <String>{};
+    for (var tx in widget.transactions) {
+      if (tx.category.isNotEmpty) set.add(tx.category);
+    }
+    final list = set.toList()..sort();
+    return list;
+  }
+
   List<TransactionItem> get _filteredTransactions {
     final list = widget.transactions.where((tx) {
       // Type filter
       if (_typeFilter == 'expense' && !tx.isExpense) return false;
       if (_typeFilter == 'income' && !tx.isIncome) return false;
+
+      // Status filter
+      if (_statusFilter == 'confirmed' && !tx.isConfirmed) return false;
+      if (_statusFilter == 'pending' && tx.isConfirmed) return false;
+
+      // Amount filter
+      if (_amountFilter == 'under_100k' && tx.amount >= 100000) return false;
+      if (_amountFilter == '100k_500k' && (tx.amount < 100000 || tx.amount > 500000)) return false;
+      if (_amountFilter == 'above_500k' && tx.amount <= 500000) return false;
 
       // Category filter
       if (widget.activeCategoryFilter != null &&
@@ -93,6 +134,248 @@ class _MonthlyTransactionListSectionState
       grouped[key]!.add(tx);
     }
     return grouped;
+  }
+
+  void _showComprehensiveFilterSheet(BuildContext context) {
+    String tempType = _typeFilter;
+    String tempStatus = _statusFilter;
+    String tempAmount = _amountFilter;
+    String? tempCategory = widget.activeCategoryFilter;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (modalContext, setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Filter Transaksi',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                          TextButton(
+                            key: const Key('reset_filter_modal_button'),
+                            onPressed: () {
+                              setModalState(() {
+                                tempType = 'all';
+                                tempStatus = 'all';
+                                tempAmount = 'all';
+                                tempCategory = null;
+                              });
+                            },
+                            child: const Text('Reset', style: TextStyle(color: AppTheme.primaryColor)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Tipe Transaksi
+                      const Text(
+                        'Tipe Transaksi',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          _buildModalChip(
+                            label: 'Semua',
+                            isSelected: tempType == 'all',
+                            onTap: () => setModalState(() => tempType = 'all'),
+                          ),
+                          _buildModalChip(
+                            label: 'Pengeluaran',
+                            isSelected: tempType == 'expense',
+                            onTap: () => setModalState(() => tempType = 'expense'),
+                          ),
+                          _buildModalChip(
+                            label: 'Pemasukan',
+                            isSelected: tempType == 'income',
+                            onTap: () => setModalState(() => tempType = 'income'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Status Verifikasi
+                      const Text(
+                        'Status Verifikasi',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          _buildModalChip(
+                            label: 'Semua Status',
+                            isSelected: tempStatus == 'all',
+                            onTap: () => setModalState(() => tempStatus = 'all'),
+                          ),
+                          _buildModalChip(
+                            label: 'Terkonfirmasi',
+                            isSelected: tempStatus == 'confirmed',
+                            onTap: () => setModalState(() => tempStatus = 'confirmed'),
+                          ),
+                          _buildModalChip(
+                            label: 'Menunggu Konfirmasi',
+                            isSelected: tempStatus == 'pending',
+                            onTap: () => setModalState(() => tempStatus = 'pending'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Rentang Nominal
+                      const Text(
+                        'Rentang Nominal',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          _buildModalChip(
+                            label: 'Semua Nominal',
+                            isSelected: tempAmount == 'all',
+                            onTap: () => setModalState(() => tempAmount = 'all'),
+                          ),
+                          _buildModalChip(
+                            label: '< Rp 100rb',
+                            isSelected: tempAmount == 'under_100k',
+                            onTap: () => setModalState(() => tempAmount = 'under_100k'),
+                          ),
+                          _buildModalChip(
+                            label: 'Rp 100rb - 500rb',
+                            isSelected: tempAmount == '100k_500k',
+                            onTap: () => setModalState(() => tempAmount = '100k_500k'),
+                          ),
+                          _buildModalChip(
+                            label: '> Rp 500rb',
+                            isSelected: tempAmount == 'above_500k',
+                            onTap: () => setModalState(() => tempAmount = 'above_500k'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Kategori Transaksi
+                      if (_availableCategories.isNotEmpty) ...[
+                        const Text(
+                          'Kategori',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: _availableCategories.map((cat) {
+                            final isSel = tempCategory?.toLowerCase() == cat.toLowerCase();
+                            return _buildModalChip(
+                              label: cat,
+                              isSelected: isSel,
+                              onTap: () {
+                                setModalState(() {
+                                  tempCategory = isSel ? null : cat;
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Tombol Terapkan
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          key: const Key('apply_filter_modal_button'),
+                          onPressed: () {
+                            setState(() {
+                              _typeFilter = tempType;
+                              _statusFilter = tempStatus;
+                              _amountFilter = tempAmount;
+                            });
+                            widget.onCategoryFilterChanged(tempCategory);
+                            Navigator.pop(ctx);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: const Text(
+                            'Terapkan Filter',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildModalChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      selectedColor: AppTheme.primaryColor.withValues(alpha: 0.15),
+      backgroundColor: Colors.grey.shade100,
+      labelStyle: TextStyle(
+        fontSize: 11,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+        color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary,
+      ),
+      side: BorderSide(
+        color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+      ),
+      onSelected: (_) => onTap(),
+    );
   }
 
   void _showTransactionDetailSheet(TransactionItem tx) {
@@ -264,6 +547,7 @@ class _MonthlyTransactionListSectionState
         : 'Riwayat Transaksi Bulan Ini';
 
     final grouped = _groupByDate(filtered);
+    final activeCount = _activeFiltersCount;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -276,7 +560,7 @@ class _MonthlyTransactionListSectionState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Title & Counter & Sort
+          // Section Title & Counter & Sort & Comprehensive Filter Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -331,6 +615,49 @@ class _MonthlyTransactionListSectionState
                     ),
                   ),
                   const SizedBox(width: 6),
+
+                  // Comprehensive Filter Sheet Button with badge
+                  InkWell(
+                    key: const Key('open_filter_sheet_button'),
+                    onTap: () => _showComprehensiveFilterSheet(context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: activeCount > 0
+                            ? AppTheme.primaryColor.withValues(alpha: 0.12)
+                            : AppTheme.backgroundColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: activeCount > 0 ? AppTheme.primaryColor : AppTheme.borderSubtle,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.tune_rounded,
+                            size: 16,
+                            color: activeCount > 0 ? AppTheme.primaryColor : AppTheme.textSecondary,
+                          ),
+                          if (activeCount > 0) ...[
+                            const SizedBox(width: 3),
+                            Text(
+                              '$activeCount',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+
+                  // Sort Popup Menu
                   PopupMenuButton<String>(
                     key: const Key('transaction_sort_button'),
                     initialValue: _sortBy,
@@ -424,7 +751,7 @@ class _MonthlyTransactionListSectionState
 
           const SizedBox(height: 12),
 
-          // Filter Chips: Semua, Pengeluaran, Pemasukan, and Active Category
+          // Quick Filter Chips: Semua, Pengeluaran, Pemasukan, and Active Filters
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -479,6 +806,51 @@ class _MonthlyTransactionListSectionState
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
+                if (_statusFilter != 'all') ...[
+                  const SizedBox(width: 8),
+                  Chip(
+                    key: const Key('active_status_filter_chip'),
+                    label: Text(
+                      'Status: ${_statusFilter == 'confirmed' ? 'Terkonfirmasi' : 'Menunggu'}',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    backgroundColor: Colors.blueGrey,
+                    deleteIcon: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                    onDeleted: () => setState(() => _statusFilter = 'all'),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+                if (_amountFilter != 'all') ...[
+                  const SizedBox(width: 8),
+                  Chip(
+                    key: const Key('active_amount_filter_chip'),
+                    label: Text(
+                      'Nominal: ${_getAmountLabel(_amountFilter)}',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    backgroundColor: Colors.teal,
+                    deleteIcon: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                    onDeleted: () => setState(() => _amountFilter = 'all'),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+                if (activeCount > 0) ...[
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    key: const Key('clear_all_filters_chip'),
+                    label: const Text('Reset Filter', style: TextStyle(fontSize: 10, color: AppTheme.primaryColor)),
+                    onPressed: _resetAllFilters,
+                    backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    side: const BorderSide(color: AppTheme.primaryColor, width: 0.8),
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
               ],
             ),
           ),
@@ -506,6 +878,14 @@ class _MonthlyTransactionListSectionState
                         color: AppTheme.textSecondary,
                       ),
                     ),
+                    if (activeCount > 0) ...[
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        key: const Key('reset_filters_empty_state_button'),
+                        onPressed: _resetAllFilters,
+                        child: const Text('Hapus Semua Filter'),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -703,6 +1083,19 @@ class _MonthlyTransactionListSectionState
     );
   }
 
+  String _getAmountLabel(String range) {
+    switch (range) {
+      case 'under_100k':
+        return '< 100rb';
+      case '100k_500k':
+        return '100rb - 500rb';
+      case 'above_500k':
+        return '> 500rb';
+      default:
+        return 'Semua';
+    }
+  }
+
   String _getMonthName(int month) {
     const names = [
       '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
@@ -714,5 +1107,7 @@ class _MonthlyTransactionListSectionState
 }
 
 // Convenient export alias matching the task title directly
+typedef MonthlyTransactionSearchFilter = MonthlyTransactionListSection;
+typedef PencarianDanFilterTransaksiPerBulan = MonthlyTransactionListSection;
 typedef SelectedMonthTransactionList = MonthlyTransactionListSection;
 typedef DaftarTransaksiBulanTerpilih = MonthlyTransactionListSection;
