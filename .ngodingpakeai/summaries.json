@@ -1,0 +1,17 @@
+{
+  ".claude/skills/ngodingpakeai/SKILL.md": {
+    "summary": "Definisi skill Claude Code untuk integrasi NgodingPakeAI, memuat panduan sinkronisasi metadata dan ringkasan codebase, reverse planning, serta aturan privasi data."
+  },
+  ".codex/skills/ngodingpakeai/SKILL.md": {
+    "summary": "Definisi skill OpenAI Codex untuk integrasi NgodingPakeAI, memuat instruksi alur kerja sync CLI, reverse planning otomatis, serta batasan keamanan kode."
+  },
+  ".ngodingpakeaiignore": {
+    "summary": "File konfigurasi pengabaian sinkronisasi NgodingPakeAI dengan sintaks gitignore untuk mengecualikan path dan file tambahan dari indeks repositori."
+  },
+  "AGENTS.md": {
+    "summary": "Instruksi dan aturan repositori untuk AI agent mengenai alur sinkronisasi NgodingPakeAI, manajemen konteks proyek, reverse PRD, dan kepatuhan privasi kode sumber."
+  },
+  "README.md": {
+    "summary": "Dokumentasi utama proyek moneta-v2 yang mendeskripsikan aplikasi mobile pencatatan keuangan pribadi dengan pengalaman semudah interaksi percakapan chat."
+  }
+}

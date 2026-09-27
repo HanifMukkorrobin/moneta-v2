@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-27T03:05:22.636Z",
+  "project": "moneta-v2",
+  "stats": {
+    "scanned": 31,
+    "included": 30,
+    "ignored": 1,
+    "skippedBinary": 0
+  },
+  "byLanguage": {
+    "markdown": 6,
+    "yaml": 2
+  },
+  "files": [
+    {
+      "path": ".DS_Store",
+      "language": null,
+      "kind": null,
+      "size": 0,
+      "fileHash": "e2eb93a61ffd7877ea5c751abcb3a618e8e2e9a2073a27f66d4114fe10819f86",
+      "ignored": true,
+      "ignoreReason": "matched hard-block rule (secret/build/dependency)"
+    },
+    {
+      "path": ".agents/skills/ngodingpakeai/SKILL.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 19096,
+      "fileHash": "4fe4e3ebc20bea6d8469c19fec7cffe60a8137c86c07929ccb43124067f7dbf0",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": ".claude/skills/ngodingpakeai/SKILL.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 19096,
+      "fileHash": "4fe4e3ebc20bea6d8469c19fec7cffe60a8137c86c07929ccb43124067f7dbf0",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": ".codex/skills/ngodingpakeai/SKILL.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 19096,
+      "fileHash": "4fe4e3ebc20bea6d8469c19fec7cffe60a8137c86c07929ccb43124067f7dbf0",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": ".gitignore",
+      "language": null,
+      "kind": null,
+      "size": 336,
+      "fileHash": "b1f311b0c2907dd82d91b233c887dc0d2967ea27389ccdd9e6bd8b7950ec8522",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": ".ngodingpakeaiignore",
+      "language": null,
+      "kind": null,
+      "size": 351,
+      "fileHash": "ec9821559c1214e2bb364b49fbba21b222aedd324a5b512ef4ef8fe5a00a2836",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 18850,
+      "fileHash": "8daa9dc8aee3370b3018d3a542dfbb87c83328679445d652369d07cabed5f6ea",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 87,
+      "fileHash": "25b6101da0059abd9241a84cd5238681e05610aad0107e2c81dffc8a3a95b350",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.gitignore",
+      "language": null,
+      "kind": null,
+      "size": 703,
+      "fileHash": "4a8d984279954e0461e0ffef9b9e7455340a0a762f227c01065a53482a83a4f1",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.idea/libraries/Dart_SDK.xml",
+      "language": null,
+      "kind": null,
+      "size": 1029,
+      "fileHash": "92e2a6a3115ca8fe399d1f3a28b8e7ec6632488247a05745310264927c053824",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.idea/libraries/KotlinJavaRuntime.xml",
+      "language": null,
+      "kind": null,
+      "size": 599,
+      "fileHash": "82dff6dd065164518cd13ff2b677527601ef22bd9fd7cc4e607c38a2412e6cf9",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.idea/modules.xml",
+      "language": null,
+      "kind": null,
+      "size": 380,
+      "fileHash": "7e7b4fac9a2036ff64bac4b470e0b664c7ce3af8fb4ab08d83b3d3b78bf6bde0",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.idea/runConfigurations/main_dart.xml",
+      "language": null,
+      "kind": null,
+      "size": 271,
+      "fileHash": "0b2227c29b468c49f41b8b3138433e0de33d83dbe13b4002c069800e1d9b9322",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.idea/workspace.xml",
+      "language": null,
+      "kind": null,
+      "size": 1517,
+      "fileHash": "1f4bdf93fa0c89b32a2f788bcbd55363a23cd0db9b4c05a905247ac270c7061b",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/.metadata",
+      "language": null,
+      "kind": null,
+      "size": 1706,
+      "fileHash": "2be0592f4f679dcb485692ae985fcbf038d0363d0f87accb927db7de7ac891de",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/README.md",
+      "language": "markdown",
+      "kind": "doc",
+      "size": 549,
+      "fileHash": "612b4aa675e6409682362ac1204023a43296924ad71bc1ba00a9edc4451d27ba",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/analysis_options.yaml",
+      "language": "yaml",
+      "kind": "source",
+      "size": 1420,
+      "fileHash": "e0ea485cfdbc3e12b93efb8679a5ea73ebfe20ea4ca0c473dc594fc2fb274ed5",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/main.dart",
+      "language": null,
+      "kind": null,
+      "size": 512,
+      "fileHash": "c70c58782810da34443333437f679795e58f918f2c78f2a15dd6911f2a735a63",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/mock/mock_data.dart",
+      "language": null,
+      "kind": null,
+      "size": 6904,
+      "fileHash": "e45bd441d78ea5913776f44317239ec3eb0ee727457f26b866d468ce69d6bd1a",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/models/chat_message.dart",
+      "language": null,
+      "kind": null,
+      "size": 370,
+      "fileHash": "bf540be4a678009025f16c9033bae2359fbfb9b4897d367b7032adb06fa0e57d",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/models/transaction_item.dart",
+      "language": null,
+      "kind": null,
+      "size": 1352,
+      "fileHash": "3d4701d8f3c4d81eae55a612bebda54896c7acb2d9220bba6407420aac13a44b",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/screens/chat/chat_screen.dart",
+      "language": null,
+      "kind": null,
+      "size": 15336,
+      "fileHash": "4ae59f7be62f832dcd0026eec1915bb42d82130a4fc2d8a5327d6aae36a859a4",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/chat_bubble.dart",
+      "language": null,
+      "kind": null,
+      "size": 3159,
+      "fileHash": "3f0028057f1220920bcd8d220c3c140eeaabaaa026ed1bdac6303f18270f795e",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/quick_suggestion_chips.dart",
+      "language": null,
+      "kind": null,
+      "size": 1905,
+      "fileHash": "ef014ee0612a4b3836b2cf59f615c79a3ef99606e3380fb6a14715459ea4e29e",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
+      "language": null,
+      "kind": null,
+      "size": 10005,
+      "fileHash": "04e72ef5583bf91151dc3011d858bddb9bfad159a7908fc6cfa57949127fb1f1",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/screens/main_navigation_screen.dart",
+      "language": null,
+      "kind": null,
+      "size": 5521,
+      "fileHash": "8f3a169009db85fec2fcd695e4afc695919786f30aa7b86e3a34f26e23005e14",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/lib/theme/app_theme.dart",
+      "language": null,
+      "kind": null,
+      "size": 3413,
+      "fileHash": "a9fff6034836ac993d96fb47ab2d121aac6c93d9fae6f5862d77b59bb4163dfc",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/moneta.iml",
+      "language": null,
+      "kind": null,
+      "size": 842,
+      "fileHash": "078556ebd66f23eeb43b60557b1ed3d3e0b1a2a6297ccb71ad3b779316c7880d",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/pubspec.lock",
+      "language": null,
+      "kind": null,
+      "size": 6299,
+      "fileHash": "57deee7971028f47719477ea905c3579c339cef8b36d83bfb2130bcd45f59516",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/pubspec.yaml",
+      "language": "yaml",
+      "kind": "source",
+      "size": 3849,
+      "fileHash": "240ed2230549ce13019bdc751ba33218abb3b6db8ef5e1c0c82bad4d0bcf114a",
+      "ignored": false,
+      "ignoreReason": null
+    },
+    {
+      "path": "frontend/test/widget_test.dart",
+      "language": null,
+      "kind": "test",
+      "size": 2713,
+      "fileHash": "dd9392e061290c129e439163b46f6e5c2f326fe143dc39a019d0a19e39cffe1f",
+      "ignored": false,
+      "ignoreReason": null
+    }
+  ]
+}

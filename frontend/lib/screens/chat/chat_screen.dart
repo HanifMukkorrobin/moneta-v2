@@ -1,0 +1,470 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../mock/mock_data.dart';
+import '../../models/chat_message.dart';
+import '../../models/transaction_item.dart';
+import '../../theme/app_theme.dart';
+import 'widgets/chat_bubble.dart';
+import 'widgets/quick_suggestion_chips.dart';
+import 'widgets/transaction_card.dart';
+
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  late List<ChatMessage> _messages;
+  bool _isAiTyping = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _messages = MockData.getInitialMessages();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _handleSendMessage(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+
+    final userMessage = ChatMessage(
+      id: 'msg_${DateTime.now().millisecondsSinceEpoch}',
+      text: trimmed,
+      isUser: true,
+      timestamp: DateTime.now(),
+    );
+
+    setState(() {
+      _messages.add(userMessage);
+      _isAiTyping = true;
+    });
+    _textController.clear();
+    _scrollToBottom();
+
+    // Simulate AI parsing delay (9Router mock)
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      final parsed = MockData.parseText(trimmed);
+
+      final aiMessage = ChatMessage(
+        id: 'msg_ai_${DateTime.now().millisecondsSinceEpoch}',
+        text: 'AI berhasil mengenali transaksi. Konfirmasi untuk mencatat:',
+        isUser: false,
+        timestamp: DateTime.now(),
+        isAi: true,
+        transaction: parsed,
+      );
+
+      setState(() {
+        _isAiTyping = false;
+        _messages.add(aiMessage);
+      });
+      _scrollToBottom();
+    });
+  }
+
+  void _handleConfirmTransaction(TransactionItem tx) {
+    setState(() {
+      tx.isConfirmed = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text('Transaksi ${tx.formattedAmount} berhasil disimpan!'),
+          ],
+        ),
+        backgroundColor: AppTheme.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _handleChangeCategory(TransactionItem tx) {
+    final categories = tx.isIncome
+        ? MockData.incomeCategories
+        : MockData.expenseCategories;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Pilih Kategori Transaksi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: categories.map((cat) {
+                    final isSelected = tx.category == cat;
+                    return ChoiceChip(
+                      label: Text(cat),
+                      selected: isSelected,
+                      selectedColor: AppTheme.primaryColor,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : AppTheme.textPrimary,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                        fontSize: 13,
+                      ),
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            tx.category = cat;
+                          });
+                          Navigator.pop(ctx);
+                        }
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleDeleteTransaction(ChatMessage message) {
+    setState(() {
+      _messages.remove(message);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Transaksi dibatalkan'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  double get _todayTotalExpense {
+    double total = 0;
+    for (var m in _messages) {
+      if (m.transaction != null &&
+          m.transaction!.isConfirmed &&
+          m.transaction!.isExpense) {
+        total += m.transaction!.amount;
+      }
+    }
+    return total;
+  }
+
+  double get _todayTotalIncome {
+    double total = 0;
+    for (var m in _messages) {
+      if (m.transaction != null &&
+          m.transaction!.isConfirmed &&
+          m.transaction!.isIncome) {
+        total += m.transaction!.amount;
+      }
+    }
+    return total;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Moneta AI',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Text(
+                      '9Router AI Siap',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, size: 20),
+            tooltip: 'Reset Percakapan',
+            onPressed: () {
+              setState(() {
+                _messages = MockData.getInitialMessages();
+              });
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Daily Mini Summary Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: const Border(
+                bottom: BorderSide(color: AppTheme.borderSubtle),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.trending_down,
+                        color: AppTheme.expenseColor, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Keluar: ${currencyFormatter.format(_todayTotalExpense)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(height: 12, width: 1, color: AppTheme.borderSubtle),
+                Row(
+                  children: [
+                    const Icon(Icons.trending_up,
+                        color: AppTheme.incomeColor, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Masuk: ${currencyFormatter.format(_todayTotalIncome)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Message list
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              itemCount: _messages.length + (_isAiTyping ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (_isAiTyping && index == _messages.length) {
+                  return Container(
+                    margin: const EdgeInsets.only(left: 16, bottom: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppTheme.primaryColor),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '9Router AI sedang menganalisa...',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final message = _messages[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ChatBubble(message: message),
+                    if (message.transaction != null)
+                      TransactionCard(
+                        transaction: message.transaction!,
+                        onConfirm: () =>
+                            _handleConfirmTransaction(message.transaction!),
+                        onChangeCategory: () =>
+                            _handleChangeCategory(message.transaction!),
+                        onDelete: () => _handleDeleteTransaction(message),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // Quick Suggestion Chips
+          QuickSuggestionChips(
+            onSelectSuggestion: (prompt) {
+              _textController.text = prompt;
+              _handleSendMessage(prompt);
+            },
+          ),
+
+          // Input Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: AppTheme.borderSubtle),
+              ),
+            ),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.mic_none_rounded,
+                      color: AppTheme.textSecondary,
+                    ),
+                    tooltip: 'Input Suara',
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Fitur input suara (voice note) dalam tahap pengembangan'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: _handleSendMessage,
+                      decoration: const InputDecoration(
+                        hintText: 'Ketik transaksi... mis. makan padang 25rb',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.send_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () =>
+                          _handleSendMessage(_textController.text),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
