@@ -1,6 +1,6 @@
 {
   "repo": "HanifMukkorrobin/moneta-v2",
-  "generatedForCommit": "8fbe88083f222afe057d5c2365b0039b3d4b87a7",
+  "generatedForCommit": "b1e0ea2c7940186fcbd52de81042c53a37b246ec",
   "files": [
     {
       "path": ".agents/skills/ngodingpakeai/SKILL.md",
@@ -106,19 +106,19 @@
     },
     {
       "path": "frontend/lib/mock/category_confirmation_mock_data.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 3588
     },
     {
       "path": "frontend/lib/mock/mock_data.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 10305
+      "size": 10441
     },
     {
       "path": "frontend/lib/models/category_confirmation_item.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 2414
     },
@@ -136,27 +136,39 @@
     },
     {
       "path": "frontend/lib/models/transaction_item.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 1328
+      "size": 1904
     },
     {
       "path": "frontend/lib/screens/category_confirmation/category_confirmation_screen.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 19811
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/category_confirmation_card.dart",
-      "reason": "new",
+      "reason": "changed",
       "language": null,
-      "size": 20943
+      "size": 12688
     },
     {
       "path": "frontend/lib/screens/category_confirmation/widgets/edit_category_sheet.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 22736
+    },
+    {
+      "path": "frontend/lib/screens/category_confirmation/widgets/guessed_category_badge.dart",
+      "reason": "new",
+      "language": null,
+      "size": 9231
+    },
+    {
+      "path": "frontend/lib/screens/category_confirmation/widgets/transaction_type_indicator.dart",
+      "reason": "new",
+      "language": null,
+      "size": 2764
     },
     {
       "path": "frontend/lib/screens/chat/chat_history_screen.dart",
@@ -166,7 +178,7 @@
     },
     {
       "path": "frontend/lib/screens/chat/chat_screen.dart",
-      "reason": "changed",
+      "reason": "needs_summary",
       "language": null,
       "size": 16187
     },
@@ -208,9 +220,9 @@
     },
     {
       "path": "frontend/lib/screens/chat/widgets/transaction_card.dart",
-      "reason": "needs_summary",
+      "reason": "changed",
       "language": null,
-      "size": 14812
+      "size": 12198
     },
     {
       "path": "frontend/lib/screens/main_navigation_screen.dart",
@@ -256,7 +268,7 @@
     },
     {
       "path": "frontend/test/category_confirmation_screen_test.dart",
-      "reason": "new",
+      "reason": "needs_summary",
       "language": null,
       "size": 7753
     },
@@ -277,6 +289,12 @@
       "reason": "needs_summary",
       "language": null,
       "size": 4447
+    },
+    {
+      "path": "frontend/test/guessed_category_and_type_indicator_test.dart",
+      "reason": "new",
+      "language": null,
+      "size": 5390
     },
     {
       "path": "frontend/test/manual_input_flow_test.dart",

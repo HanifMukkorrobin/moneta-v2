@@ -6,7 +6,7 @@ import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/category_confirmation_card.dart';
-import 'widgets/edit_category_sheet.dart';
+import 'widgets/category_picker_sheet.dart';
 
 class CategoryConfirmationScreen extends StatefulWidget {
   const CategoryConfirmationScreen({super.key});
@@ -167,11 +167,32 @@ class _CategoryConfirmationScreenState
     );
   }
 
+  void _handleToggleType(CategoryConfirmationItem item) {
+    final newType = item.isExpense ? 'income' : 'expense';
+    final defaultCat = newType == 'income' ? 'Gaji' : 'Makan & Minuman';
+    setState(() {
+      item.type = newType;
+      item.detectedCategory = defaultCat;
+    });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Jenis transaksi diubah menjadi ${newType == 'expense' ? 'Pengeluaran' : 'Pemasukan'}',
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   void _handleOpenEditCategory(CategoryConfirmationItem item) {
-    EditCategorySheet.show(
+    CategoryPickerSheet.show(
       context,
-      item: item,
-      onSave: (newCategory, newType, isCustom) {
+      initialCategory: item.detectedCategory,
+      initialType: item.type,
+      onSelected: (newCategory, newType, isCustom) {
         setState(() {
           item.detectedCategory = newCategory;
           item.type = newType;
@@ -481,6 +502,7 @@ class _CategoryConfirmationScreenState
                         onEditCategory: () => _handleOpenEditCategory(item),
                         onSelectAlternative: (alt) =>
                             _handleSelectAlternative(item, alt),
+                        onToggleType: () => _handleToggleType(item),
                         onDelete: () => _handleDeleteItem(item),
                       );
                     },

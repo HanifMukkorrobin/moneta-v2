@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moneta/screens/category_confirmation/category_confirmation_screen.dart';
 import 'package:moneta/screens/category_confirmation/widgets/category_confirmation_card.dart';
-import 'package:moneta/screens/category_confirmation/widgets/edit_category_sheet.dart';
+import 'package:moneta/screens/category_confirmation/widgets/category_picker_sheet.dart';
 import 'package:moneta/state/app_state.dart';
 import 'package:moneta/theme/app_theme.dart';
 
@@ -162,8 +162,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Sheet should be visible
-    expect(find.byType(EditCategorySheet), findsOneWidget);
-    expect(find.text('Perbaiki / Ganti Kategori'), findsOneWidget);
+    expect(find.byType(CategoryPickerSheet), findsOneWidget);
+    expect(find.text('Pemilih Kategori Manual'), findsOneWidget);
 
     // Pick "Belanja" category
     final belanjaChip = find.widgetWithText(ChoiceChip, 'Belanja');
@@ -174,13 +174,13 @@ void main() {
 
     // Tap apply button
     final applyButton =
-        find.widgetWithText(ElevatedButton, 'Terapkan Perubahan Kategori');
+        find.widgetWithText(ElevatedButton, 'Terapkan Kategori');
     expect(applyButton, findsOneWidget);
     await tester.tap(applyButton);
     await tester.pumpAndSettle();
 
     // Sheet should close and SnackBar appear
-    expect(find.byType(EditCategorySheet), findsNothing);
+    expect(find.byType(CategoryPickerSheet), findsNothing);
     expect(find.textContaining('Kategori diperbarui:'), findsOneWidget);
   });
 

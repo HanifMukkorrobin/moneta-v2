@@ -9,6 +9,7 @@ class CategoryConfirmationCard extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback onEditCategory;
   final Function(String) onSelectAlternative;
+  final VoidCallback? onToggleType;
   final VoidCallback onDelete;
 
   const CategoryConfirmationCard({
@@ -17,6 +18,7 @@ class CategoryConfirmationCard extends StatelessWidget {
     required this.onConfirm,
     required this.onEditCategory,
     required this.onSelectAlternative,
+    this.onToggleType,
     required this.onDelete,
   });
 
@@ -112,6 +114,7 @@ class CategoryConfirmationCard extends StatelessWidget {
                 // Type Pill (Pilah Masuk / Keluar)
                 TransactionTypeIndicator(
                   type: item.type,
+                  onToggle: onToggleType,
                   showReasoning: true,
                   reasoning: item.typeReasoning,
                   isCompact: true,
