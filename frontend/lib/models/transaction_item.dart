@@ -11,6 +11,7 @@ class TransactionItem {
   final double? confidenceScore;
   final String? aiReasoning;
   final bool isGuessedCategory;
+  bool isCustomCategory;
 
   TransactionItem({
     required this.id,
@@ -23,6 +24,7 @@ class TransactionItem {
     this.confidenceScore,
     this.aiReasoning,
     this.isGuessedCategory = true,
+    this.isCustomCategory = false,
   });
 
   bool get isIncome => type == 'income';
@@ -58,6 +60,7 @@ class TransactionItem {
     double? confidenceScore,
     String? aiReasoning,
     bool? isGuessedCategory,
+    bool? isCustomCategory,
   }) {
     return TransactionItem(
       id: id ?? this.id,
@@ -70,6 +73,7 @@ class TransactionItem {
       confidenceScore: confidenceScore ?? this.confidenceScore,
       aiReasoning: aiReasoning ?? this.aiReasoning,
       isGuessedCategory: isGuessedCategory ?? this.isGuessedCategory,
+      isCustomCategory: isCustomCategory ?? this.isCustomCategory,
     );
   }
 }

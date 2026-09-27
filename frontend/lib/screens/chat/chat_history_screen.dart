@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import '../../models/chat_log_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../category_confirmation/widgets/category_picker_sheet.dart';
+import '../history/transaction_history_screen.dart';
 import 'widgets/transaction_card.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
@@ -124,6 +126,18 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         title: const Text('Riwayat Obrolan'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, size: 22),
+            tooltip: 'Riwayat Catatan Transaksi',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const TransactionHistoryScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Segarkan',
             onPressed: () {
@@ -134,6 +148,45 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       ),
       body: Column(
         children: [
+          // Banner link to full transaction history
+          Material(
+            color: AppTheme.primaryColor.withValues(alpha: 0.08),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TransactionHistoryScreen(),
+                  ),
+                );
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.category_rounded,
+                      size: 15,
+                      color: AppTheme.primaryColor,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Kelola & ganti kategori catatan transaksi lengkap →',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           // Quick Stats Banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -278,55 +331,132 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(color: AppTheme.borderSubtle),
                                 ),
-                                child: Row(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(
-                                      TransactionCard.getCategoryIcon(
-                                        item.transaction!.category,
-                                        item.transaction!.isExpense,
-                                      ),
-                                      size: 16,
-                                      color: AppTheme.primaryColor,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        '${item.transaction!.category} • ${item.transaction!.formattedAmount}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: item.transaction!.isExpense
-                                              ? AppTheme.expenseColor
-                                              : AppTheme.incomeColor,
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          TransactionCard.getCategoryIcon(
+                                            item.transaction!.category,
+                                            item.transaction!.isExpense,
+                                          ),
+                                          size: 16,
+                                          color: AppTheme.primaryColor,
                                         ),
-                                      ),
-                                    ),
-                                    if (item.isPending) ...[
-                                      TextButton(
-                                        onPressed: () {
-                                          if (item.transaction != null) {
-                                            AppState.instance.confirmTransaction(item.transaction!.id);
-                                          } else {
-                                            setState(() {
-                                              item.status = ChatLogStatus.confirmed;
-                                            });
-                                          }
-                                          widget.onConfirmPending?.call(item);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Transaksi dikonfirmasi!'),
-                                              duration: Duration(seconds: 1),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            '${item.transaction!.category} • ${item.transaction!.formattedAmount}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: item.transaction!.isExpense
+                                                  ? AppTheme.expenseColor
+                                                  : AppTheme.incomeColor,
                                             ),
-                                          );
-                                        },
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          minimumSize: Size.zero,
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                        child: const Text('Simpan', style: TextStyle(fontSize: 12)),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            CategoryPickerSheet.show(
+                                              context,
+                                              initialCategory:
+                                                  item.transaction!.category,
+                                              initialType:
+                                                  item.transaction!.type,
+                                              onSelected:
+                                                  (newCat, newType, isCustom) {
+                                                final oldCat =
+                                                    item.transaction!.category;
+                                                AppState.instance
+                                                    .updateTransactionCategory(
+                                                  item.transaction!.id,
+                                                  newCat,
+                                                  newType: newType,
+                                                  isCustom: isCustom,
+                                                );
+                                                ScaffoldMessenger.of(context)
+                                                    .hideCurrentSnackBar();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        'Kategori catatan diubah: $oldCat → $newCat'),
+                                                    behavior:
+                                                        SnackBarBehavior.floating,
+                                                    duration:
+                                                        const Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                AppTheme.primaryColor,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
+                                            minimumSize: Size.zero,
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: const [
+                                              Icon(Icons.edit_rounded, size: 13),
+                                              SizedBox(width: 4),
+                                              Text('Ganti Kategori',
+                                                  style: TextStyle(fontSize: 11)),
+                                            ],
+                                          ),
+                                        ),
+                                        if (item.isPending) ...[
+                                          const SizedBox(width: 8),
+                                          TextButton(
+                                            onPressed: () {
+                                              if (item.transaction != null) {
+                                                AppState.instance
+                                                    .confirmTransaction(
+                                                        item.transaction!.id);
+                                              } else {
+                                                setState(() {
+                                                  item.status =
+                                                      ChatLogStatus.confirmed;
+                                                });
+                                              }
+                                              widget.onConfirmPending?.call(item);
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Transaksi dikonfirmasi!'),
+                                                  duration:
+                                                      Duration(seconds: 1),
+                                                ),
+                                              );
+                                            },
+                                            style: TextButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 2),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize: MaterialTapTargetSize
+                                                  .shrinkWrap,
+                                            ),
+                                            child: const Text('Simpan',
+                                                style: TextStyle(fontSize: 12)),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),

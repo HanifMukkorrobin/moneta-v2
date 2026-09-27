@@ -224,16 +224,19 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                                           : Colors.grey.shade600,
                                     ),
                                     const SizedBox(width: 6),
-                                    Text(
-                                      'Pengeluaran',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: _isExpense
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: _isExpense
-                                            ? AppTheme.expenseColor
-                                            : Colors.grey.shade700,
+                                    Flexible(
+                                      child: Text(
+                                        'Pengeluaran',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: _isExpense
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                          color: _isExpense
+                                              ? AppTheme.expenseColor
+                                              : Colors.grey.shade700,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -282,16 +285,19 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                                           : Colors.grey.shade600,
                                     ),
                                     const SizedBox(width: 6),
-                                    Text(
-                                      'Pemasukan',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: !_isExpense
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: !_isExpense
-                                            ? AppTheme.incomeColor
-                                            : Colors.grey.shade700,
+                                    Flexible(
+                                      child: Text(
+                                        'Pemasukan',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: !_isExpense
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                          color: !_isExpense
+                                              ? AppTheme.incomeColor
+                                              : Colors.grey.shade700,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -309,13 +315,15 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          _isCustomMode
-                              ? 'Buat Kategori Kustom'
-                              : 'Daftar Kategori',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Text(
+                            _isCustomMode
+                                ? 'Buat Kategori Kustom'
+                                : 'Daftar Kategori',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         TextButton.icon(

@@ -32,6 +32,23 @@ class AppState extends ChangeNotifier {
     return list;
   }
 
+  List<TransactionItem> get allTransactions {
+    final Map<String, TransactionItem> map = {};
+    for (var m in _messages) {
+      if (m.transaction != null) {
+        map[m.transaction!.id] = m.transaction!;
+      }
+    }
+    for (var log in _chatLogs) {
+      if (log.transaction != null) {
+        map.putIfAbsent(log.transaction!.id, () => log.transaction!);
+      }
+    }
+    final list = map.values.toList();
+    list.sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    return list;
+  }
+
   double get todayTotalExpense {
     double total = 0;
     for (var tx in confirmedTransactions) {
@@ -171,6 +188,37 @@ class AppState extends ChangeNotifier {
         log.transaction!.category = updated.category;
         log.transaction!.type = updated.type;
         log.transaction!.occurredAt = updated.occurredAt;
+        log.transaction!.isCustomCategory = updated.isCustomCategory;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  /// Update category and optionally type or custom status for a transaction
+  void updateTransactionCategory(
+    String transactionId,
+    String newCategory, {
+    String? newType,
+    bool isCustom = false,
+  }) {
+    for (var m in _messages) {
+      if (m.transaction != null && m.transaction!.id == transactionId) {
+        m.transaction!.category = newCategory;
+        if (newType != null) {
+          m.transaction!.type = newType;
+        }
+        m.transaction!.isCustomCategory = isCustom;
+      }
+    }
+
+    for (var log in _chatLogs) {
+      if (log.transaction != null && log.transaction!.id == transactionId) {
+        log.transaction!.category = newCategory;
+        if (newType != null) {
+          log.transaction!.type = newType;
+        }
+        log.transaction!.isCustomCategory = isCustom;
       }
     }
 

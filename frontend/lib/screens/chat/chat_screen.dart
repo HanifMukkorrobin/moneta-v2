@@ -5,6 +5,7 @@ import '../../models/transaction_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../category_confirmation/category_confirmation_screen.dart';
+import '../history/transaction_history_screen.dart';
 import 'chat_history_screen.dart';
 import 'widgets/ai_fallback_card.dart';
 import 'widgets/chat_bubble.dart';
@@ -265,6 +266,18 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const CategoryConfirmationScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, size: 22),
+            tooltip: 'Riwayat Catatan Transaksi',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const TransactionHistoryScreen(),
                 ),
               );
             },
