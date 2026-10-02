@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../mock/saving_tips_mock_data.dart';
 import '../../models/saving_tip_item.dart';
+import '../../services/api/daily_tips_api_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/currency_format.dart';
 
@@ -36,8 +36,22 @@ class _RiwayatTipsHematScreenState extends State<RiwayatTipsHematScreen> {
   @override
   void initState() {
     super.initState();
-    _tips = List.of(widget.initialTips ?? SavingTipsMockData.getHistoryTips());
+    _tips = List.of(widget.initialTips ?? SavingTipItem.getHistoryTips());
     _searchController = TextEditingController();
+    if (widget.initialTips == null) {
+      _syncHistoryFromBackend();
+    }
+  }
+
+  Future<void> _syncHistoryFromBackend() async {
+    try {
+      final tips = await DailyTipsApiService.instance.getTipsHistory();
+      if (mounted && tips.isNotEmpty) {
+        setState(() {
+          _tips = tips;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -102,6 +116,9 @@ class _RiwayatTipsHematScreenState extends State<RiwayatTipsHematScreen> {
         );
       });
       widget.onToggleTip?.call(_tips[index], newStatus);
+      DailyTipsApiService.instance
+          .toggleTipStatus(tip.id, isApplied: newStatus)
+          .catchError((_) => _tips[index]);
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(

@@ -23,7 +23,7 @@ export async function classifyCategoryAndTypeHandler(req, res, customParser) {
     const body = req.body || {};
     const query = req.query || {};
 
-    const reqUserId = body.userId || query.userId;
+    const reqUserId = req.userId || body.userId || query.userId;
     const userId = getOrCreateDefaultUser(db, reqUserId);
 
     // Support batch classification if `items` or `texts` is an array

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/debt_item.dart';
 import '../../../theme/app_theme.dart';
-import '../../../utils/currency_format.dart';
 
 class PelunasanDialog extends StatefulWidget {
   final DebtItem debt;

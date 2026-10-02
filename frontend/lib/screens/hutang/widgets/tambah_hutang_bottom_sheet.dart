@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/debt_item.dart';
 import '../../../theme/app_theme.dart';
-import '../../../utils/currency_format.dart';
 
 class TambahHutangBottomSheet extends StatefulWidget {
   final Function(DebtItem) onAdd;
@@ -494,7 +493,7 @@ class _TambahHutangBottomSheetState extends State<TambahHutangBottomSheet> {
                     Switch.adaptive(
                       key: const Key('switch_partial_paid'),
                       value: _hasPartialPayment,
-                      activeColor: AppTheme.primaryColor,
+                      activeTrackColor: AppTheme.primaryColor,
                       onChanged: (val) {
                         setState(() {
                           _hasPartialPayment = val;
@@ -655,7 +654,7 @@ class _TambahHutangBottomSheetState extends State<TambahHutangBottomSheet> {
     return Padding(
       padding: const EdgeInsets.only(right: 6),
       child: ActionChip(
-        key: Key('chip_quick_amount_${amount}'),
+        key: Key('chip_quick_amount_$amount'),
         label: Text(
           label,
           style: const TextStyle(

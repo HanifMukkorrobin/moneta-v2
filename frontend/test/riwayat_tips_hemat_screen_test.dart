@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/saving_tips_mock_data.dart';
 import 'package:moneta/models/saving_tip_item.dart';
 import 'package:moneta/screens/beranda/beranda_screen.dart';
 import 'package:moneta/screens/beranda/riwayat_tips_hemat_screen.dart';
@@ -44,7 +43,7 @@ void main() {
       expect(find.text('Akumulasi Hemat Terlaksana'), findsOneWidget);
 
       // Check initial tips rendered
-      final tips = SavingTipsMockData.getHistoryTips();
+      final tips = SavingTipItem.getHistoryTips();
       expect(find.byKey(Key('riwayat_tip_item_${tips.first.id}')), findsOneWidget);
     });
 

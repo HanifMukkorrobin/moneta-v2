@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/ai_insight_mock_data.dart';
 import 'package:moneta/models/ai_insight_item.dart';
 import 'package:moneta/screens/analisa/analisa_keuangan_screen.dart';
 import 'package:moneta/screens/analisa/widgets/early_warning_indicator_card.dart';
@@ -14,7 +13,7 @@ void main() {
   group('EarlyWarningIndicatorCard Widget Tests', () {
     testWidgets('renders all 3 levels with normal active by default',
         (WidgetTester tester) async {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -54,7 +53,7 @@ void main() {
 
     testWidgets('renders warning level diagnostics when passed warning insight',
         (WidgetTester tester) async {
-      final warningInsight = AiInsightMockData.getWarningInsight();
+      final warningInsight = AiInsightItem.getWarningInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -73,7 +72,7 @@ void main() {
 
     testWidgets('renders critical level diagnostics when passed critical insight',
         (WidgetTester tester) async {
-      final criticalInsight = AiInsightMockData.getCriticalInsight();
+      final criticalInsight = AiInsightItem.getCriticalInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -93,7 +92,7 @@ void main() {
     testWidgets('tapping segments switches level and triggers callback',
         (WidgetTester tester) async {
       AiWarnLevel? changedLevel;
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(

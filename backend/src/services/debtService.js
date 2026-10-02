@@ -229,6 +229,7 @@ export function getDebtsByUserId(db, userId, {
   sortOrder = 'ASC',
   limit = 100,
   offset = 0,
+  referenceDate = new Date(),
 } = {}) {
   if (!userId) {
     throw new Error('userId wajib diisi untuk mengambil catatan hutang.');
@@ -287,7 +288,7 @@ export function getDebtsByUserId(db, userId, {
   params.push(Number(limit) || 100, Number(offset) || 0);
 
   const rows = db.prepare(query).all(...params);
-  let list = rows.map((r) => formatDebtRow(r));
+  let list = rows.map((r) => formatDebtRow(r, referenceDate));
 
   if (effectiveDueSoon === true || effectiveDueSoon === 'true') {
     list = list.filter((d) => d.isDueSoon);
@@ -471,7 +472,7 @@ export function getDebtSummary(db, userId, referenceDate = new Date()) {
     throw new Error('userId wajib diisi untuk mengambil ringkasan hutang.');
   }
 
-  const allDebts = getDebtsByUserId(db, userId, { limit: 1000 });
+  const allDebts = getDebtsByUserId(db, userId, { limit: 1000, referenceDate });
 
   let totalDebtAmount = 0;
   let totalRemainingAmount = 0;

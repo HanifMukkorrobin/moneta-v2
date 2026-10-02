@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moneta/models/debt_item.dart';
 import 'package:moneta/screens/hutang/hutang_screen.dart';
-import 'package:moneta/screens/hutang/widgets/debt_card.dart';
 import 'package:moneta/screens/hutang/widgets/pelunasan_dialog.dart';
 
 void main() {

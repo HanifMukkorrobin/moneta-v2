@@ -5,6 +5,7 @@
  * serta pencatatan log riwayat notifikasi ke tabel `notification_logs`.
  */
 
+import { env } from '../config/env.js';
 import { getSafeDailySpendingForUser } from './safeDailySpendingService.js';
 import { formatRupiah } from './dailyAverageSpendingService.js';
 import { getReminderSettings } from './reminderSettingsService.js';
@@ -14,10 +15,10 @@ import { getReminderSettings } from './reminderSettingsService.js';
  * Default: 'Asia/Jakarta' (WIB).
  *
  * @param {Date} [date=new Date()]
- * @param {string} [timezone='Asia/Jakarta']
+ * @param {string} [timezone=env.DEFAULT_TIMEZONE]
  * @returns {{ timeString: string, dateString: string, dayOfWeek: number, hours: number, minutes: number, timezone: string }}
  */
-export function getCurrentTimeInTimezone(date = new Date(), timezone = 'Asia/Jakarta') {
+export function getCurrentTimeInTimezone(date = new Date(), timezone = env.DEFAULT_TIMEZONE) {
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: timezone,

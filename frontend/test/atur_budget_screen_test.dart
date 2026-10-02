@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/budget_mock_data.dart';
 import 'package:moneta/screens/budget/atur_budget_screen.dart';
 import 'package:moneta/screens/budget/widgets/budget_allocation_buckets_section.dart';
 import 'package:moneta/screens/budget/widgets/budget_header_summary_card.dart';

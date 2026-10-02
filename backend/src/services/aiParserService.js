@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
+import { env } from '../config/env.js';
 dotenv.config();
 
-const DEFAULT_9ROUTER_BASE_URL = process.env.NINEROUTER_API_URL || 'https://api.9router.com/v1';
-const DEFAULT_MODEL = process.env.NINEROUTER_MODEL || 'google/gemini-2.0-flash';
+const DEFAULT_9ROUTER_BASE_URL = env.NINEROUTER_API_URL;
+const DEFAULT_MODEL = env.NINEROUTER_MODEL;
 
 /**
  * Heuristic fallback parser when 9Router API is unreachable, offline, or mock testing.
@@ -474,11 +475,11 @@ Contoh output sukses:
  */
 export class AiParserService {
   constructor(options = {}) {
-    this.apiKey = options.apiKey || process.env.NINEROUTER_API_KEY;
-    this.baseUrl = (options.baseUrl || DEFAULT_9ROUTER_BASE_URL).replace(/\/$/, '');
-    this.model = options.model || DEFAULT_MODEL;
+    this.apiKey = options.apiKey || env.NINEROUTER_API_KEY;
+    this.baseUrl = (options.baseUrl || env.NINEROUTER_API_URL || DEFAULT_9ROUTER_BASE_URL).replace(/\/$/, '');
+    this.model = options.model || env.NINEROUTER_MODEL || DEFAULT_MODEL;
     this.fetchFn = options.fetchFn || globalThis.fetch;
-    this.timeoutMs = options.timeoutMs || 8000;
+    this.timeoutMs = options.timeoutMs || env.NINEROUTER_TIMEOUT_MS;
   }
 
   /**

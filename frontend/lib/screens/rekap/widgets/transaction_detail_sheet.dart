@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../mock/rekap_mock_data.dart';
+import '../../../models/monthly_rekap_data.dart';
 import '../../../models/transaction_item.dart';
 import '../../../state/app_state.dart';
 import '../../../theme/app_theme.dart';
@@ -65,8 +65,8 @@ class TransactionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = RekapMockData.getCategoryIcon(transaction.category);
-    final color = RekapMockData.getCategoryColor(transaction.category);
+    final icon = MonthlyRekapData.getCategoryIcon(transaction.category);
+    final color = MonthlyRekapData.getCategoryColor(transaction.category);
     final dateStr = '${transaction.occurredAt.day} ${_getMonthName(transaction.occurredAt.month)} ${transaction.occurredAt.year}';
     final timeStr = '${transaction.timeFormatted} WIB';
 

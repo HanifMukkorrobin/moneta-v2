@@ -4,11 +4,13 @@
  * Mengelola tabel `reminder_settings` per pengguna di SQLite.
  */
 
+import { env } from '../config/env.js';
+
 export const DEFAULT_REMINDER_SETTINGS = {
   isEnabled: true,
-  morningReminderTime: '08:00',
+  morningReminderTime: env.DEFAULT_MORNING_REMINDER_TIME,
   isMorningReminderEnabled: true,
-  eveningReminderTime: '20:00',
+  eveningReminderTime: env.DEFAULT_EVENING_REMINDER_TIME,
   isEveningReminderEnabled: true,
   activeDays: [1, 2, 3, 4, 5, 6, 7],
   notifyOnOverbudget: true,
@@ -17,7 +19,7 @@ export const DEFAULT_REMINDER_SETTINGS = {
   soundEnabled: true,
   vibrationEnabled: true,
   fcmToken: null,
-  timezone: 'Asia/Jakarta',
+  timezone: env.DEFAULT_TIMEZONE,
 };
 
 /**

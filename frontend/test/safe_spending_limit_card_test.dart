@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/ai_insight_mock_data.dart';
 import 'package:moneta/models/ai_insight_item.dart';
 import 'package:moneta/screens/beranda/beranda_screen.dart';
 import 'package:moneta/screens/beranda/widgets/safe_spending_limit_card.dart';
@@ -14,7 +13,7 @@ void main() {
   group('SafeSpendingLimitCard Widget Tests', () {
     testWidgets('renders safe spending limit card with normal safe state',
         (WidgetTester tester) async {
-      final defaultInsight = AiInsightMockData.getDefaultInsight();
+      final defaultInsight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -59,7 +58,7 @@ void main() {
 
     testWidgets('renders Penanda Rendah badge when daily limit is low (critical preset)',
         (WidgetTester tester) async {
-      final criticalInsight = AiInsightMockData.getCriticalInsight();
+      final criticalInsight = AiInsightItem.getCriticalInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -89,7 +88,7 @@ void main() {
 
     testWidgets('renders over-limit warning state when today spending exceeds safe limit',
         (WidgetTester tester) async {
-      final defaultInsight = AiInsightMockData.getDefaultInsight();
+      final defaultInsight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -129,7 +128,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BerandaScreen(
-            initialInsight: AiInsightMockData.getDefaultInsight().copyWith(
+            initialInsight: AiInsightItem.getDefaultInsight().copyWith(
               recommendedDailyBudget: 150000,
             ),
           ),

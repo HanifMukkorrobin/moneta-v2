@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../mock/mock_data.dart';
 import '../../../state/app_state.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/category_icon_mapper.dart';
 import '../../category_management/manage_categories_screen.dart';
 import '../../chat/widgets/transaction_card.dart';
 import 'frequent_category_suggestions.dart';
@@ -74,8 +74,8 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
     final base = fromState.isNotEmpty
         ? fromState
         : (_isExpense
-            ? MockData.expenseCategories
-            : MockData.incomeCategories);
+            ? CategoryIconMapper.defaultExpenseCategories
+            : CategoryIconMapper.defaultIncomeCategories);
 
     if (_searchQuery.trim().isEmpty) return base;
     return base
@@ -199,7 +199,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                               onTap: () {
                                 setState(() {
                                   _currentType = 'expense';
-                                  if (!MockData.expenseCategories
+                                  if (!CategoryIconMapper.defaultExpenseCategories
                                       .contains(_currentCategory)) {
                                     _currentCategory = 'Makan & Minuman';
                                   }
@@ -260,7 +260,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                               onTap: () {
                                 setState(() {
                                   _currentType = 'income';
-                                  if (!MockData.incomeCategories
+                                  if (!CategoryIconMapper.defaultIncomeCategories
                                       .contains(_currentCategory)) {
                                     _currentCategory = 'Gaji';
                                   }

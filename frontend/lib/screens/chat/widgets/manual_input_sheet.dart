@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../mock/mock_data.dart';
 import '../../../models/transaction_item.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/category_icon_mapper.dart';
 import 'transaction_card.dart';
 
 class ManualInputSheet extends StatefulWidget {
@@ -38,7 +38,7 @@ class _ManualInputSheetState extends State<ManualInputSheet> {
   final TextEditingController _amountController = TextEditingController();
   late TextEditingController _noteController;
   String _selectedType = 'expense';
-  String _selectedCategory = MockData.expenseCategories.first;
+  String _selectedCategory = CategoryIconMapper.defaultExpenseCategories.first;
   DateTime _selectedDate = DateTime.now();
 
   @override
@@ -111,8 +111,8 @@ class _ManualInputSheetState extends State<ManualInputSheet> {
   Widget build(BuildContext context) {
     final isExpense = _selectedType == 'expense';
     final categories = isExpense
-        ? MockData.expenseCategories
-        : MockData.incomeCategories;
+        ? CategoryIconMapper.defaultExpenseCategories
+        : CategoryIconMapper.defaultIncomeCategories;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -185,7 +185,7 @@ class _ManualInputSheetState extends State<ManualInputSheet> {
                       onTap: () {
                         setState(() {
                           _selectedType = 'expense';
-                          _selectedCategory = MockData.expenseCategories.first;
+                          _selectedCategory = CategoryIconMapper.defaultExpenseCategories.first;
                         });
                       },
                       borderRadius: BorderRadius.circular(10),
@@ -224,7 +224,7 @@ class _ManualInputSheetState extends State<ManualInputSheet> {
                       onTap: () {
                         setState(() {
                           _selectedType = 'income';
-                          _selectedCategory = MockData.incomeCategories.first;
+                          _selectedCategory = CategoryIconMapper.defaultIncomeCategories.first;
                         });
                       },
                       borderRadius: BorderRadius.circular(10),

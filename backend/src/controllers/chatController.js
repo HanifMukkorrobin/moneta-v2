@@ -1,4 +1,5 @@
 import { getDatabase } from '../config/database.js';
+import { env } from '../config/env.js';
 import { defaultAiParser } from '../services/aiParserService.js';
 
 /**
@@ -16,9 +17,9 @@ export function getOrCreateDefaultUser(db, userId) {
     const res = db
       .prepare(`
         INSERT INTO users (email, display_name, currency)
-        VALUES ('user@moneta.local', 'Pengguna Moneta', 'IDR')
+        VALUES (?, ?, ?)
       `)
-      .run();
+      .run(env.DEFAULT_USER_EMAIL, env.DEFAULT_USER_NAME, env.DEFAULT_CURRENCY);
     return res.lastInsertRowid;
   }
   return user.id;
@@ -69,7 +70,7 @@ export async function parseChatHandler(req, res, customParser) {
 
     const trimmed = message.trim();
     const db = getDatabase();
-    const userId = getOrCreateDefaultUser(db, reqUserId);
+    const userId = getOrCreateDefaultUser(db, req.userId || reqUserId);
 
     // 1. Fetch available categories
     const availableCategories = getUserCategoryNames(db, userId);
@@ -227,7 +228,7 @@ function formatChatLogRow(r) {
 export function getChatHistoryHandler(req, res) {
   try {
     const db = getDatabase();
-    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.query?.userId);
     const { status, search, limit = 50, offset = 0 } = req.query;
 
     let baseQuery = `
@@ -306,7 +307,7 @@ export function getChatHistoryHandler(req, res) {
 export function getChatLogByIdHandler(req, res) {
   try {
     const db = getDatabase();
-    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.query?.userId);
     const logId = Number(req.params.id);
 
     const query = `
@@ -364,7 +365,7 @@ export function deleteChatLogHandler(req, res) {
   try {
     const db = getDatabase();
     const logId = Number(req.params.id);
-    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.body?.userId || req.query?.userId);
 
     const log = db.prepare('SELECT * FROM chat_logs WHERE id = ? AND user_id = ?').get(logId, userId);
     if (!log) {
@@ -405,7 +406,7 @@ export function restoreChatLogHandler(req, res) {
   try {
     const db = getDatabase();
     const logId = Number(req.params.id);
-    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.body?.userId || req.query?.userId);
 
     const log = db.prepare('SELECT * FROM chat_logs WHERE id = ? AND user_id = ?').get(logId, userId);
     if (!log) {

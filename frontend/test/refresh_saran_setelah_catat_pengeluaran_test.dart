@@ -28,7 +28,6 @@ void main() {
     test('AppState updates spending and advice when transaction is added or confirmed', () {
       final appState = AppState.instance;
       final initialSpent = appState.todayTotalExpense;
-      final initialBalance = appState.aiInsight.remainingBalance;
 
       // Add a manual expense of 100,000
       final newExpense = TransactionItem(

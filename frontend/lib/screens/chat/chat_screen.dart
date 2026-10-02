@@ -214,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: AppTheme.primaryColor.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
@@ -222,19 +222,29 @@ class _ChatScreenState extends State<ChatScreen> {
               child: const Icon(
                 Icons.auto_awesome,
                 color: AppTheme.primaryColor,
-                size: 20,
+                size: 18,
               ),
             ),
-            const SizedBox(width: 10),
-            Flexible(
+            const SizedBox(width: 8),
+            const Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Moneta AI',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '9Router AI Siap',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -247,7 +257,9 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.fact_check_outlined, size: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.fact_check_outlined, size: 20),
             tooltip: 'Konfirmasi Kategori AI',
             onPressed: () {
               Navigator.push(
@@ -260,7 +272,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.receipt_long_rounded, size: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.receipt_long_rounded, size: 20),
             tooltip: 'Riwayat Catatan Transaksi',
             onPressed: () {
               Navigator.push(
@@ -273,7 +287,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.history_rounded, size: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.history_rounded, size: 20),
             tooltip: 'Riwayat Obrolan',
             onPressed: () {
               Navigator.push(
@@ -286,20 +302,40 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.edit_note_rounded, size: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.edit_note_rounded, size: 22),
             tooltip: 'Input Transaksi Manual',
             onPressed: () => _openManualInput(),
           ),
           IconButton(
             key: const Key('chat_appbar_beranda_button'),
             visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.dashboard_outlined, size: 22),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.dashboard_outlined, size: 20),
             tooltip: 'Halaman Beranda',
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const BerandaScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            key: const Key('chat_appbar_account_button'),
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(Icons.manage_accounts_outlined, size: 20),
+            tooltip: 'Akun & Pengaturan',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AkunPengaturanScreen(),
                 ),
               );
             },

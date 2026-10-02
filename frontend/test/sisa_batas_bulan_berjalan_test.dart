@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/budget_mock_data.dart';
 import 'package:moneta/models/budget_item.dart';
 import 'package:moneta/screens/budget/atur_budget_screen.dart';
 import 'package:moneta/screens/budget/widgets/sisa_batas_bulan_berjalan_card.dart';
@@ -8,7 +7,7 @@ import 'package:moneta/screens/budget/widgets/sisa_batas_bulan_berjalan_card.dar
 void main() {
   group('MonthlyBudgetSummary - Sisa Batas Bulan Berjalan Unit Tests', () {
     test('calculates remaining budget and formats in Rupiah accurately', () {
-      final summary = BudgetMockData.getMonthlyBudget(month: '2026-09');
+      final summary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-09');
 
       // Total 6.000.000, Spent 2.850.000 -> Remaining 3.150.000
       expect(summary.totalBudget, 6000000.0);
@@ -22,7 +21,7 @@ void main() {
     });
 
     test('calculates days in month and daily remaining average spend in Rupiah', () {
-      final summary = BudgetMockData.getMonthlyBudget(month: '2026-09');
+      final summary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-09');
 
       // September has 30 days
       expect(summary.daysInMonth, 30);
@@ -32,7 +31,7 @@ void main() {
     });
 
     test('handles August with 31 days correctly', () {
-      final summary = BudgetMockData.getMonthlyBudget(month: '2026-08');
+      final summary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-08');
 
       // August has 31 days
       expect(summary.daysInMonth, 31);
@@ -73,7 +72,7 @@ void main() {
 
   group('SisaBatasBulanBerjalanCard Widget Tests', () {
     testWidgets('renders SisaBatasBulanBerjalanCard with normal safe budget in Rupiah', (WidgetTester tester) async {
-      final summary = BudgetMockData.getMonthlyBudget(month: '2026-09');
+      final summary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-09');
 
       await tester.pumpWidget(
         MaterialApp(
@@ -110,7 +109,7 @@ void main() {
     });
 
     testWidgets('renders warning state when budget remaining is low', (WidgetTester tester) async {
-      final summary = BudgetMockData.getMonthlyBudget(month: '2026-08');
+      final summary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-08');
 
       await tester.pumpWidget(
         MaterialApp(

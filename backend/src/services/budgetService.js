@@ -1,3 +1,4 @@
+import { env } from '../config/env.js';
 import { getDaysInMonth, getMonthLabel, getMonthlyTotalsQuery } from './rekapQueryService.js';
 
 /**
@@ -47,9 +48,9 @@ export function inferBucketTypeFromCategory(categoryName = '', explicitBucket = 
  */
 export function buildBudgetBuckets({
   totalBudget = 0,
-  needsPct = 50,
-  savingsPct = 30,
-  funPct = 20,
+  needsPct = env.DEFAULT_NEEDS_PCT,
+  savingsPct = env.DEFAULT_SAVINGS_PCT,
+  funPct = env.DEFAULT_FUN_PCT,
   needsSpent = 0,
   savingsSpent = 0,
   funSpent = 0,
@@ -57,7 +58,7 @@ export function buildBudgetBuckets({
   bucketCategories = { needs: [], savings: [], fun: [] },
 }) {
   const numTotal = Number(totalBudget || 0);
-  const nPct = Number(needsPct ?? 50);
+  const nPct = Number(needsPct ?? env.DEFAULT_NEEDS_PCT);
   const sPct = Number(savingsPct ?? 30);
   const fPct = Number(funPct ?? 20);
   const days = Number(daysInMonth || 30);

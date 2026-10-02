@@ -38,7 +38,7 @@ export async function confirmTransactionHandler(req, res) {
 
     const targetTransactionId = paramId ? Number(paramId) : (body.transactionId ? Number(body.transactionId) : null);
     const chatLogId = body.chatLogId ? Number(body.chatLogId) : null;
-    const userId = getOrCreateDefaultUser(db, body.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || body.userId || req.query?.userId);
 
     // If confirming an existing transaction
     if (targetTransactionId) {
@@ -286,7 +286,7 @@ export async function confirmTransactionHandler(req, res) {
 export function listTransactionsHandler(req, res) {
   try {
     const db = getDatabase();
-    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.query?.userId);
     const {
       month,
       year,
@@ -481,7 +481,7 @@ export function getTransactionByIdHandler(req, res) {
       });
     }
 
-    const userId = getOrCreateDefaultUser(db, req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.query?.userId);
     const detail = getTransactionDetailById(db, userId, txId);
 
     if (!detail) {
@@ -513,7 +513,7 @@ export function updateTransactionHandler(req, res) {
   try {
     const db = getDatabase();
     const txId = Number(req.params.id);
-    const userId = getOrCreateDefaultUser(db, req.body?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.body?.userId || req.query?.userId);
     const body = req.body || {};
 
     const existingTx = db
@@ -672,7 +672,7 @@ export function deleteTransactionHandler(req, res) {
   try {
     const db = getDatabase();
     const txId = Number(req.params.id);
-    const userId = getOrCreateDefaultUser(db, req.body?.userId || req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || req.body?.userId || req.query?.userId);
 
     const existingTx = db
       .prepare('SELECT id, note, amount, occurred_at FROM transactions WHERE id = ? AND user_id = ?')
@@ -742,7 +742,7 @@ export function updateTransactionCategoryAndTypeHandler(req, res) {
     const db = getDatabase();
     const txId = Number(req.params.id || req.body?.transactionId);
     const body = req.body || {};
-    const userId = getOrCreateDefaultUser(db, body.userId || req.query?.userId);
+    const userId = getOrCreateDefaultUser(db, req.userId || body.userId || req.query?.userId);
 
     const existingTx = db
       .prepare('SELECT * FROM transactions WHERE id = ? AND user_id = ?')

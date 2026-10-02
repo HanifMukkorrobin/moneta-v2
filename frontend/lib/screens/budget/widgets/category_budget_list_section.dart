@@ -123,7 +123,6 @@ class CategoryBudgetListSection extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = items[index];
                 final isOver = item.isOverBudget;
-                final pct = item.percentageUsed;
 
                 return InkWell(
                   key: Key('category_budget_row_${item.id}'),

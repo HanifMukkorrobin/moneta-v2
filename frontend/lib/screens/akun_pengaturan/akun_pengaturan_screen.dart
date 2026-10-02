@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/user_profile.dart';
+import '../../services/api/auth_api_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../beranda/pengaturan_pengingat_screen.dart';
@@ -382,6 +383,7 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
           TextButton(
             key: const Key('btn_export_csv'),
             onPressed: () {
+              AuthApiService.instance.exportData(format: 'csv').catchError((_) => <String, dynamic>{});
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -399,6 +401,7 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
+              AuthApiService.instance.exportData(format: 'json').catchError((_) => <String, dynamic>{});
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -440,6 +443,7 @@ class _AkunPengaturanScreenState extends State<AkunPengaturanScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
+              AuthApiService.instance.resetData().catchError((_) => false);
               AppState.instance.resetToDefault();
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(

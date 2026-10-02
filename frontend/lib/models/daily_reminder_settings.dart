@@ -95,4 +95,96 @@ class DailyReminderSettings {
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
     );
   }
+
+  static TimeOfDay parseTimeString(String? value, TimeOfDay fallback) {
+    if (value == null || value.trim().isEmpty) return fallback;
+    final parts = value.trim().split(':');
+    if (parts.length >= 2) {
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (h != null && m != null && h >= 0 && h < 24 && m >= 0 && m < 60) {
+        return TimeOfDay(hour: h, minute: m);
+      }
+    }
+    return fallback;
+  }
+
+  static String toHHmm(TimeOfDay time) {
+    final h = time.hour.toString().padLeft(2, '0');
+    final m = time.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  factory DailyReminderSettings.fromJson(Map<String, dynamic> json) {
+    bool toBool(dynamic v, bool fallback) {
+      if (v == null) return fallback;
+      if (v is bool) return v;
+      return v == 1 || v == '1' || v == 'true';
+    }
+
+    final rawDays = json['activeDays'] ?? json['active_days'];
+    List<int> days = const [1, 2, 3, 4, 5, 6, 7];
+    if (rawDays is List) {
+      days = rawDays
+          .map((e) => e is num ? e.toInt() : (int.tryParse(e.toString()) ?? 1))
+          .toList();
+    }
+
+    return DailyReminderSettings(
+      isEnabled: toBool(json['isEnabled'] ?? json['is_enabled'], true),
+      morningReminderTime: parseTimeString(
+        (json['morningReminderTime'] ?? json['morning_reminder_time'])?.toString(),
+        const TimeOfDay(hour: 8, minute: 0),
+      ),
+      isMorningReminderEnabled: toBool(
+        json['isMorningReminderEnabled'] ?? json['is_morning_reminder_enabled'],
+        true,
+      ),
+      eveningReminderTime: parseTimeString(
+        (json['eveningReminderTime'] ?? json['evening_reminder_time'])?.toString(),
+        const TimeOfDay(hour: 20, minute: 0),
+      ),
+      isEveningReminderEnabled: toBool(
+        json['isEveningReminderEnabled'] ?? json['is_evening_reminder_enabled'],
+        true,
+      ),
+      activeDays: days,
+      notifyOnOverbudget: toBool(
+        json['notifyOnOverbudget'] ?? json['notify_on_overbudget'],
+        true,
+      ),
+      notifySavingTips: toBool(
+        json['notifySavingTips'] ?? json['notify_saving_tips'],
+        true,
+      ),
+      notifyDebtDue: toBool(
+        json['notifyDebtDue'] ?? json['notify_debt_due'],
+        true,
+      ),
+      soundEnabled: toBool(
+        json['soundEnabled'] ?? json['sound_enabled'],
+        true,
+      ),
+      vibrationEnabled: toBool(
+        json['vibrationEnabled'] ?? json['vibration_enabled'],
+        true,
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isEnabled': isEnabled,
+      'morningReminderTime': toHHmm(morningReminderTime),
+      'isMorningReminderEnabled': isMorningReminderEnabled,
+      'eveningReminderTime': toHHmm(eveningReminderTime),
+      'isEveningReminderEnabled': isEveningReminderEnabled,
+      'activeDays': activeDays,
+      'notifyOnOverbudget': notifyOnOverbudget,
+      'notifySavingTips': notifySavingTips,
+      'notifyDebtDue': notifyDebtDue,
+      'soundEnabled': soundEnabled,
+      'vibrationEnabled': vibrationEnabled,
+    };
+  }
 }

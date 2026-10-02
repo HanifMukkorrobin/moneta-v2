@@ -5,6 +5,8 @@
  * view `cache_saran` & `saran_cache` di SQLite.
  */
 
+import { env } from '../config/env.js';
+
 export function getTodayDateString() {
   const now = new Date();
   const year = now.getFullYear();
@@ -105,7 +107,7 @@ export function saveCachedDailyAdvice(db, {
   source = 'rule_based',
   adviceJson = null,
   isApplied = 0,
-  ttlHours = 24,
+  ttlHours = env.DAILY_ADVICE_CACHE_TTL_HOURS,
   isStale = 0,
 }) {
   if (!userId) {

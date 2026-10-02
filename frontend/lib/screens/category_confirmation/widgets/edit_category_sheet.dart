@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../mock/mock_data.dart';
 import '../../../models/category_confirmation_item.dart';
 import '../../../theme/app_theme.dart';
+import '../../../utils/category_icon_mapper.dart';
 import '../../chat/widgets/transaction_card.dart';
 
 class EditCategorySheet extends StatefulWidget {
@@ -55,8 +55,8 @@ class _EditCategorySheetState extends State<EditCategorySheet> {
 
   List<String> get _currentCategories {
     final list = _selectedType == 'income'
-        ? MockData.incomeCategories
-        : MockData.expenseCategories;
+        ? CategoryIconMapper.defaultIncomeCategories
+        : CategoryIconMapper.defaultExpenseCategories;
 
     if (_searchQuery.trim().isEmpty) return list;
     return list
@@ -219,7 +219,7 @@ class _EditCategorySheetState extends State<EditCategorySheet> {
                               onTap: () {
                                 setState(() {
                                   _selectedType = 'expense';
-                                  if (!MockData.expenseCategories
+                                  if (!CategoryIconMapper.defaultExpenseCategories
                                       .contains(_selectedCategory)) {
                                     _selectedCategory = 'Makan & Minuman';
                                   }
@@ -277,7 +277,7 @@ class _EditCategorySheetState extends State<EditCategorySheet> {
                               onTap: () {
                                 setState(() {
                                   _selectedType = 'income';
-                                  if (!MockData.incomeCategories
+                                  if (!CategoryIconMapper.defaultIncomeCategories
                                       .contains(_selectedCategory)) {
                                     _selectedCategory = 'Gaji';
                                   }

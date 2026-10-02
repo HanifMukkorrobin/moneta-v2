@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../mock/budget_mock_data.dart';
 import '../../models/budget_item.dart';
+import '../../services/api/budget_api_service.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/adjust_allocation_percentages_sheet.dart';
 import 'widgets/budget_alert_settings_card.dart';
@@ -45,7 +45,17 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
   }
 
   void _loadBudget() {
-    _budgetSummary = BudgetMockData.getMonthlyBudget(month: _selectedMonth);
+    _budgetSummary = MonthlyBudgetSummary.getMonthlyBudget(month: _selectedMonth);
+    BudgetApiService.instance
+        .getMonthlyBudget(month: _selectedMonth)
+        .then((res) {
+          if (mounted) {
+            setState(() {
+              _budgetSummary = res;
+            });
+          }
+        })
+        .catchError((_) {});
   }
 
   void _onMonthSelected(String month) {
@@ -76,7 +86,7 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
       monthLabel: _getMonthLabel(_selectedMonth),
       onSave: (newAmount) {
         setState(() {
-          final buckets = BudgetMockData.getDefaultBuckets(totalBudget: newAmount);
+          final buckets = MonthlyBudgetSummary.getDefaultBuckets(totalBudget: newAmount);
           _budgetSummary = MonthlyBudgetSummary(
             month: _selectedMonth,
             monthLabel: _getMonthLabel(_selectedMonth),
@@ -89,6 +99,9 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
             categoryBudgets: _budgetSummary.categoryBudgets,
           );
         });
+        BudgetApiService.instance
+            .upsertBudgetLimit(month: _selectedMonth, totalBudget: newAmount)
+            .catchError((_) => _budgetSummary);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Batas budget berhasil diperbarui: ${_budgetSummary.formattedTotalBudget}'),
@@ -98,11 +111,14 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
       },
       onDelete: () {
         setState(() {
-          _budgetSummary = BudgetMockData.getEmptyBudget(
+          _budgetSummary = MonthlyBudgetSummary.getEmptyBudget(
             month: _selectedMonth,
             monthLabel: _getMonthLabel(_selectedMonth),
           );
         });
+        BudgetApiService.instance
+            .deleteBudgetLimit(_selectedMonth)
+            .catchError((_) => _budgetSummary);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Batas budget bulanan berhasil dihapus.'),
@@ -170,6 +186,14 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
             categoryBudgets: _budgetSummary.categoryBudgets,
           );
         });
+        BudgetApiService.instance
+            .updateAllocations(
+              month: _selectedMonth,
+              needsPercentage: newNeedsPct,
+              savingsPercentage: newSavingsPct,
+              funPercentage: newFunPct,
+            )
+            .catchError((_) => _budgetSummary);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -344,15 +368,21 @@ class _AturBudgetScreenState extends State<AturBudgetScreen> {
                               _budgetSummary = MonthlyBudgetSummary(
                                 month: _selectedMonth,
                                 monthLabel: _getMonthLabel(_selectedMonth),
-                                totalBudget: BudgetMockData.defaultTotalBudget,
+                                totalBudget: MonthlyBudgetSummary.defaultTotalBudget,
                                 totalSpent: 0,
-                                needsPercentage: BudgetMockData.defaultNeedsPct,
-                                savingsPercentage: BudgetMockData.defaultSavingsPct,
-                                funPercentage: BudgetMockData.defaultFunPct,
-                                buckets: BudgetMockData.getDefaultBuckets(),
-                                categoryBudgets: BudgetMockData.getDefaultCategoryBudgets(),
+                                needsPercentage: MonthlyBudgetSummary.defaultNeedsPct,
+                                savingsPercentage: MonthlyBudgetSummary.defaultSavingsPct,
+                                funPercentage: MonthlyBudgetSummary.defaultFunPct,
+                                buckets: MonthlyBudgetSummary.getDefaultBuckets(),
+                                categoryBudgets: MonthlyBudgetSummary.getDefaultCategoryBudgets(),
                               );
                             });
+                            BudgetApiService.instance
+                                .upsertBudgetLimit(
+                                  month: _selectedMonth,
+                                  totalBudget: MonthlyBudgetSummary.defaultTotalBudget,
+                                )
+                                .catchError((_) => _budgetSummary);
                           },
                         ),
                       ],

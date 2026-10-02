@@ -93,7 +93,7 @@ class BudgetAlertSettingsCard extends StatelessWidget {
               Switch.adaptive(
                 key: const Key('toggle_budget_warning_switch'),
                 value: isAlertEnabled,
-                activeColor: AppTheme.primaryColor,
+                activeTrackColor: AppTheme.primaryColor,
                 onChanged: onToggleAlert,
               ),
             ],
@@ -269,7 +269,7 @@ class BudgetAlertSettingsCard extends StatelessWidget {
         Switch.adaptive(
           key: Key(switchKey),
           value: value,
-          activeColor: AppTheme.primaryColor,
+          activeTrackColor: AppTheme.primaryColor,
           onChanged: onChanged,
         ),
       ],

@@ -78,7 +78,7 @@ export function extractTokenFromRequest(req) {
  * Helper untuk mendapatkan userId dari token sesi, parameter userId, atau user default
  */
 export function resolveUserIdFromAuthOrRequest(db, req) {
-  const rawId = req.params?.userId || req.query?.userId || req.headers?.['x-user-id'] || req.body?.userId;
+  const rawId = req.userId || req.params?.userId || req.query?.userId || req.headers?.['x-user-id'] || req.body?.userId;
   if (rawId !== undefined && rawId !== null && rawId !== '') {
     const num = Number(rawId);
     if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
@@ -105,40 +105,55 @@ export function resolveUserIdFromAuthOrRequest(db, req) {
  */
 export function attachAuthUserMiddleware(req, res, next) {
   try {
+    let resolvedId = null;
+    let authUser = null;
+
     const explicitUserId = req.query?.userId || req.body?.userId || req.headers?.['x-user-id'];
     if (explicitUserId !== undefined && explicitUserId !== null && explicitUserId !== '') {
       const num = Number(explicitUserId);
       if (!isNaN(num) && num > 0 && Number.isInteger(num)) {
-        req.userId = num;
-        if (req.query && req.query.userId === undefined) {
-          req.query.userId = String(num);
-        }
-        if (req.body && typeof req.body === 'object' && req.body.userId === undefined) {
-          req.body.userId = num;
-        }
+        resolvedId = num;
       }
-      return next();
     }
 
-    const headerToken = extractTokenFromRequest({
-      headers: req.headers,
-      query: {},
-      body: {},
-    });
+    if (!resolvedId) {
+      const headerToken = extractTokenFromRequest(req);
+      if (headerToken) {
+        const db = getDatabase();
+        const verified = verifySessionToken(db, headerToken);
+        if (verified?.user?.id) {
+          resolvedId = verified.user.id;
+          authUser = verified.user;
+        }
+      }
+    }
 
-    if (headerToken) {
-      const db = getDatabase();
-      const verified = verifySessionToken(db, headerToken);
-      if (verified?.user?.id) {
-        const resolvedId = verified.user.id;
-        req.userId = resolvedId;
-        req.authUser = verified.user;
+    if (resolvedId) {
+      req.userId = resolvedId;
+      if (authUser) req.authUser = authUser;
+      if (req.headers) {
         req.headers['x-user-id'] = String(resolvedId);
+      }
+      if (req.body && typeof req.body === 'object' && req.body.userId === undefined) {
+        req.body.userId = resolvedId;
+      }
+      try {
+        const currentQuery = req.query || {};
+        Object.defineProperty(req, 'query', {
+          value: new Proxy(currentQuery, {
+            get(target, prop, receiver) {
+              if (prop === 'userId' && (target[prop] === undefined || target[prop] === '')) {
+                return String(resolvedId);
+              }
+              return Reflect.get(target, prop, receiver);
+            }
+          }),
+          writable: true,
+          configurable: true,
+        });
+      } catch {
         if (req.query && req.query.userId === undefined) {
           req.query.userId = String(resolvedId);
-        }
-        if (req.body && typeof req.body === 'object' && req.body.userId === undefined) {
-          req.body.userId = resolvedId;
         }
       }
     }

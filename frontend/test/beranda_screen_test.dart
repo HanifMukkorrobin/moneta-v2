@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/ai_insight_mock_data.dart';
 import 'package:moneta/models/ai_insight_item.dart';
 import 'package:moneta/screens/beranda/beranda_screen.dart';
 import 'package:moneta/screens/beranda/widgets/daily_advice_card.dart';
@@ -15,7 +14,7 @@ void main() {
   group('DailyAdviceCard Widget Tests', () {
     testWidgets('renders daily advice card with normal level by default',
         (WidgetTester tester) async {
-      final defaultInsight = AiInsightMockData.getDefaultInsight();
+      final defaultInsight = AiInsightItem.getDefaultInsight();
       bool tappedAnalysis = false;
       bool tappedApply = false;
 
@@ -64,7 +63,7 @@ void main() {
 
     testWidgets('renders warning level advice card properly',
         (WidgetTester tester) async {
-      final warningInsight = AiInsightMockData.getWarningInsight();
+      final warningInsight = AiInsightItem.getWarningInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -86,7 +85,7 @@ void main() {
 
     testWidgets('renders critical level advice card properly',
         (WidgetTester tester) async {
-      final criticalInsight = AiInsightMockData.getCriticalInsight();
+      final criticalInsight = AiInsightItem.getCriticalInsight();
 
       await tester.pumpWidget(
         MaterialApp(

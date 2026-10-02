@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moneta/main.dart';
-import 'package:moneta/models/user_profile.dart';
 import 'package:moneta/screens/akun_pengaturan/akun_pengaturan_screen.dart';
 import 'package:moneta/services/local_preference_service.dart';
 import 'package:moneta/state/app_state.dart';

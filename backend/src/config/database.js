@@ -1,13 +1,10 @@
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { env } from './env.js';
 
 export function createDatabaseConnection(options = {}) {
-  const dbPath = options.path || process.env.DB_PATH || path.resolve(__dirname, '../../data/moneta.sqlite');
+  const dbPath = options.path || env.DB_PATH;
   const isMemory = dbPath === ':memory:';
 
   if (!isMemory) {

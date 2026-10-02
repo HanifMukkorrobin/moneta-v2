@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../mock/saving_tips_mock_data.dart';
 import '../../../models/saving_tip_item.dart';
+import '../../../services/api/daily_tips_api_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/currency_format.dart';
 import '../riwayat_tips_hemat_screen.dart';
@@ -26,7 +26,21 @@ class _DailySavingTipsCardState extends State<DailySavingTipsCard> {
   @override
   void initState() {
     super.initState();
-    _tips = List.of(widget.initialTips ?? SavingTipsMockData.getDailyTips());
+    _tips = List.of(widget.initialTips ?? SavingTipItem.getDailyTips());
+    if (widget.initialTips == null) {
+      _syncTipsFromBackend();
+    }
+  }
+
+  Future<void> _syncTipsFromBackend() async {
+    try {
+      final tips = await DailyTipsApiService.instance.getDailyTips();
+      if (mounted && tips.isNotEmpty) {
+        setState(() {
+          _tips = tips;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -60,6 +74,9 @@ class _DailySavingTipsCardState extends State<DailySavingTipsCard> {
         _tips[index] = tip.copyWith(isApplied: newStatus);
       });
       widget.onToggleTip?.call(_tips[index], newStatus);
+      DailyTipsApiService.instance
+          .toggleTipStatus(tip.id, isApplied: newStatus)
+          .catchError((_) => _tips[index]);
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(

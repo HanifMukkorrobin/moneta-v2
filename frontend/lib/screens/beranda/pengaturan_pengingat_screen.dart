@@ -461,7 +461,7 @@ class _PengaturanPengingatScreenState extends State<PengaturanPengingatScreen> {
           Switch(
             key: const Key('switch_master_reminder'),
             value: _settings.isEnabled,
-            activeColor: AppTheme.primaryColor,
+            activeThumbColor: AppTheme.primaryColor,
             onChanged: (val) {
               setState(() {
                 _settings = _settings.copyWith(isEnabled: val);
@@ -552,7 +552,7 @@ class _PengaturanPengingatScreenState extends State<PengaturanPengingatScreen> {
               Switch(
                 key: Key(switchKey),
                 value: isEnabled,
-                activeColor: AppTheme.primaryColor,
+                activeThumbColor: AppTheme.primaryColor,
                 onChanged: onToggleSwitch,
               ),
             ],
@@ -867,7 +867,7 @@ class _PengaturanPengingatScreenState extends State<PengaturanPengingatScreen> {
           Switch(
             key: Key(switchKey),
             value: value,
-            activeColor: AppTheme.primaryColor,
+            activeThumbColor: AppTheme.primaryColor,
             onChanged: onChanged,
           ),
         ],

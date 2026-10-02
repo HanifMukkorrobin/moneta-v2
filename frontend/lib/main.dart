@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'config/app_env.dart';
 import 'screens/akun_pengaturan/akun_pengaturan_screen.dart';
 import 'screens/akun_pengaturan/preferensi_aplikasi_screen.dart';
 import 'screens/auth/auth_screen.dart';
@@ -13,8 +14,10 @@ import 'services/mock_notification_service.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppEnv.init();
+  await AppState.instance.initializeSession();
   runApp(
     AppStateScope(
       notifier: AppState.instance,
@@ -33,12 +36,14 @@ class MonetaApp extends StatelessWidget {
       builder: (context, _) {
         return MaterialApp(
           navigatorKey: MockNotificationService.navigatorKey,
-          title: 'Moneta',
+          title: AppEnv.appName,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: AppState.instance.themeMode,
-          home: const MainNavigationScreen(),
+          home: AppState.instance.isLoggedIn
+              ? const MainNavigationScreen()
+              : const AuthScreen(),
           routes: {
             '/beranda': (_) => const BerandaScreen(),
             '/riwayat-tips': (_) => const RiwayatTipsHematScreen(),

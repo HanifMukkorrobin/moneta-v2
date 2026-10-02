@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../mock/ai_insight_mock_data.dart';
 import '../../models/ai_insight_item.dart';
 import '../../models/transaction_item.dart';
+import '../../services/api/analysis_api_service.dart';
+import '../../services/api/daily_advice_api_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../analisa/analisa_keuangan_screen.dart';
@@ -44,6 +45,14 @@ class _BerandaScreenState extends State<BerandaScreen> {
     _simulatedInsight = widget.initialInsight;
     _lastConfirmedTxCount = AppState.instance.confirmedTransactions.length;
     AppState.instance.addListener(_onStateChange);
+    _syncAdviceFromBackend();
+  }
+
+  Future<void> _syncAdviceFromBackend() async {
+    try {
+      final advice = await DailyAdviceApiService.instance.getDailyAdvice();
+      AppState.instance.setAiInsight(advice);
+    } catch (_) {}
   }
 
   @override
@@ -63,15 +72,23 @@ class _BerandaScreenState extends State<BerandaScreen> {
     setState(() {});
   }
 
-  void _cycleMockPreset() {
+  Future<void> _cycleMockPreset() async {
+    try {
+      final advice = await DailyAdviceApiService.instance.refreshAdvice();
+      AppState.instance.setAiInsight(advice);
+      final analysis = await AnalysisApiService.instance.recalculateAnalysis();
+      AppState.instance.setDailySpendingAnalysis(analysis);
+    } catch (_) {}
+
+    if (!mounted) return;
     setState(() {
       final current = _simulatedInsight ?? AppState.instance.aiInsight;
       if (current.warnLevel == AiWarnLevel.normal) {
-        _simulatedInsight = AiInsightMockData.getWarningInsight();
+        _simulatedInsight = AiInsightItem.getWarningInsight();
       } else if (current.warnLevel == AiWarnLevel.warning) {
-        _simulatedInsight = AiInsightMockData.getCriticalInsight();
+        _simulatedInsight = AiInsightItem.getCriticalInsight();
       } else {
-        _simulatedInsight = AiInsightMockData.getDefaultInsight();
+        _simulatedInsight = AiInsightItem.getDefaultInsight();
       }
     });
 
@@ -115,8 +132,8 @@ class _BerandaScreenState extends State<BerandaScreen> {
         actions: [
           IconButton(
             key: const Key('beranda_preset_toggle_button'),
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: 'Ganti Simulasi Saran AI',
+            icon: const Icon(Icons.auto_awesome_rounded),
+            tooltip: 'Segarkan Analisa AI',
             onPressed: _cycleMockPreset,
           ),
           IconButton(

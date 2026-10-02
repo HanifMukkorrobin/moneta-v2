@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { getDatabase, closeDatabase } from './config/database.js';
+import { env } from './config/env.js';
 import { runMigrations } from './db/migrate.js';
 
 import chatRoutes from './routes/chatRoutes.js';
@@ -21,9 +22,9 @@ import { classifyCategoryAndTypeHandler } from './controllers/categoryController
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
-app.use(cors());
+app.use(cors({ origin: env.CORS_ORIGIN }));
 app.use(express.json());
 app.use(attachAuthUserMiddleware);
 
@@ -143,11 +144,11 @@ app.get('/health', (req, res) => {
 
 // Start server when executed directly as main module
 const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1]);
-if (process.env.NODE_ENV !== 'test' && isMain) {
+if (env.NODE_ENV !== 'test' && isMain) {
   // Start daily reminder background scheduler
-  if (process.env.ENABLE_REMINDER_SCHEDULER !== 'false') {
+  if (env.ENABLE_REMINDER_SCHEDULER) {
     globalReminderScheduler.start({
-      intervalMs: Number(process.env.REMINDER_SCHEDULER_INTERVAL_MS) || 60000,
+      intervalMs: env.REMINDER_SCHEDULER_INTERVAL_MS,
       dbGetter: getDatabase,
     });
     console.log('[Reminder Scheduler] Daily reminder background scheduler started.');

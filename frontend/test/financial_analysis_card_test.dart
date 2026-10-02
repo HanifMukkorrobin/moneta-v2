@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/ai_insight_mock_data.dart';
 import 'package:moneta/models/ai_insight_item.dart';
 import 'package:moneta/screens/chat/widgets/financial_analysis_card.dart';
 import 'package:moneta/state/app_state.dart';
@@ -12,7 +11,7 @@ void main() {
 
   group('AiInsightItem Model & Mock Tests', () {
     test('default insight has normal warn level and correct calculations', () {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       expect(insight.isNormal, isTrue);
       expect(insight.isWarning, isFalse);
@@ -25,7 +24,7 @@ void main() {
     });
 
     test('warning insight has warning warn level and expected fields', () {
-      final warning = AiInsightMockData.getWarningInsight();
+      final warning = AiInsightItem.getWarningInsight();
 
       expect(warning.isNormal, isFalse);
       expect(warning.isWarning, isTrue);
@@ -37,7 +36,7 @@ void main() {
     });
 
     test('critical insight has critical warn level and expected fields', () {
-      final critical = AiInsightMockData.getCriticalInsight();
+      final critical = AiInsightItem.getCriticalInsight();
 
       expect(critical.isNormal, isFalse);
       expect(critical.isWarning, isFalse);
@@ -62,7 +61,7 @@ void main() {
   group('FinancialAnalysisCard Widget Tests', () {
     testWidgets('renders all components in expanded state by default',
         (WidgetTester tester) async {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -103,7 +102,7 @@ void main() {
 
     testWidgets('toggles collapse and expand when header is tapped',
         (WidgetTester tester) async {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -141,7 +140,7 @@ void main() {
     });
 
     testWidgets('renders warning state correctly', (WidgetTester tester) async {
-      final warningInsight = AiInsightMockData.getWarningInsight();
+      final warningInsight = AiInsightItem.getWarningInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -164,7 +163,7 @@ void main() {
 
     testWidgets('renders critical state correctly',
         (WidgetTester tester) async {
-      final criticalInsight = AiInsightMockData.getCriticalInsight();
+      final criticalInsight = AiInsightItem.getCriticalInsight();
 
       await tester.pumpWidget(
         MaterialApp(

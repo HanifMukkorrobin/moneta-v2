@@ -8,6 +8,42 @@ enum DebtType {
   pinjamanPribadi,
   lainnya;
 
+  static DebtType fromString(String? value) {
+    final lower = (value ?? '').trim().toLowerCase();
+    switch (lower) {
+      case 'cicilan':
+        return DebtType.cicilan;
+      case 'kartu_kredit':
+      case 'kartukredit':
+      case 'credit_card':
+        return DebtType.kartuKredit;
+      case 'pinjaman_pribadi':
+      case 'pinjamanpribadi':
+      case 'personal':
+        return DebtType.pinjamanPribadi;
+      case 'lainnya':
+        return DebtType.lainnya;
+      case 'paylater':
+      default:
+        return DebtType.paylater;
+    }
+  }
+
+  String get apiValue {
+    switch (this) {
+      case DebtType.paylater:
+        return 'paylater';
+      case DebtType.cicilan:
+        return 'cicilan';
+      case DebtType.kartuKredit:
+        return 'kartu_kredit';
+      case DebtType.pinjamanPribadi:
+        return 'pinjaman_pribadi';
+      case DebtType.lainnya:
+        return 'lainnya';
+    }
+  }
+
   String get label {
     switch (this) {
       case DebtType.paylater:
@@ -142,5 +178,107 @@ class DebtItem {
       type: type ?? this.type,
       notes: notes ?? this.notes,
     );
+  }
+
+  factory DebtItem.fromJson(Map<String, dynamic> json) {
+    double toD(dynamic v) =>
+        v is num ? v.toDouble() : (v != null ? (double.tryParse(v.toString()) ?? 0.0) : 0.0);
+
+    final totalVal = toD(json['totalAmount'] ?? json['total_amount']);
+    final remainingVal = json['remainingAmount'] != null || json['remaining_amount'] != null
+        ? toD(json['remainingAmount'] ?? json['remaining_amount'])
+        : totalVal;
+
+    final rawDue = json['dueDate'] ?? json['due_date'];
+    final parsedDue = rawDue != null
+        ? (DateTime.tryParse(rawDue.toString()) ?? DateTime.now())
+        : DateTime.now();
+
+    final rawStatus = (json['status'] ?? 'active').toString().toLowerCase();
+    final statusVal = (rawStatus == 'paid' || rawStatus == 'lunas' || remainingVal <= 0)
+        ? 'paid'
+        : 'active';
+
+    return DebtItem(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      totalAmount: totalVal,
+      remainingAmount: remainingVal,
+      dueDate: parsedDue,
+      status: statusVal,
+      type: DebtType.fromString(json['type']?.toString()),
+      notes: json['notes']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dueStr =
+        '${dueDate.year.toString().padLeft(4, '0')}-${dueDate.month.toString().padLeft(2, '0')}-${dueDate.day.toString().padLeft(2, '0')}';
+    return {
+      'id': id,
+      'name': name,
+      'totalAmount': totalAmount,
+      'remainingAmount': remainingAmount,
+      'dueDate': dueStr,
+      'status': status,
+      'type': type.apiValue,
+      'notes': notes,
+    };
+  }
+
+  static List<DebtItem> getInitialDebts() {
+    final now = DateTime.now();
+    return [
+      DebtItem(
+        id: 'debt_1',
+        name: 'Paylater Belanja Online (Spay)',
+        totalAmount: 1250000,
+        remainingAmount: 450000,
+        dueDate: now.add(const Duration(days: 2)),
+        status: 'active',
+        type: DebtType.paylater,
+        notes: 'Belanja perlengkapan rumah & elektronik ringan',
+      ),
+      DebtItem(
+        id: 'debt_2',
+        name: 'Cicilan Laptop Kerja (Bulan 3/6)',
+        totalAmount: 6000000,
+        remainingAmount: 3000000,
+        dueDate: now.add(const Duration(days: 12)),
+        status: 'active',
+        type: DebtType.cicilan,
+        notes: 'Tenor 6 bulan cicilan 0% keperluan kantor',
+      ),
+      DebtItem(
+        id: 'debt_3',
+        name: 'Tagihan Kartu Kredit Bank BCA',
+        totalAmount: 850000,
+        remainingAmount: 850000,
+        dueDate: now.add(const Duration(days: 1)),
+        status: 'active',
+        type: DebtType.kartuKredit,
+        notes: 'Transaksi groceries & bensin pertengahan bulan',
+      ),
+      DebtItem(
+        id: 'debt_4',
+        name: 'Pinjaman Teman (Budi - Talangan)',
+        totalAmount: 300000,
+        remainingAmount: 0,
+        dueDate: now.subtract(const Duration(days: 5)),
+        status: 'paid',
+        type: DebtType.pinjamanPribadi,
+        notes: 'Talangan beli tiket kereta pulang kampung',
+      ),
+      DebtItem(
+        id: 'debt_5',
+        name: 'Paylater Tagihan Listrik (Kredivo)',
+        totalAmount: 275000,
+        remainingAmount: 0,
+        dueDate: now.subtract(const Duration(days: 7)),
+        status: 'paid',
+        type: DebtType.paylater,
+        notes: 'Token listrik PLN 500rb awal bulan',
+      ),
+    ];
   }
 }

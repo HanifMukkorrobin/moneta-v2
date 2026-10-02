@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../mock/rekap_mock_data.dart';
 import '../../models/monthly_rekap_data.dart';
+import '../../services/api/moneta_api_client.dart';
+import '../../services/api/rekap_api_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/category_breakdown_section.dart';
@@ -24,49 +25,70 @@ class RekapBulananScreen extends StatefulWidget {
 class _RekapBulananScreenState extends State<RekapBulananScreen> {
   late String _currentMonth;
   String? _selectedCategoryFilter;
+  MonthlyRekapData? _rekapData;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = widget.initialMonth;
+    _syncRekapFromBackend();
+  }
+
+  Future<void> _syncRekapFromBackend() async {
+    try {
+      final data = await RekapApiService.instance.getMonthlyRecap(_currentMonth);
+      if (mounted) {
+        setState(() {
+          _rekapData = data;
+        });
+      }
+    } catch (_) {}
   }
 
   void _previousMonth() {
-    final idx = RekapMockData.availableMonths.indexOf(_currentMonth);
-    if (idx != -1 && idx < RekapMockData.availableMonths.length - 1) {
+    final idx = MonthlyRekapData.availableMonths.indexOf(_currentMonth);
+    if (idx != -1 && idx < MonthlyRekapData.availableMonths.length - 1) {
       setState(() {
-        _currentMonth = RekapMockData.availableMonths[idx + 1];
+        _currentMonth = MonthlyRekapData.availableMonths[idx + 1];
         _selectedCategoryFilter = null;
+        _rekapData = null;
       });
+      _syncRekapFromBackend();
     }
   }
 
   void _nextMonth() {
-    final idx = RekapMockData.availableMonths.indexOf(_currentMonth);
+    final idx = MonthlyRekapData.availableMonths.indexOf(_currentMonth);
     if (idx > 0) {
       setState(() {
-        _currentMonth = RekapMockData.availableMonths[idx - 1];
+        _currentMonth = MonthlyRekapData.availableMonths[idx - 1];
         _selectedCategoryFilter = null;
+        _rekapData = null;
       });
+      _syncRekapFromBackend();
     }
   }
 
   bool get _canGoNext =>
-      RekapMockData.availableMonths.indexOf(_currentMonth) > 0;
+      MonthlyRekapData.availableMonths.indexOf(_currentMonth) > 0;
 
   bool get _canGoPrevious =>
-      RekapMockData.availableMonths.indexOf(_currentMonth) <
-      RekapMockData.availableMonths.length - 1;
+      MonthlyRekapData.availableMonths.indexOf(_currentMonth) <
+      MonthlyRekapData.availableMonths.length - 1;
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: AppState.instance,
       builder: (context, _) {
-        final rekapData = RekapMockData.getMonthlyRekap(
-          month: _currentMonth,
-          activeTransactions: AppState.instance.allTransactions,
-        );
+        final hasBackendSession = MonetaApiClient.instance.authToken != null &&
+            MonetaApiClient.instance.authToken!.isNotEmpty;
+        final rekapData = _rekapData ??
+            MonthlyRekapData.getMonthlyRekap(
+              month: _currentMonth,
+              activeTransactions: AppState.instance.allTransactions,
+              includeBaseline: !hasBackendSession,
+            );
 
         return Scaffold(
           backgroundColor: AppTheme.backgroundColor,
@@ -82,6 +104,7 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                   setState(() {
                     _selectedCategoryFilter = null;
                   });
+                  _syncRekapFromBackend();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Rekap bulanan berhasil diperbarui.'),
@@ -95,7 +118,8 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
           body: RefreshIndicator(
             color: AppTheme.primaryColor,
             onRefresh: () async {
-              setState(() {});
+              await _syncRekapFromBackend();
+              if (mounted) setState(() {});
             },
             child: GestureDetector(
               onHorizontalDragEnd: (details) {
@@ -119,12 +143,13 @@ class _RekapBulananScreenState extends State<RekapBulananScreen> {
                     // Month Navigator Bar with in-page month switcher & bottom sheet picker
                     MonthNavigatorBar(
                       selectedMonth: _currentMonth,
-                      availableMonths: RekapMockData.availableMonths,
+                      availableMonths: MonthlyRekapData.availableMonths,
                       onMonthChanged: (newMonth) {
                         setState(() {
                           _currentMonth = newMonth;
                           _selectedCategoryFilter = null;
                         });
+                        _syncRekapFromBackend();
                       },
                     ),
 

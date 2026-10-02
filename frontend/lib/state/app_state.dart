@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '../mock/ai_insight_mock_data.dart';
-import '../mock/daily_spending_mock_data.dart';
-import '../mock/debt_mock_data.dart';
-import '../mock/mock_data.dart';
+import '../config/app_env.dart';
 import '../models/ai_insight_item.dart';
 import '../models/category_item.dart';
 import '../models/category_usage.dart';
@@ -13,8 +10,17 @@ import '../models/daily_spending_item.dart';
 import '../models/debt_item.dart';
 import '../models/transaction_item.dart';
 import '../models/user_profile.dart';
+import '../services/api/analysis_api_service.dart';
+import '../services/api/auth_api_service.dart';
+import '../services/api/category_api_service.dart';
+import '../services/api/chat_api_service.dart';
+import '../services/api/daily_advice_api_service.dart';
+import '../services/api/moneta_api_client.dart';
+import '../services/api/reminder_debt_api_service.dart';
+import '../services/api/transaction_api_service.dart';
 import '../services/local_preference_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/category_icon_mapper.dart';
 import '../utils/currency_format.dart';
 
 class AppState extends ChangeNotifier {
@@ -32,12 +38,12 @@ class AppState extends ChangeNotifier {
   List<CategoryItem> _categories = [];
   List<DebtItem> _debts = [];
   bool _isAiTyping = false;
-  AiInsightItem _aiInsight = AiInsightMockData.getDefaultInsight();
+  AiInsightItem _aiInsight = AiInsightItem.empty();
   DailySpendingAnalysis _dailySpendingAnalysis =
-      DailySpendingMockData.getDefaultDailyAnalysis();
+      DailySpendingAnalysis.empty();
   DailyReminderSettings _reminderSettings = const DailyReminderSettings();
-  UserProfile _userProfile = UserProfile.defaultProfile();
-  bool _isLoggedIn = true;
+  UserProfile _userProfile = UserProfile.empty();
+  bool _isLoggedIn = false;
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatLogItem> get chatLogs => List.unmodifiable(_chatLogs);
@@ -54,8 +60,9 @@ class AppState extends ChangeNotifier {
   int get activeDebtsCount => _debts.where((d) => !d.isPaid).length;
   int get paidDebtsCount => _debts.where((d) => d.isPaid).length;
   int get dueSoonDebtsCount => _debts.where((d) => d.isDueSoon).length;
-  double get totalRemainingDebt =>
-      _debts.where((d) => !d.isPaid).fold(0.0, (sum, d) => sum + d.remainingAmount);
+  double get totalRemainingDebt => _debts
+      .where((d) => !d.isPaid)
+      .fold(0.0, (sum, d) => sum + d.remainingAmount);
   double get totalOriginalDebt =>
       _debts.fold(0.0, (sum, d) => sum + d.totalAmount);
 
@@ -115,25 +122,143 @@ class AppState extends ChangeNotifier {
     return total;
   }
 
-  void _initDefaultState() {
-    _messages = MockData.getInitialMessages();
-    _chatLogs = MockData.getMockChatLogs();
-    _categories = MockData.getInitialCategories();
-    _debts = DebtMockData.getInitialDebts();
+  void _syncApi(Future<void> Function() action) {
+    action().catchError((_) {});
+  }
+
+  void _initDefaultState({bool loggedIn = true}) {
+    _messages = ChatMessage.getInitialMessages();
+    _chatLogs = ChatLogItem.getInitialChatLogs();
+    _categories = CategoryIconMapper.getDefaultCategoryItems();
+    _debts = DebtItem.getInitialDebts();
     _isAiTyping = false;
-    _aiInsight = AiInsightMockData.getDefaultInsight();
-    _dailySpendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
+    _aiInsight = AiInsightItem.getDefaultInsight();
+    _dailySpendingAnalysis = DailySpendingAnalysis.getDefaultDailyAnalysis();
     _reminderSettings = const DailyReminderSettings();
-    _userProfile = UserProfile.defaultProfile();
+    _userProfile = UserProfile.defaultUser;
     final savedTheme = LocalPreferenceService.instance.getThemeMode();
     if (savedTheme != null && savedTheme.isNotEmpty) {
       _userProfile = _userProfile.copyWith(themeMode: savedTheme);
     }
-    _isLoggedIn = true;
+    _isLoggedIn = loggedIn;
   }
 
-  void resetToDefault() {
-    _initDefaultState();
+  /// Dipanggil saat startup aplikasi (`main()`) untuk memeriksa sesi autentikasi.
+  /// Jika belum ada token tersimpan, pengguna wajib diarahkan ke `AuthScreen` dengan state bersih.
+  Future<void> initializeSession() async {
+    final savedToken = LocalPreferenceService.instance.getAuthToken();
+    final savedUserId = LocalPreferenceService.instance.getUserId();
+    if (savedToken != null && savedToken.isNotEmpty) {
+      MonetaApiClient.instance.setAuthToken(savedToken);
+      if (savedUserId != null) {
+        MonetaApiClient.instance.setUserId(savedUserId);
+      }
+      _isLoggedIn = true;
+      _messages = [ChatMessage.createInitialWelcomeOnly()];
+      _chatLogs = [];
+      _debts = [];
+      _aiInsight = AiInsightItem.empty();
+      _dailySpendingAnalysis = DailySpendingAnalysis.empty();
+      _userProfile = UserProfile.empty();
+      notifyListeners();
+      await syncFromBackend();
+    } else {
+      MonetaApiClient.instance.setAuthToken(null);
+      _isLoggedIn = false;
+      _messages = [ChatMessage.createInitialWelcomeOnly()];
+      _chatLogs = [];
+      _debts = [];
+      _aiInsight = AiInsightItem.empty();
+      _dailySpendingAnalysis = DailySpendingAnalysis.empty();
+      _userProfile = UserProfile.empty();
+      notifyListeners();
+    }
+  }
+
+  /// Sinkronisasi seluruh state utama dari Backend API.
+  Future<void> syncFromBackend() async {
+    await Future.wait([
+      _fetchProfileSilently(),
+      _fetchCategoriesSilently(),
+      _fetchDebtsSilently(),
+      _fetchReminderSettingsSilently(),
+      _fetchAnalysisSilently(),
+      _fetchChatHistorySilently(),
+    ]);
+  }
+
+  Future<void> _fetchProfileSilently() async {
+    try {
+      final profile = await AuthApiService.instance.getProfile();
+      _userProfile = profile;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> _fetchCategoriesSilently() async {
+    try {
+      final cats = await CategoryApiService.instance.getCategories();
+      if (cats.isNotEmpty) {
+        _categories = cats;
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchDebtsSilently() async {
+    try {
+      final list = await ReminderDebtApiService.instance.getDebts();
+      _debts = list;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> _fetchReminderSettingsSilently() async {
+    try {
+      final settings =
+          await ReminderDebtApiService.instance.getReminderSettings();
+      _reminderSettings = settings;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> _fetchAnalysisSilently() async {
+    try {
+      final summary = await AnalysisApiService.instance.getAnalysisSummary();
+      _aiInsight = summary.insight;
+      _dailySpendingAnalysis = summary.dailySpending;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> _fetchChatHistorySilently() async {
+    try {
+      final logs = await ChatApiService.instance.getChatHistory();
+      _chatLogs = logs;
+      _rebuildMessagesFromChatLogs();
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  void _rebuildMessagesFromChatLogs() {
+    if (_chatLogs.isEmpty) {
+      _messages = [ChatMessage.createInitialWelcomeOnly()];
+      return;
+    }
+    final reconstructed = <ChatMessage>[ChatMessage.createInitialWelcomeOnly()];
+    for (final log in _chatLogs.reversed) {
+      reconstructed.addAll(ChatMessage.fromChatLog(log));
+    }
+    _messages = reconstructed;
+  }
+
+  void resetToDefault({bool loggedIn = true}) {
+    _initDefaultState(loggedIn: loggedIn);
+    notifyListeners();
+  }
+
+  void setLoggedIn(bool value) {
+    _isLoggedIn = value;
     notifyListeners();
   }
 
@@ -150,24 +275,96 @@ class AppState extends ChangeNotifier {
   void updateReminderSettings(DailyReminderSettings newSettings) {
     _reminderSettings = newSettings;
     notifyListeners();
+    _syncApi(() async {
+      await ReminderDebtApiService.instance.saveReminderSettings(newSettings);
+    });
   }
 
   void updateUserProfile(UserProfile newProfile) {
     _userProfile = newProfile;
     LocalPreferenceService.instance.saveThemeMode(newProfile.themeMode);
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.updateProfile(
+        displayName: newProfile.displayName,
+        email: newProfile.email,
+      );
+      await AuthApiService.instance.updatePreferences(newProfile.toJson());
+    });
   }
 
   void updateThemeMode(String mode) {
     _userProfile = _userProfile.copyWith(themeMode: mode);
     LocalPreferenceService.instance.saveThemeMode(mode);
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.updatePreferences({'themeMode': mode});
+    });
+  }
+
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final res = await AuthApiService.instance.login(
+        email: email,
+        password: password,
+      );
+      LocalPreferenceService.instance.saveAuthToken(res.token);
+      LocalPreferenceService.instance.saveUserId(res.user.id);
+      MonetaApiClient.instance.setAuthSession(token: res.token, userId: res.user.id);
+      _userProfile = res.user;
+      _isLoggedIn = true;
+      _messages = [ChatMessage.createInitialWelcomeOnly()];
+      _chatLogs = [];
+      _debts = [];
+      _aiInsight = AiInsightItem.empty();
+      _dailySpendingAnalysis = DailySpendingAnalysis.empty();
+      notifyListeners();
+      await syncFromBackend();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
+    String currency = 'IDR',
+  }) async {
+    try {
+      final res = await AuthApiService.instance.register(
+        name: name,
+        email: email,
+        password: password,
+        currency: currency,
+      );
+      LocalPreferenceService.instance.saveAuthToken(res.token);
+      LocalPreferenceService.instance.saveUserId(res.profile.id);
+      MonetaApiClient.instance.setAuthSession(token: res.token, userId: res.profile.id);
+      _userProfile = res.profile;
+      _isLoggedIn = true;
+      _messages = [ChatMessage.createInitialWelcomeOnly()];
+      _chatLogs = [];
+      _debts = [];
+      _aiInsight = AiInsightItem.empty();
+      _dailySpendingAnalysis = DailySpendingAnalysis.empty();
+      notifyListeners();
+      await syncFromBackend();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   void loginMock({
     required String email,
     String? displayName,
     String currency = 'IDR',
+    String password = 'password123',
   }) {
     _isLoggedIn = true;
     _userProfile = _userProfile.copyWith(
@@ -176,12 +373,14 @@ class AppState extends ChangeNotifier {
       currency: currency,
     );
     notifyListeners();
+    login(email: email, password: password);
   }
 
   void registerMock({
     required String name,
     required String email,
     String currency = 'IDR',
+    String password = 'password123',
   }) {
     _isLoggedIn = true;
     _userProfile = _userProfile.copyWith(
@@ -190,32 +389,70 @@ class AppState extends ChangeNotifier {
       currency: currency,
     );
     notifyListeners();
+    register(name: name, email: email, password: password, currency: currency);
   }
 
   void logout() {
     _isLoggedIn = false;
+    LocalPreferenceService.instance.clearAuthToken();
+    MonetaApiClient.instance.clearAuthSession();
+    _messages = [ChatMessage.createInitialWelcomeOnly()];
+    _chatLogs = [];
+    _debts = [];
+    _aiInsight = AiInsightItem.empty();
+    _dailySpendingAnalysis = DailySpendingAnalysis.empty();
+    _userProfile = UserProfile.empty();
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.logout();
+    });
   }
 
   void updateCurrency(String currency, [String? symbol]) {
+    final resolvedSymbol = symbol ??
+        (currency == 'IDR'
+            ? 'Rp'
+            : currency == 'USD'
+                ? '\$'
+                : currency == 'EUR'
+                    ? '€'
+                    : currency);
     _userProfile = _userProfile.copyWith(
       currency: currency,
-      currencySymbol: symbol ?? (currency == 'IDR' ? 'Rp' : currency == 'USD' ? '\$' : currency == 'EUR' ? '€' : currency),
+      currencySymbol: resolvedSymbol,
     );
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.updatePreferences({
+        'currency': currency,
+        'currencySymbol': resolvedSymbol,
+      });
+    });
   }
 
   void togglePin(bool enabled, [String? pin]) {
+    final resolvedPin =
+        enabled ? (pin ?? _userProfile.pinCode ?? '1234') : null;
     _userProfile = _userProfile.copyWith(
       pinEnabled: enabled,
-      pinCode: enabled ? (pin ?? _userProfile.pinCode ?? '1234') : null,
+      pinCode: resolvedPin,
     );
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.toggleSecurity(
+        pinEnabled: enabled,
+        pinCode: resolvedPin,
+      );
+    });
   }
 
   bool verifyPin(String enteredPin) {
     final expectedPin = _userProfile.pinCode ?? '1234';
-    return enteredPin == expectedPin;
+    final isMatch = enteredPin == expectedPin;
+    _syncApi(() async {
+      await AuthApiService.instance.verifyPin(pin: enteredPin);
+    });
+    return isMatch;
   }
 
   void setPin(String newPin) {
@@ -224,6 +461,9 @@ class AppState extends ChangeNotifier {
       pinCode: newPin,
     );
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.setupPin(pin: newPin);
+    });
   }
 
   bool verifyBiometric() {
@@ -233,22 +473,34 @@ class AppState extends ChangeNotifier {
   void toggleBiometric(bool enabled) {
     _userProfile = _userProfile.copyWith(biometricEnabled: enabled);
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.toggleSecurity(biometricEnabled: enabled);
+    });
   }
 
   void updateAiTone(String tone) {
     _userProfile = _userProfile.copyWith(aiAdviceTone: tone);
     notifyListeners();
+    _syncApi(() async {
+      await AuthApiService.instance.updatePreferences({'aiAdviceTone': tone});
+    });
   }
 
   void cycleAiInsightPreset() {
     if (_aiInsight.warnLevel == AiWarnLevel.normal) {
-      _aiInsight = AiInsightMockData.getWarningInsight();
+      _aiInsight = AiInsightItem.getWarningInsight();
     } else if (_aiInsight.warnLevel == AiWarnLevel.warning) {
-      _aiInsight = AiInsightMockData.getCriticalInsight();
+      _aiInsight = AiInsightItem.getCriticalInsight();
     } else {
-      _aiInsight = AiInsightMockData.getDefaultInsight();
+      _aiInsight = AiInsightItem.getDefaultInsight();
     }
     notifyListeners();
+    _syncApi(() async {
+      final refreshed =
+          await DailyAdviceApiService.instance.refreshDailyAdvice();
+      _aiInsight = refreshed;
+      notifyListeners();
+    });
   }
 
   static String _fullDayName(int weekday) {
@@ -275,8 +527,9 @@ class AppState extends ChangeNotifier {
   /// Recalculates AI insight and daily spending analysis based on real confirmed transactions.
   void recalculateAnalysis({
     bool notify = true,
-    double monthlyBudget = 6000000,
+    double? monthlyBudget,
   }) {
+    final effectiveBudget = monthlyBudget ?? AppEnv.defaultMonthlyBudget;
     final expenseTxs =
         confirmedTransactions.where((t) => t.isExpense).toList();
     final now = DateTime.now();
@@ -284,7 +537,7 @@ class AppState extends ChangeNotifier {
     if (expenseTxs.isEmpty) {
       _aiInsight = _aiInsight.copyWith(
         totalSpent: 0,
-        remainingBalance: monthlyBudget,
+        remainingBalance: effectiveBudget,
         avgDailySpend: 0,
         dailyAdvice:
             'Belum ada transaksi pengeluaran bulan ini. Catat transaksi pertamamu lewat chat!',
@@ -292,7 +545,7 @@ class AppState extends ChangeNotifier {
       );
       _dailySpendingAnalysis = DailySpendingAnalysis(
         avgDailySpend: 0,
-        targetDailySpend: 65000,
+        targetDailySpend: AppEnv.defaultTargetDailySpend,
         weekOverWeekPercent: 0,
         highestSpendAmount: 0,
         highestSpendDay: 'Belum Ada',
@@ -338,7 +591,10 @@ class AppState extends ChangeNotifier {
       double daySum = 0;
       for (var tx in expenseTxs) {
         final txDate = DateTime(
-            tx.occurredAt.year, tx.occurredAt.month, tx.occurredAt.day);
+          tx.occurredAt.year,
+          tx.occurredAt.month,
+          tx.occurredAt.day,
+        );
         if (txDate.isAtSameMomentAs(date)) {
           daySum += tx.amount;
         }
@@ -393,7 +649,7 @@ class AppState extends ChangeNotifier {
 
     _dailySpendingAnalysis = DailySpendingAnalysis(
       avgDailySpend: avgDaily,
-      targetDailySpend: 65000,
+      targetDailySpend: AppEnv.defaultTargetDailySpend,
       weekOverWeekPercent: 5.2,
       highestSpendAmount: highestSpend,
       highestSpendDay: highestDay,
@@ -405,7 +661,7 @@ class AppState extends ChangeNotifier {
     );
 
     final remainingBalance =
-        (monthlyBudget - totalExpenseAmount).clamp(0.0, double.infinity);
+        (effectiveBudget - totalExpenseAmount).clamp(0.0, double.infinity);
 
     final nextMonth = DateTime(now.year, now.month + 1, 1);
     final lastDay = nextMonth.subtract(const Duration(days: 1));
@@ -449,7 +705,7 @@ class AppState extends ChangeNotifier {
       recommendedDailyBudget: recommendedDailyBudget,
       dailyAdvice: dailyAdvice,
       warnLevel: warnLevel,
-      totalMonthlyBudget: monthlyBudget,
+      totalMonthlyBudget: effectiveBudget,
       totalSpent: totalExpenseAmount,
       remainingBalance: remainingBalance,
     );
@@ -467,7 +723,6 @@ class AppState extends ChangeNotifier {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return false;
 
-    // Disallow duplicate names for same type
     final exists = _categories.any((c) =>
         c.type == type && c.name.toLowerCase() == trimmed.toLowerCase());
     if (exists) return false;
@@ -482,6 +737,21 @@ class AppState extends ChangeNotifier {
     );
     _categories.add(newCat);
     notifyListeners();
+
+    _syncApi(() async {
+      final created = await CategoryApiService.instance.createCategory(
+        name: trimmed,
+        type: type,
+      );
+      final idx = _categories.indexWhere((c) => c.id == newCat.id);
+      if (idx != -1) {
+        _categories[idx] = created.copyWith(
+          icon: icon ?? created.icon,
+          color: color ?? created.color,
+        );
+        notifyListeners();
+      }
+    });
     return true;
   }
 
@@ -501,7 +771,6 @@ class AppState extends ChangeNotifier {
     final oldCat = _categories[index];
     final oldName = oldCat.name;
 
-    // Disallow collision with other category of same type
     final collision = _categories.any((c) =>
         c.id != id &&
         c.type == oldCat.type &&
@@ -514,7 +783,6 @@ class AppState extends ChangeNotifier {
       color: color ?? oldCat.color,
     );
 
-    // Update occurrences in active messages and chat logs
     for (var m in _messages) {
       if (m.transaction != null && m.transaction!.category == oldName) {
         m.transaction!.category = trimmed;
@@ -527,6 +795,10 @@ class AppState extends ChangeNotifier {
     }
 
     notifyListeners();
+
+    _syncApi(() async {
+      await CategoryApiService.instance.updateCategory(id, name: trimmed);
+    });
     return true;
   }
 
@@ -536,11 +808,10 @@ class AppState extends ChangeNotifier {
     if (index == -1) return false;
 
     final cat = _categories[index];
-    if (cat.isDefault) return false; // Default categories cannot be deleted
+    if (cat.isDefault) return false;
 
     _categories.removeAt(index);
 
-    // Reassign transactions using this category to 'Lainnya'
     for (var m in _messages) {
       if (m.transaction != null && m.transaction!.category == cat.name) {
         m.transaction!.category = 'Lainnya';
@@ -553,6 +824,10 @@ class AppState extends ChangeNotifier {
     }
 
     notifyListeners();
+
+    _syncApi(() async {
+      await CategoryApiService.instance.deleteCategory(id);
+    });
     return true;
   }
 
@@ -568,8 +843,6 @@ class AppState extends ChangeNotifier {
   }
 
   /// Get frequently used categories based on transaction history.
-  /// Top frequently used categories appear first. If history has fewer than [limit]
-  /// used categories, it fills the remainder with default categories.
   List<CategoryUsage> getFrequentlyUsedCategories({
     required String type,
     int limit = 5,
@@ -592,7 +865,8 @@ class AppState extends ChangeNotifier {
     for (var name in sortedUsedNames) {
       if (result.length >= limit) break;
       final catItem = _categories.cast<CategoryItem?>().firstWhere(
-            (c) => c?.name.toLowerCase() == name.toLowerCase() && c?.type == type,
+            (c) =>
+                c?.name.toLowerCase() == name.toLowerCase() && c?.type == type,
             orElse: () => null,
           );
       result.add(CategoryUsage(
@@ -606,10 +880,12 @@ class AppState extends ChangeNotifier {
     }
 
     if (result.length < limit) {
-      final available = (type == 'expense' ? expenseCategories : incomeCategories);
+      final available =
+          (type == 'expense' ? expenseCategories : incomeCategories);
       for (var cat in available) {
         if (result.length >= limit) break;
-        if (!result.any((r) => r.name.toLowerCase() == cat.name.toLowerCase())) {
+        if (!result
+            .any((r) => r.name.toLowerCase() == cat.name.toLowerCase())) {
           result.add(CategoryUsage(
             name: cat.name,
             type: type,
@@ -635,7 +911,7 @@ class AppState extends ChangeNotifier {
         .toList();
   }
 
-  /// Send user message and simulate AI parsing to mock state
+  /// Send user message and parse via Backend Chat API (with deterministic local fallback)
   void sendMessage(String text, {VoidCallback? onAiComplete}) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
@@ -651,11 +927,11 @@ class AppState extends ChangeNotifier {
     _isAiTyping = true;
     notifyListeners();
 
-    // Simulate 9Router AI delay
     Future.delayed(const Duration(milliseconds: 600), () {
-      final parsed = MockData.parseTextOrNull(trimmed);
+      final parsed = TransactionItem.parseTextOrNull(trimmed);
 
       final ChatMessage aiMessage;
+      final ChatLogItem logItem;
       if (parsed != null) {
         aiMessage = ChatMessage(
           id: 'msg_ai_${DateTime.now().millisecondsSinceEpoch}',
@@ -666,17 +942,14 @@ class AppState extends ChangeNotifier {
           transaction: parsed,
         );
 
-        // Also add to chat logs as pending
-        _chatLogs.insert(
-          0,
-          ChatLogItem(
-            id: 'log_${DateTime.now().millisecondsSinceEpoch}',
-            message: trimmed,
-            status: ChatLogStatus.pending,
-            createdAt: DateTime.now(),
-            transaction: parsed,
-          ),
+        logItem = ChatLogItem(
+          id: 'log_${DateTime.now().millisecondsSinceEpoch}',
+          message: trimmed,
+          status: ChatLogStatus.pending,
+          createdAt: DateTime.now(),
+          transaction: parsed,
         );
+        _chatLogs.insert(0, logItem);
       } else {
         aiMessage = ChatMessage(
           id: 'msg_ai_fail_${DateTime.now().millisecondsSinceEpoch}',
@@ -688,25 +961,34 @@ class AppState extends ChangeNotifier {
           failedRawText: trimmed,
         );
 
-        _chatLogs.insert(
-          0,
-          ChatLogItem(
-            id: 'log_${DateTime.now().millisecondsSinceEpoch}',
-            message: trimmed,
-            status: ChatLogStatus.failed,
-            createdAt: DateTime.now(),
-          ),
+        logItem = ChatLogItem(
+          id: 'log_${DateTime.now().millisecondsSinceEpoch}',
+          message: trimmed,
+          status: ChatLogStatus.failed,
+          createdAt: DateTime.now(),
         );
+        _chatLogs.insert(0, logItem);
       }
 
       _isAiTyping = false;
       _messages.add(aiMessage);
       notifyListeners();
       onAiComplete?.call();
+
+      _syncApi(() async {
+        final apiRes =
+            await ChatApiService.instance.sendMessage(message: trimmed);
+        if (!apiRes.isAiFailed &&
+            apiRes.transaction != null &&
+            aiMessage.transaction != null) {
+          aiMessage.transaction = apiRes.transaction;
+          notifyListeners();
+        }
+      });
     });
   }
 
-  /// Confirm a transaction and update its status across messages and chat logs
+  /// Confirm a transaction and update its status across messages, chat logs, and backend API
   void confirmTransaction(String transactionId) {
     for (var m in _messages) {
       if (m.transaction != null && m.transaction!.id == transactionId) {
@@ -723,6 +1005,12 @@ class AppState extends ChangeNotifier {
 
     recalculateAnalysis(notify: false);
     notifyListeners();
+
+    _syncApi(() async {
+      await TransactionApiService.instance.confirmTransaction(
+        transactionId: transactionId,
+      );
+    });
   }
 
   /// Update an existing transaction (amount, note, category, type, date)
@@ -750,6 +1038,17 @@ class AppState extends ChangeNotifier {
 
     recalculateAnalysis(notify: false);
     notifyListeners();
+
+    _syncApi(() async {
+      await TransactionApiService.instance.updateTransaction(
+        updated.id,
+        type: updated.type,
+        amount: updated.amount,
+        categoryName: updated.category,
+        note: updated.note,
+        occurredAt: updated.occurredAt,
+      );
+    });
   }
 
   /// Update category and optionally type or custom status for a transaction
@@ -781,9 +1080,17 @@ class AppState extends ChangeNotifier {
 
     recalculateAnalysis(notify: false);
     notifyListeners();
+
+    _syncApi(() async {
+      await TransactionApiService.instance.confirmTransactionCategory(
+        transactionId,
+        categoryName: newCategory,
+        type: newType,
+      );
+    });
   }
 
-  /// Delete a transaction from chat and mark in logs
+  /// Delete a transaction from chat and mark in logs + backend API
   ChatMessage? deleteTransaction(String transactionId) {
     ChatMessage? removedMessage;
     int index = -1;
@@ -809,6 +1116,10 @@ class AppState extends ChangeNotifier {
 
     recalculateAnalysis(notify: false);
     notifyListeners();
+
+    _syncApi(() async {
+      await TransactionApiService.instance.deleteTransaction(transactionId);
+    });
     return removedMessage;
   }
 
@@ -818,12 +1129,15 @@ class AppState extends ChangeNotifier {
     if (index != -1) {
       _messages.removeAt(index);
       if (message.transaction != null) {
+        final txId = message.transaction!.id;
         for (var log in _chatLogs) {
-          if (log.transaction != null &&
-              log.transaction!.id == message.transaction!.id) {
+          if (log.transaction != null && log.transaction!.id == txId) {
             log.status = ChatLogStatus.deleted;
           }
         }
+        _syncApi(() async {
+          await TransactionApiService.instance.deleteTransaction(txId);
+        });
       }
       recalculateAnalysis(notify: false);
       notifyListeners();
@@ -854,7 +1168,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Add manual transaction to state
+  /// Add manual transaction to state and Backend API
   void addManualTransaction(TransactionItem tx, {ChatMessage? failedMessage}) {
     if (failedMessage != null) {
       _messages.remove(failedMessage);
@@ -884,19 +1198,44 @@ class AppState extends ChangeNotifier {
 
     recalculateAnalysis(notify: false);
     notifyListeners();
+
+    _syncApi(() async {
+      await TransactionApiService.instance.createTransaction(
+        type: tx.type,
+        amount: tx.amount,
+        categoryName: tx.category,
+        note: tx.note,
+        occurredAt: tx.occurredAt,
+      );
+    });
   }
 
   // ==========================================
-  // CATATAN HUTANG & PAYLATER MOCK STATE
+  // CATATAN HUTANG & PAYLATER STATE
   // ==========================================
 
-  /// Add a new debt to mock state
+  /// Add a new debt to state and Backend API
   void addDebt(DebtItem debt) {
     _debts.insert(0, debt);
     notifyListeners();
+    _syncApi(() async {
+      final created = await ReminderDebtApiService.instance.createDebt(
+        name: debt.name,
+        totalAmount: debt.totalAmount,
+        remainingAmount: debt.remainingAmount,
+        dueDate: debt.dueDate,
+        type: debt.type,
+        notes: debt.notes,
+      );
+      final idx = _debts.indexWhere((d) => d.id == debt.id);
+      if (idx != -1) {
+        _debts[idx] = created;
+        notifyListeners();
+      }
+    });
   }
 
-  /// Mark a debt as paid in mock state
+  /// Mark a debt as paid in state and Backend API
   void markDebtPaid(String id) {
     final idx = _debts.indexWhere((d) => d.id == id);
     if (idx != -1) {
@@ -905,6 +1244,9 @@ class AppState extends ChangeNotifier {
         remainingAmount: 0,
       );
       notifyListeners();
+      _syncApi(() async {
+        await ReminderDebtApiService.instance.markDebtAsPaid(id);
+      });
     }
   }
 
@@ -918,6 +1260,9 @@ class AppState extends ChangeNotifier {
         remainingAmount: d.totalAmount > 0 ? d.totalAmount : 100000,
       );
       notifyListeners();
+      _syncApi(() async {
+        await ReminderDebtApiService.instance.reopenDebt(id);
+      });
     }
   }
 
@@ -940,6 +1285,14 @@ class AppState extends ChangeNotifier {
         notes: notes ?? d.notes,
       );
       notifyListeners();
+      _syncApi(() async {
+        await ReminderDebtApiService.instance.payDebt(
+          id,
+          amount: amount,
+          isFullPayment: isFull,
+          notes: notes,
+        );
+      });
     }
   }
 
@@ -958,6 +1311,18 @@ class AppState extends ChangeNotifier {
     if (idx != -1) {
       _debts[idx] = debt;
       notifyListeners();
+      _syncApi(() async {
+        await ReminderDebtApiService.instance.updateDebt(
+          debt.id,
+          name: debt.name,
+          totalAmount: debt.totalAmount,
+          remainingAmount: debt.remainingAmount,
+          dueDate: debt.dueDate,
+          type: debt.type,
+          status: debt.status,
+          notes: debt.notes,
+        );
+      });
     }
   }
 
@@ -965,11 +1330,14 @@ class AppState extends ChangeNotifier {
   void deleteDebt(String id) {
     _debts.removeWhere((d) => d.id == id);
     notifyListeners();
+    _syncApi(() async {
+      await ReminderDebtApiService.instance.deleteDebt(id);
+    });
   }
 
-  /// Reset debts list back to default initial mock data
+  /// Reset debts list back to default initial data
   void resetDebts() {
-    _debts = DebtMockData.getInitialDebts();
+    _debts = DebtItem.getInitialDebts();
     notifyListeners();
   }
 

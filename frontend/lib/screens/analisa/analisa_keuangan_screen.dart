@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../mock/ai_insight_mock_data.dart';
-import '../../mock/daily_spending_mock_data.dart';
 import '../../models/ai_insight_item.dart';
 import '../../models/daily_spending_item.dart';
+import '../../services/api/analysis_api_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../chat/widgets/financial_analysis_card.dart';
@@ -38,6 +37,21 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
         AppState.instance.dailySpendingAnalysis;
     _showEmptyState = widget.initialEmpty ?? false;
     AppState.instance.addListener(_onStateChange);
+    if (widget.initialAnalysis == null) {
+      _syncAnalysisFromBackend();
+    }
+  }
+
+  Future<void> _syncAnalysisFromBackend() async {
+    try {
+      final bundle = await AnalysisApiService.instance.getFinancialOverview();
+      if (mounted) {
+        setState(() {
+          _spendingAnalysis = bundle.dailySpending;
+          _showEmptyState = bundle.dailySpending.dailyPoints.isEmpty && bundle.dailySpending.avgDailySpend == 0;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -59,9 +73,9 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
   void _toggleAnalysisPreset() {
     setState(() {
       if (_spendingAnalysis.avgDailySpend < 100000) {
-        _spendingAnalysis = DailySpendingMockData.getHighSpendingAnalysis();
+        _spendingAnalysis = DailySpendingAnalysis.getHighSpendingAnalysis();
       } else {
-        _spendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
+        _spendingAnalysis = DailySpendingAnalysis.getDefaultDailyAnalysis();
       }
     });
 
@@ -81,7 +95,7 @@ class _AnalisaKeuanganScreenState extends State<AnalisaKeuanganScreen> {
     setState(() {
       _showEmptyState = false;
       if (isReset) {
-        _spendingAnalysis = DailySpendingMockData.getDefaultDailyAnalysis();
+        _spendingAnalysis = DailySpendingAnalysis.getDefaultDailyAnalysis();
       }
     });
     if (isReset) {

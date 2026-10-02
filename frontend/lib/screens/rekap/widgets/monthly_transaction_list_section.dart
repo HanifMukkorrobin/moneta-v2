@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../models/monthly_rekap_data.dart';
 import '../../../models/transaction_item.dart';
 import '../../../theme/app_theme.dart';
-import '../../../mock/rekap_mock_data.dart';
 import 'transaction_detail_sheet.dart';
 
 class MonthlyTransactionListSection extends StatefulWidget {
@@ -831,8 +831,8 @@ class _MonthlyTransactionListSectionState
                     ),
                     const Divider(height: 1, color: AppTheme.borderSubtle),
                     ...groupItems.map((tx) {
-                      final icon = RekapMockData.getCategoryIcon(tx.category);
-                      final color = RekapMockData.getCategoryColor(tx.category);
+                      final icon = MonthlyRekapData.getCategoryIcon(tx.category);
+                      final color = MonthlyRekapData.getCategoryColor(tx.category);
 
                       return InkWell(
                         key: Key('transaction_item_row_${tx.id}'),

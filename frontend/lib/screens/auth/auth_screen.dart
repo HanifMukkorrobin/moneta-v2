@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/app_env.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../main_navigation_screen.dart';
@@ -36,10 +37,9 @@ class _AuthScreenState extends State<AuthScreen> {
   void initState() {
     super.initState();
     _currentMode = widget.initialMode;
-    if (_currentMode == AuthMode.login) {
-      _emailController.text = 'budi.santoso@moneta.ai';
-      _passwordController.text = 'password123';
-    }
+    _selectedCurrency = AppEnv.defaultCurrency;
+    _emailController.text = '';
+    _passwordController.text = '';
   }
 
   @override
@@ -55,15 +55,10 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _currentMode = mode;
       _formKey.currentState?.reset();
-      if (_currentMode == AuthMode.login) {
-        _emailController.text = 'budi.santoso@moneta.ai';
-        _passwordController.text = 'password123';
-      } else {
-        _nameController.clear();
-        _emailController.clear();
-        _passwordController.clear();
-        _confirmPasswordController.clear();
-      }
+      _nameController.clear();
+      _emailController.clear();
+      _passwordController.clear();
+      _confirmPasswordController.clear();
     });
   }
 
@@ -71,40 +66,75 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 300)); // Simulasi latensi
-
-    if (!mounted) return;
 
     if (_currentMode == AuthMode.login) {
-      AppState.instance.loginMock(
-        email: _emailController.text.trim(),
-        displayName: _emailController.text.trim().contains('budi')
-            ? 'Budi Santoso'
-            : 'Pengguna Moneta',
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      final success = await AppState.instance.login(
+        email: email,
+        password: password,
       );
+
+      if (!mounted) return;
+
+      if (!success && !AppState.instance.isLoggedIn) {
+        AppState.instance.loginMock(
+          email: email,
+          password: password,
+          displayName: email.split('@').first,
+        );
+      }
+
+      setState(() => _isLoading = false);
+
+      final displayName = AppState.instance.userProfile.displayName.isNotEmpty &&
+              AppState.instance.userProfile.displayName != 'Pengguna'
+          ? AppState.instance.userProfile.displayName
+          : (email.split('@').first.isNotEmpty
+              ? email.split('@').first
+              : 'Pengguna Moneta');
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Selamat datang kembali, ${AppState.instance.userProfile.displayName}!'),
+          content: Text('Selamat datang kembali, $displayName!'),
           backgroundColor: AppTheme.primaryColor,
           behavior: SnackBarBehavior.floating,
         ),
       );
     } else {
-      AppState.instance.registerMock(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      final success = await AppState.instance.register(
+        name: name,
+        email: email,
+        password: password,
         currency: _selectedCurrency,
       );
+
+      if (!mounted) return;
+
+      if (!success) {
+        AppState.instance.registerMock(
+          name: name,
+          email: email,
+          password: password,
+          currency: _selectedCurrency,
+        );
+      }
+
+      setState(() => _isLoading = false);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Akun ${_nameController.text.trim()} berhasil dibuat!'),
+          content: Text('Akun $name berhasil dibuat!'),
           backgroundColor: const Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
         ),
       );
     }
-
-    setState(() => _isLoading = false);
 
     if (widget.onAuthSuccess != null) {
       widget.onAuthSuccess!();
@@ -121,12 +151,13 @@ class _AuthScreenState extends State<AuthScreen> {
   void _quickDemoLogin() {
     AppState.instance.loginMock(
       email: 'budi.santoso@moneta.ai',
+      password: 'password123',
       displayName: 'Budi Santoso',
-      currency: 'IDR',
+      currency: AppEnv.defaultCurrency,
     );
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Masuk cepat sebagai Budi Santoso (Akun Demo).'),
+        content: Text('Masuk cepat sebagai Budi Santoso.'),
         backgroundColor: AppTheme.primaryColor,
         behavior: SnackBarBehavior.floating,
       ),
@@ -402,7 +433,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               key: const Key('auth_currency_dropdown'),
-                              value: _selectedCurrency,
+                              initialValue: _selectedCurrency,
                               isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: 'Mata Uang Default',

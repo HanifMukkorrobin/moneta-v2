@@ -27,7 +27,7 @@ import { defaultAiSavingTipsGenerator } from '../services/aiSavingTipsGeneratorS
  * Helper untuk memvalidasi dan mengekstrak userId dari request
  */
 export function resolveUserIdFromRequest(db, req) {
-  const rawId = req.query?.userId || req.headers?.['x-user-id'] || req.body?.userId;
+  const rawId = req.userId || req.query?.userId || req.headers?.['x-user-id'] || req.body?.userId;
   if (rawId !== undefined && rawId !== null && rawId !== '') {
     const num = Number(rawId);
     if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
@@ -35,7 +35,7 @@ export function resolveUserIdFromRequest(db, req) {
     }
     return num;
   }
-  return getOrCreateDefaultUser(db);
+  return getOrCreateDefaultUser(db, req.userId);
 }
 
 /**

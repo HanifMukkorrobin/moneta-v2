@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../mock/category_confirmation_mock_data.dart';
 import '../../models/category_confirmation_item.dart';
 import '../../models/transaction_item.dart';
+import '../../services/api/moneta_api_client.dart';
+import '../../services/api/transaction_api_service.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../category_management/manage_categories_screen.dart';
@@ -11,7 +12,12 @@ import 'widgets/category_confirmation_card.dart';
 import 'widgets/category_picker_sheet.dart';
 
 class CategoryConfirmationScreen extends StatefulWidget {
-  const CategoryConfirmationScreen({super.key});
+  final List<CategoryConfirmationItem>? initialItems;
+
+  const CategoryConfirmationScreen({
+    super.key,
+    this.initialItems,
+  });
 
   @override
   State<CategoryConfirmationScreen> createState() =>
@@ -28,7 +34,69 @@ class _CategoryConfirmationScreenState
   @override
   void initState() {
     super.initState();
-    _resetData();
+    final hasBackendSession = MonetaApiClient.instance.authToken != null &&
+        MonetaApiClient.instance.authToken!.isNotEmpty;
+    if (widget.initialItems != null) {
+      _items = List.of(widget.initialItems!);
+    } else if (hasBackendSession) {
+      _items = _buildItemsFromTransactions(
+        AppState.instance.allTransactions.where((t) => !t.isConfirmed).toList(),
+      );
+      _syncPendingFromBackend();
+    } else {
+      _resetData();
+      _syncPendingFromBackend();
+    }
+  }
+
+  List<CategoryConfirmationItem> _buildItemsFromTransactions(
+      List<TransactionItem> list) {
+    return list.map((tx) {
+      return CategoryConfirmationItem(
+        id: tx.id,
+        rawSentence: tx.note,
+        amount: tx.amount,
+        type: tx.type,
+        detectedCategory: tx.category,
+        alternativeCategories: const ['Lainnya'],
+        confidenceScore: tx.confidenceScore ?? 0.85,
+        aiReasoning: tx.aiReasoning ?? 'Kategori otomatis dari catatan transaksi.',
+        typeReasoning: 'Tipe transaksi terdeteksi dari sistem.',
+        occurredAt: tx.occurredAt,
+        isConfirmed: tx.isConfirmed,
+      );
+    }).toList();
+  }
+
+  Future<void> _syncPendingFromBackend() async {
+    try {
+      final unconfirmed = await TransactionApiService.instance.getTransactions(
+        isConfirmed: false,
+      );
+      if (!mounted || unconfirmed.isEmpty) return;
+      setState(() {
+        for (final tx in unconfirmed) {
+          if (!_items.any((i) => i.id == tx.id)) {
+            _items.insert(
+              0,
+              CategoryConfirmationItem(
+                id: tx.id,
+                rawSentence: tx.note,
+                amount: tx.amount,
+                type: tx.type,
+                detectedCategory: tx.category,
+                alternativeCategories: const ['Lainnya'],
+                confidenceScore: 0.85,
+                aiReasoning: 'Kategori otomatis dari catatan transaksi.',
+                typeReasoning: 'Tipe transaksi terdeteksi dari sistem.',
+                occurredAt: tx.occurredAt,
+                isConfirmed: tx.isConfirmed,
+              ),
+            );
+          }
+        }
+      });
+    } catch (_) {}
   }
 
   @override
@@ -39,7 +107,7 @@ class _CategoryConfirmationScreenState
 
   void _resetData() {
     setState(() {
-      _items = CategoryConfirmationMockData.getInitialItems();
+      _items = CategoryConfirmationItem.getInitialItems();
     });
   }
 

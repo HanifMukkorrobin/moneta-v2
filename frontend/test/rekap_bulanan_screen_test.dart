@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/rekap_mock_data.dart';
 import 'package:moneta/screens/main_navigation_screen.dart';
 import 'package:moneta/screens/rekap/rekap_bulanan_screen.dart';
 import 'package:moneta/screens/rekap/widgets/category_breakdown_section.dart';

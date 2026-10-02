@@ -5,6 +5,8 @@
  * pada tabel `ai_insights` / view `financial_analysis_cache` di SQLite.
  */
 
+import { env } from '../config/env.js';
+
 /**
  * Format tanggal hari ini (YYYY-MM-DD) sesuai lokalitas atau waktu server
  */
@@ -117,7 +119,7 @@ export function saveCachedAnalysis(db, {
   totalSpent = 0,
   remainingBalance = 0,
   analysis = null,
-  ttlHours = 24,
+  ttlHours = env.ANALYSIS_CACHE_TTL_HOURS,
   isStale = 0,
 }) {
   if (!userId) {

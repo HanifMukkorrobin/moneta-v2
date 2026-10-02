@@ -93,6 +93,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
         '1234';
 
     if (pin == expected) {
+      AppState.instance.verifyPin(pin);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Kunci PIN berhasil dibuka!'),

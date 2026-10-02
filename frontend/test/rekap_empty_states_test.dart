@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/rekap_mock_data.dart';
 import 'package:moneta/models/monthly_rekap_data.dart';
 import 'package:moneta/models/transaction_item.dart';
 import 'package:moneta/screens/rekap/rekap_bulanan_screen.dart';
@@ -57,7 +56,7 @@ void main() {
     });
 
     testWidgets('RekapSummaryCard displays empty message when totals are zero', (WidgetTester tester) async {
-      final emptyData = RekapMockData.getEmptyMonthlyRekap();
+      final emptyData = MonthlyRekapData.getEmptyMonthlyRekap();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -73,7 +72,7 @@ void main() {
     });
 
     testWidgets('RekapComparisonCard toggles empty placeholder with showEmptyPlaceholder', (WidgetTester tester) async {
-      final emptyData = RekapMockData.getEmptyMonthlyRekap();
+      final emptyData = MonthlyRekapData.getEmptyMonthlyRekap();
 
       // Default (showEmptyPlaceholder = false) -> renders nothing
       await tester.pumpWidget(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/models/user_profile.dart';
 import 'package:moneta/screens/akun_pengaturan/akun_pengaturan_screen.dart';
 import 'package:moneta/screens/chat/chat_screen.dart';
 import 'package:moneta/screens/main_navigation_screen.dart';

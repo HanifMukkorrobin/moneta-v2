@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/budget_mock_data.dart';
 import 'package:moneta/models/budget_item.dart';
 import 'package:moneta/screens/budget/atur_budget_screen.dart';
 import 'package:moneta/screens/budget/widgets/budget_warning_banner.dart';
@@ -9,7 +8,7 @@ import 'package:moneta/screens/budget/widgets/edit_budget_limit_sheet.dart';
 void main() {
   group('BudgetWarningBanner Widget Tests', () {
     testWidgets('renders nothing when budget is safe and spending is below 80%', (WidgetTester tester) async {
-      final safeSummary = BudgetMockData.getMonthlyBudget(month: '2026-09');
+      final safeSummary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-09');
 
       await tester.pumpWidget(
         MaterialApp(
@@ -26,7 +25,7 @@ void main() {
     });
 
     testWidgets('renders near limit warning banner when spending is >= 80%', (WidgetTester tester) async {
-      final nearSummary = BudgetMockData.getMonthlyBudget(month: '2026-08');
+      final nearSummary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-08');
       bool adjustTapped = false;
       bool dismissTapped = false;
 
@@ -66,7 +65,7 @@ void main() {
     });
 
     testWidgets('renders over limit warning banner when budget is exceeded', (WidgetTester tester) async {
-      final overSummary = BudgetMockData.getMonthlyBudget(month: '2026-07');
+      final overSummary = MonthlyBudgetSummary.getMonthlyBudget(month: '2026-07');
       bool adjustTapped = false;
 
       await tester.pumpWidget(

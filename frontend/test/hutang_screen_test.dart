@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/debt_mock_data.dart';
 import 'package:moneta/models/debt_item.dart';
 import 'package:moneta/screens/hutang/hutang_screen.dart';
 import 'package:moneta/screens/main_navigation_screen.dart';
@@ -45,7 +44,7 @@ void main() {
       expect(find.byKey(const Key('due_soon_alert_box')), findsOneWidget);
 
       // Check initial mock items
-      final initialDebts = DebtMockData.getInitialDebts();
+      final initialDebts = DebtItem.getInitialDebts();
       for (var debt in initialDebts) {
         expect(find.byKey(Key('debt_card_${debt.id}')), findsOneWidget);
       }

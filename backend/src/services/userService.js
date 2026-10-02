@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { env } from '../config/env.js';
 
 export const CURRENCY_SYMBOLS = {
   IDR: 'Rp',
@@ -13,11 +14,11 @@ export const CURRENCY_SYMBOLS = {
 
 export const SUPPORTED_CURRENCIES = Object.keys(CURRENCY_SYMBOLS);
 
-export function getCurrencySymbol(currency = 'IDR', customSymbol) {
+export function getCurrencySymbol(currency = env.DEFAULT_CURRENCY, customSymbol) {
   if (customSymbol && String(customSymbol).trim()) {
     return String(customSymbol).trim();
   }
-  const code = String(currency || 'IDR').trim().toUpperCase();
+  const code = String(currency || env.DEFAULT_CURRENCY).trim().toUpperCase();
   return CURRENCY_SYMBOLS[code] || code;
 }
 
@@ -51,15 +52,15 @@ export function isValidEmail(email) {
 
 export function formatUserRow(row) {
   if (!row) return null;
-  const currency = row.currency || 'IDR';
+  const currency = row.currency || env.DEFAULT_CURRENCY;
   const currencySymbol = row.currency_symbol || getCurrencySymbol(currency);
   const pinEnabled = Boolean(row.pin_enabled) || Boolean(row.pin_hash);
 
   return {
     id: row.id,
     email: row.email,
-    displayName: row.display_name || 'Pengguna Moneta',
-    display_name: row.display_name || 'Pengguna Moneta',
+    displayName: row.display_name || env.DEFAULT_USER_NAME,
+    display_name: row.display_name || env.DEFAULT_USER_NAME,
     currency,
     currencySymbol,
     currency_symbol: currencySymbol,
@@ -70,26 +71,26 @@ export function formatUserRow(row) {
     biometric_enabled: row.biometric_enabled ? 1 : 0,
     notificationsEnabled: row.notifications_enabled === undefined ? true : Boolean(row.notifications_enabled),
     notifications_enabled: row.notifications_enabled === undefined ? 1 : (row.notifications_enabled ? 1 : 0),
-    aiAdviceTone: row.ai_advice_tone || 'Standar',
-    ai_advice_tone: row.ai_advice_tone || 'Standar',
-    monthlyBudgetLimit: Number(row.monthly_budget_limit ?? 6000000),
-    monthly_budget_limit: Number(row.monthly_budget_limit ?? 6000000),
-    accountTier: row.account_tier || 'Personal AI',
-    account_tier: row.account_tier || 'Personal AI',
-    dateFormat: row.date_format || 'DD/MM/YYYY',
-    date_format: row.date_format || 'DD/MM/YYYY',
-    firstDayOfWeek: row.first_day_of_week || 'Senin',
-    first_day_of_week: row.first_day_of_week || 'Senin',
-    themeMode: row.theme_mode || 'Terang',
-    theme_mode: row.theme_mode || 'Terang',
+    aiAdviceTone: row.ai_advice_tone || env.DEFAULT_AI_ADVICE_TONE,
+    ai_advice_tone: row.ai_advice_tone || env.DEFAULT_AI_ADVICE_TONE,
+    monthlyBudgetLimit: Number(row.monthly_budget_limit ?? env.DEFAULT_MONTHLY_BUDGET_LIMIT),
+    monthly_budget_limit: Number(row.monthly_budget_limit ?? env.DEFAULT_MONTHLY_BUDGET_LIMIT),
+    accountTier: row.account_tier || env.DEFAULT_ACCOUNT_TIER,
+    account_tier: row.account_tier || env.DEFAULT_ACCOUNT_TIER,
+    dateFormat: row.date_format || env.DEFAULT_DATE_FORMAT,
+    date_format: row.date_format || env.DEFAULT_DATE_FORMAT,
+    firstDayOfWeek: row.first_day_of_week || env.DEFAULT_FIRST_DAY_OF_WEEK,
+    first_day_of_week: row.first_day_of_week || env.DEFAULT_FIRST_DAY_OF_WEEK,
+    themeMode: row.theme_mode || env.DEFAULT_THEME_MODE,
+    theme_mode: row.theme_mode || env.DEFAULT_THEME_MODE,
     hideBalance: Boolean(row.hide_balance),
     hide_balance: row.hide_balance ? 1 : 0,
     autoConfirmChat: Boolean(row.auto_confirm_chat),
     auto_confirm_chat: row.auto_confirm_chat ? 1 : 0,
     hapticFeedback: row.haptic_feedback === undefined ? true : Boolean(row.haptic_feedback),
     haptic_feedback: row.haptic_feedback === undefined ? 1 : (row.haptic_feedback ? 1 : 0),
-    budgetAlertThreshold: Number(row.budget_alert_threshold ?? 80),
-    budget_alert_threshold: Number(row.budget_alert_threshold ?? 80),
+    budgetAlertThreshold: Number(row.budget_alert_threshold ?? env.DEFAULT_BUDGET_ALERT_THRESHOLD),
+    budget_alert_threshold: Number(row.budget_alert_threshold ?? env.DEFAULT_BUDGET_ALERT_THRESHOLD),
     phone: row.phone || null,
     avatarUrl: row.avatar_url || null,
     avatar_url: row.avatar_url || null,
@@ -114,8 +115,8 @@ export function getUserByEmail(db, email) {
   return row || null;
 }
 
-export function createUserSession(db, userId, { deviceName = 'Flutter Mobile App', ipAddress = null, ttlDays = 30 } = {}) {
-  const token = `mnt_${crypto.randomBytes(24).toString('hex')}`;
+export function createUserSession(db, userId, { deviceName = 'Flutter Mobile App', ipAddress = null, ttlDays = env.SESSION_TTL_DAYS } = {}) {
+  const token = `${env.SESSION_TOKEN_PREFIX}${crypto.randomBytes(24).toString('hex')}`;
   const expiresAt = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000).toISOString();
 
   const res = db

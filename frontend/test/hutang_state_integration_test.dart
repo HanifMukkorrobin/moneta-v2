@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/debt_mock_data.dart';
 import 'package:moneta/models/debt_item.dart';
 import 'package:moneta/screens/hutang/hutang_screen.dart';
 import 'package:moneta/screens/main_navigation_screen.dart';
@@ -13,7 +12,7 @@ void main() {
   });
 
   group('AppState Catatan Hutang Unit Tests', () {
-    test('initializes with default mock debts from DebtMockData', () {
+    test('initializes with default mock debts from DebtItem', () {
       final state = AppState.instance;
       expect(state.debts.isNotEmpty, isTrue);
       expect(state.debts.length, 5);

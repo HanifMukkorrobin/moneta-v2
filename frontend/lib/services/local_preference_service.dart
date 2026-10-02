@@ -87,6 +87,41 @@ class LocalPreferenceService {
     return _cache[key] as bool?;
   }
 
+  /// Simpan token autentikasi sesi
+  void saveAuthToken(String token) {
+    _cache['authToken'] = token;
+    _persistSync();
+  }
+
+  /// Ambil token autentikasi sesi
+  String? getAuthToken() {
+    _initSync();
+    return _cache['authToken'] as String?;
+  }
+
+  /// Hapus token autentikasi sesi
+  void clearAuthToken() {
+    _cache.remove('authToken');
+    _cache.remove('userId');
+    _persistSync();
+  }
+
+  /// Simpan ID pengguna aktif
+  void saveUserId(int userId) {
+    _cache['userId'] = userId;
+    _persistSync();
+  }
+
+  /// Ambil ID pengguna aktif
+  int? getUserId() {
+    _initSync();
+    final val = _cache['userId'];
+    if (val is int) return val;
+    if (val is num) return val.toInt();
+    if (val is String) return int.tryParse(val);
+    return null;
+  }
+
   /// Hapus preferensi tersimpan
   void clear() {
     _cache.clear();

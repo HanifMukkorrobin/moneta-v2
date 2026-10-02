@@ -114,7 +114,6 @@ class BudgetAllocationBucketsSection extends StatelessWidget {
           // 3 Bucket Cards
           Column(
             children: buckets.map((bucket) {
-              final pctUsed = bucket.percentageUsed;
               final isOver = bucket.isOverBudget;
 
               return Container(

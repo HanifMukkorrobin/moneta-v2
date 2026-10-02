@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/ai_insight_mock_data.dart';
 import 'package:moneta/models/ai_insight_item.dart';
 import 'package:moneta/screens/analisa/analisa_keuangan_screen.dart';
 import 'package:moneta/screens/analisa/widgets/money_depletion_projection_card.dart';
@@ -59,7 +58,7 @@ void main() {
   group('MoneyDepletionProjectionCard Widget Tests', () {
     testWidgets('renders days, date, and status banner properly',
         (WidgetTester tester) async {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -93,7 +92,7 @@ void main() {
 
     testWidgets('what-if slider interaction updates days and date dynamically',
         (WidgetTester tester) async {
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -146,7 +145,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final insight = AiInsightMockData.getDefaultInsight();
+      final insight = AiInsightItem.getDefaultInsight();
 
       await tester.pumpWidget(
         MaterialApp(

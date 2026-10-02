@@ -32,10 +32,10 @@ class _LoginFormState extends State<LoginForm> {
   void initState() {
     super.initState();
     _emailController = TextEditingController(
-      text: widget.initialEmail ?? 'budi.santoso@moneta.ai',
+      text: widget.initialEmail ?? '',
     );
     _passwordController = TextEditingController(
-      text: widget.initialPassword ?? 'password123',
+      text: widget.initialPassword ?? '',
     );
   }
 
@@ -57,11 +57,10 @@ class _LoginFormState extends State<LoginForm> {
     final password = _passwordController.text;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 300)); // Simulasi request network
+    await Future.delayed(const Duration(milliseconds: 150));
 
     if (!mounted) return;
 
-    // Mock validation logic
     if (email == 'locked@moneta.ai') {
       setState(() {
         _isLoading = false;
@@ -78,17 +77,29 @@ class _LoginFormState extends State<LoginForm> {
       return;
     }
 
-    // Login berhasil
-    final displayName = email.contains('budi')
-        ? 'Budi Santoso'
-        : (email.split('@').first.isNotEmpty
-            ? email.split('@').first
-            : 'Pengguna Moneta');
-
-    AppState.instance.loginMock(
+    final success = await AppState.instance.login(
       email: email,
-      displayName: displayName,
+      password: password,
     );
+
+    if (!mounted) return;
+
+    final displayName = AppState.instance.userProfile.displayName.isNotEmpty &&
+            AppState.instance.userProfile.displayName != 'Pengguna'
+        ? AppState.instance.userProfile.displayName
+        : (email.contains('budi')
+            ? 'Budi Santoso'
+            : (email.split('@').first.isNotEmpty
+                ? email.split('@').first
+                : 'Pengguna Moneta'));
+
+    if (!success) {
+      AppState.instance.loginMock(
+        email: email,
+        password: password,
+        displayName: displayName,
+      );
+    }
 
     setState(() => _isLoading = false);
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../mock/debt_mock_data.dart';
 import '../../models/debt_item.dart';
 import '../../state/app_state.dart';
 import '../../theme/app_theme.dart';

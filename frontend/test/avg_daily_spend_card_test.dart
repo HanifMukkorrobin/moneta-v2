@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/mock/daily_spending_mock_data.dart';
+import 'package:moneta/models/daily_spending_item.dart';
 import 'package:moneta/screens/analisa/analisa_keuangan_screen.dart';
 import 'package:moneta/screens/analisa/widgets/avg_daily_spend_card.dart';
 import 'package:moneta/state/app_state.dart';
@@ -12,7 +12,7 @@ void main() {
 
   group('DailySpendingAnalysis Model & Mock Tests', () {
     test('default analysis returns correct metrics and values', () {
-      final analysis = DailySpendingMockData.getDefaultDailyAnalysis();
+      final analysis = DailySpendingAnalysis.getDefaultDailyAnalysis();
 
       expect(analysis.avgDailySpend, 78500);
       expect(analysis.formattedAvgDailySpend, contains('78.500'));
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('high spending analysis returns correct metrics and values', () {
-      final high = DailySpendingMockData.getHighSpendingAnalysis();
+      final high = DailySpendingAnalysis.getHighSpendingAnalysis();
 
       expect(high.avgDailySpend, 139285);
       expect(high.isAboveTarget, isTrue);
@@ -39,7 +39,7 @@ void main() {
   group('AvgDailySpendCard Widget Tests', () {
     testWidgets('renders all average spending metrics, chart, and highlights',
         (WidgetTester tester) async {
-      final analysis = DailySpendingMockData.getDefaultDailyAnalysis();
+      final analysis = DailySpendingAnalysis.getDefaultDailyAnalysis();
 
       await tester.pumpWidget(
         MaterialApp(

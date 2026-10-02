@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../mock/rekap_mock_data.dart';
+import '../../../models/monthly_rekap_data.dart';
 import '../../../theme/app_theme.dart';
 
 class MonthNavigatorBar extends StatelessWidget {
@@ -99,7 +99,7 @@ class MonthNavigatorBar extends StatelessWidget {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final monthKey = availableMonths[index];
-                    final label = RekapMockData.getMonthLabel(monthKey);
+                    final label = MonthlyRekapData.getMonthLabel(monthKey);
                     final isSelected = monthKey == selectedMonth;
                     final isLatest = index == 0;
 
@@ -174,7 +174,7 @@ class MonthNavigatorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = RekapMockData.getMonthLabel(selectedMonth);
+    final label = MonthlyRekapData.getMonthLabel(selectedMonth);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +288,7 @@ class MonthNavigatorBar extends StatelessWidget {
             child: Row(
               children: availableMonths.map((m) {
                 final isSelected = m == selectedMonth;
-                final chipLabel = RekapMockData.getMonthLabel(m);
+                final chipLabel = MonthlyRekapData.getMonthLabel(m);
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),

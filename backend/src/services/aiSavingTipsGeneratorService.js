@@ -6,11 +6,12 @@
  * melalui gateway 9Router, dengan fallback cerdas berbasis heuristik finansial lokal.
  */
 
+import { env } from '../config/env.js';
 import { formatRupiah } from './dailyAverageSpendingService.js';
 import { createDailyTip } from './dailyTipsService.js';
 
-const DEFAULT_9ROUTER_BASE_URL = process.env.NINEROUTER_API_URL || 'https://api.9router.com/v1';
-const DEFAULT_MODEL = process.env.NINEROUTER_MODEL || 'gpt-4o-mini';
+const DEFAULT_9ROUTER_BASE_URL = env.NINEROUTER_API_URL;
+const DEFAULT_MODEL = env.NINEROUTER_TIPS_MODEL;
 
 /**
  * Contextual templates for local heuristic generation when AI is unavailable or as instant fallback
@@ -123,11 +124,11 @@ const HEURISTIC_TEMPLATES_BY_CATEGORY = {
  */
 export class AiSavingTipsGeneratorService {
   constructor(options = {}) {
-    this.apiKey = options.apiKey || process.env.NINEROUTER_API_KEY;
-    this.baseUrl = (options.baseUrl || DEFAULT_9ROUTER_BASE_URL).replace(/\/$/, '');
-    this.model = options.model || DEFAULT_MODEL;
+    this.apiKey = options.apiKey || env.NINEROUTER_API_KEY;
+    this.baseUrl = (options.baseUrl || env.NINEROUTER_API_URL || DEFAULT_9ROUTER_BASE_URL).replace(/\/$/, '');
+    this.model = options.model || env.NINEROUTER_TIPS_MODEL || DEFAULT_MODEL;
     this.fetchFn = options.fetchFn || globalThis.fetch;
-    this.timeoutMs = options.timeoutMs || 8000;
+    this.timeoutMs = options.timeoutMs || env.NINEROUTER_TIMEOUT_MS;
   }
 
   /**

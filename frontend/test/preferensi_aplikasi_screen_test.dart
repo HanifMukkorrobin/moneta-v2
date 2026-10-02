@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moneta/models/user_profile.dart';
 import 'package:moneta/screens/akun_pengaturan/preferensi_aplikasi_screen.dart';
 import 'package:moneta/state/app_state.dart';
 import 'package:moneta/theme/app_theme.dart';
